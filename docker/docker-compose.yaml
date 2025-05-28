@@ -106,6 +106,7 @@ services:
       - /dev/hidraw3:/dev/hidraw3
       - /dev/hidraw4:/dev/hidraw4
       # /dev/hidraw5:/dev/hidraw5
+      #- /dev/hidraw5:/dev/hidraw5
 
   # This service adds a ROS2 Humble
   # installation on top of the base image
@@ -133,13 +134,20 @@ services:
     stdin_open: true
     tty: true
     devices:
+<<<<<<< HEAD
       - /dev/hidraw4:/dev/hidraw4
+=======
+      #- /dev/hidraw4:/dev/hidraw4
+>>>>>>> e848d95d8b (more docker changes)
       - /dev/hidraw3:/dev/hidraw3
      # - /dev/hidraw4:/dev/hidraw4
       #- /dev/hidraw5:/dev/hidraw5
     
+<<<<<<< HEAD
 
 <<<<<<< HEAD
+=======
+>>>>>>> e848d95d8b (more docker changes)
   isaac-lab-ros2_mod:
     profiles: [ "ros2_mod" ]
     env_file:
@@ -166,6 +174,7 @@ services:
     devices:
       - "/dev/hidraw3:/dev/hidraw3"
       #- "/dev/hidraw4:/dev/hidraw4"
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   isaac-lab-harry:
@@ -225,6 +234,8 @@ services:
 
  
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> e848d95d8b (more docker changes)
 
 volumes:
 

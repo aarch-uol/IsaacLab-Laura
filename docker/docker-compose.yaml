@@ -164,6 +164,7 @@ services:
     devices:
       - "/dev/hidraw3:/dev/hidraw3"
       #- "/dev/hidraw4:/dev/hidraw4"
+<<<<<<< HEAD
 
   isaac-lab-harry:
     profiles: [ "harry" ]
@@ -190,6 +191,8 @@ services:
     devices:
       - "/dev/hidraw3:/dev/hidraw3"
       #- "/dev/hidraw4:/dev/hidraw4"
+=======
+>>>>>>> e848d95d8b (more docker changes)
 
 volumes:
 

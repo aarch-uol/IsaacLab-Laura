@@ -6,7 +6,10 @@
 from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 from isaaclab.utils import configclass
+<<<<<<< HEAD
 from isaaclab.assets import RigidObjectCfg
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 from . import dev_env_cfg
 
@@ -15,6 +18,7 @@ from . import dev_env_cfg
 ##
 from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
 
+<<<<<<< HEAD
 # wp.init()
 # ## state machine config 
 # class PickSmState:
@@ -101,6 +105,8 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 #             sm_wait_time[tid] = 0.0
 #     # increment wait time
 #     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 @configclass
 class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
@@ -108,7 +114,15 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
         # post init of parent
         super().__post_init__()
 
+<<<<<<< HEAD
         # replace with relative position controller 
+=======
+        # Set Franka as robot
+        # We switch here to a stiffer PD controller for IK tracking to be better.
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+        # Set actions for the specific robot type (franka)
+>>>>>>> 23650e4deb (changes to scripts for logging)
         self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
             asset_name="robot",
             joint_names=["panda_joint.*"],
@@ -117,7 +131,10 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
             scale=0.5,
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )
+<<<<<<< HEAD
        
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 @configclass

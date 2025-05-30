@@ -25,6 +25,95 @@ import warp as wp
 from . import mdp
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
+<<<<<<< HEAD
+=======
+# wp.init()
+# ## state machine config 
+# class PickSmState:
+#     """States for the pick state machine."""
+#     REST = wp.constant(0)
+#     APPR = wp.constant(1)
+#     GRASP = wp.constant(2)
+#     LIFT = wp.constant(3)
+#     APP_GOAL = wp.constant(4)
+
+# class PickSmWaitTime:
+#     """Additional wait times (in s) for states for before switching."""
+
+#     REST = wp.constant(0.5)
+#     APPR = wp.constant(0.5)
+#     GRASP = wp.constant(0.5)
+#     LIFT = wp.constant(0.5)
+#     APPR_GOAL = wp.constant(0.5)
+
+# class GripperState:
+#     """States for the gripper."""
+
+#     OPEN = wp.constant(1.0)
+#     CLOSE = wp.constant(-1.0)
+
+# @wp.kernal
+# def infer_state(
+#     dt: wp.array(dtype=float),
+#     sm_state: wp.array(dtype=int),
+#     sm_wait_time: wp.array(dtype=float),
+#     ee_pose: wp.array(dtype=wp.transform),
+#     object_pose: wp.array(dtype=wp.transform),
+#     des_object_pose: wp.array(dtype=wp.transform),
+#     des_ee_pose: wp.array(dtype=wp.transform),
+#     gripper_state: wp.array(dtype=float),
+#     offset: wp.array(dtype=wp.transform),
+# ):
+#     tid = wp.tid()
+#     state = sm_state[tid]
+#     # decide next state
+#     if state == PickSmState.REST:
+#         des_ee_pose[tid] = ee_pose[tid]
+#         gripper_state[tid] = GripperState.OPEN
+#         # wait for a while
+#         if sm_wait_time[tid] >= PickSmWaitTime.REST:
+#             # move to next state and reset wait time
+#             sm_state[tid] = PickSmState.APPR
+#             sm_wait_time[tid] = 0.0
+#     elif state == PickSmState.APPR:
+#         des_ee_pose[tid] = wp.transform_multiply(offset[tid], object_pose[tid])
+#         gripper_state[tid] = GripperState.OPEN
+#         # TODO: error between current and desired ee pose below threshold
+
+#         # wait for a while
+#         if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT:
+#             # move to next state and reset wait time
+#             sm_state[tid] = PickSmState.APPROACH_OBJECT
+#             sm_wait_time[tid] = 0.0
+#     elif state == PickSmState.APPROACH_OBJECT:
+#         des_ee_pose[tid] = object_pose[tid]
+#         gripper_state[tid] = GripperState.OPEN
+#         # TODO: error between current and desired ee pose below threshold
+#         # wait for a while
+#         if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT:
+#             # move to next state and reset wait time
+#             sm_state[tid] = PickSmState.GRASP_OBJECT
+#             sm_wait_time[tid] = 0.0
+#     elif state == PickSmState.GRASP_OBJECT:
+#         des_ee_pose[tid] = object_pose[tid]
+#         gripper_state[tid] = GripperState.CLOSE
+#         # wait for a while
+#         if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT:
+#             # move to next state and reset wait time
+#             sm_state[tid] = PickSmState.LIFT_OBJECT
+#             sm_wait_time[tid] = 0.0
+#     elif state == PickSmState.LIFT_OBJECT:
+#         des_ee_pose[tid] = des_object_pose[tid]
+#         gripper_state[tid] = GripperState.CLOSE
+#         # TODO: error between current and desired ee pose below threshold
+#         # wait for a while
+#         if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
+#             # move to next state and reset wait time
+#             sm_state[tid] = PickSmState.LIFT_OBJECT
+#             sm_wait_time[tid] = 0.0
+#     # increment wait time
+#     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 
@@ -76,7 +165,10 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
     
     
+<<<<<<< HEAD
     
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 ##
 # MDP settings
@@ -93,7 +185,10 @@ class CommandsCfg:
         resampling_time_range=(10.0, 10.0),
         debug_vis=True,
         ranges=mdp.UniformPoseCommandCfg.Ranges(
+<<<<<<< HEAD
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
             pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
@@ -197,7 +292,11 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
+<<<<<<< HEAD
             "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
+=======
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+>>>>>>> 23650e4deb (changes to scripts for logging)
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
@@ -247,7 +346,11 @@ class TerminationsCfg:
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
+<<<<<<< HEAD
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
+=======
+    joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
+>>>>>>> 23650e4deb (changes to scripts for logging)
     
    # object_orientation = DoneTerm(func=mdp.bad_orientation)
 
@@ -299,14 +402,21 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
 
     def __post_init__(self):
         """Post initialization."""
+<<<<<<< HEAD
         print("debug cfg : ", self.observations.policy.actions)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
         # general settings
         self.decimation = 2
         self.episode_length_s = 60
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
+<<<<<<< HEAD
         self.viewer.eye = (1.0, 1.0, 1.0)
+=======
+        self.viewer.eye = (0.5, 0.5, 0.5)
+>>>>>>> 23650e4deb (changes to scripts for logging)
         self.viewer.lookat = (0.0, 0.0, -0.1)
         self.terminations.set_loghelper(self.loghelper)
         self.observations.subtask_terms.set_loghelper(self.loghelper)

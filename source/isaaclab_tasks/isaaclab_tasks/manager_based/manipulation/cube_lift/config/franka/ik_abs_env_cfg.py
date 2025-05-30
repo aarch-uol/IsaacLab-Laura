@@ -45,7 +45,10 @@ class FrankaCubeEnvCfg(joint_pos_env_cfg.FrankaCubeEnvCfg):
             controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )
+<<<<<<< HEAD
         print("action shape:  ", self.actions.arm_action.shape) 
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 @configclass

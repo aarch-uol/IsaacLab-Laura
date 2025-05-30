@@ -172,6 +172,7 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
                         rigid_props=cube_properties,
                         semantic_tags=[("class", "flask")],
                     ),
+<<<<<<< HEAD
                 ) ,
                 "stirplate" : RigidObjectCfg(
                     prim_path="{ENV_REGEX_NS}/stirplate",
@@ -182,6 +183,8 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
                         rigid_props=cube_properties,
                         semantic_tags=[("class", "flask")],
                     ),
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
                 ) 
 
             }

@@ -103,6 +103,7 @@ gym.register(
 )
 
 gym.register(
+<<<<<<< HEAD
     id="Dev-IK-Abs-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={
@@ -113,6 +114,8 @@ gym.register(
 )
 
 gym.register(
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
     id="Dev-IK-Rel-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={

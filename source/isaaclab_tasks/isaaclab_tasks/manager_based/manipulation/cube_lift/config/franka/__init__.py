@@ -106,6 +106,7 @@ gym.register(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
@@ -128,6 +129,8 @@ gym.register(
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
     id="Dev-IK-Rel-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={

@@ -175,6 +175,7 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
@@ -197,6 +198,8 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
                 ) 
 
             }

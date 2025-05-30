@@ -9,6 +9,7 @@ from isaaclab.utils import configclass
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.assets import RigidObjectCfg
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -18,6 +19,8 @@ from isaaclab.assets import RigidObjectCfg
 =======
 from isaaclab.assets import RigidObjectCfg
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 from . import dev_env_cfg
 
@@ -26,6 +29,7 @@ from . import dev_env_cfg
 ##
 from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -127,6 +131,8 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 @configclass
 class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
@@ -137,13 +143,17 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # replace with relative position controller 
 =======
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
         # Set Franka as robot
         # We switch here to a stiffer PD controller for IK tracking to be better.
         self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
+<<<<<<< HEAD
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
         # replace with relative position controller 
@@ -151,6 +161,8 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 =======
         # replace with relative position controller 
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
         self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
             asset_name="robot",
             joint_names=["panda_joint.*"],
@@ -162,6 +174,7 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -171,6 +184,8 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 =======
        
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 @configclass

@@ -48,6 +48,7 @@ class FrankaCubeEnvCfg(joint_pos_env_cfg.FrankaCubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("action shape:  ", self.actions.arm_action.shape) 
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -57,6 +58,8 @@ class FrankaCubeEnvCfg(joint_pos_env_cfg.FrankaCubeEnvCfg):
 =======
         print("action shape:  ", self.actions.arm_action.shape) 
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 @configclass

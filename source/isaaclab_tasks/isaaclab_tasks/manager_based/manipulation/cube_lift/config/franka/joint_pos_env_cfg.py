@@ -33,6 +33,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", 
@@ -59,6 +60,11 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+        # Set actions for the specific robot type (franka)
+        self.actions.arm_action = mdp.JointPositionActionCfg(
+            asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
+>>>>>>> 23650e4deb (changes to scripts for logging)
         )
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
@@ -66,6 +72,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
             open_command_expr={"panda_finger_.*": 0.04},
             close_command_expr={"panda_finger_.*": 0.0},
         )
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -78,6 +85,8 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 =======
         print("Action shape : ", self.actions.__dict__)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "panda_hand"
 
@@ -125,6 +134,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
@@ -151,6 +161,8 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
             ],
         )
 

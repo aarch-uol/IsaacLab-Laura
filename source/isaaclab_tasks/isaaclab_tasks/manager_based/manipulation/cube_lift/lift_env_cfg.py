@@ -28,7 +28,10 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 # wp.init()
 # ## state machine config 
 # class PickSmState:
@@ -115,11 +118,14 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 #             sm_wait_time[tid] = 0.0
 #     # increment wait time
 #     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
+<<<<<<< HEAD
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 
@@ -171,6 +177,7 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
     
     
+<<<<<<< HEAD
     
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -180,6 +187,8 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 =======
     
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 ##
 # MDP settings
@@ -200,6 +209,7 @@ class CommandsCfg:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -214,6 +224,9 @@ class CommandsCfg:
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
             pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+            pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+>>>>>>> 23650e4deb (changes to scripts for logging)
         ),
     )
 
@@ -319,6 +332,7 @@ class EventCfg:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
 =======
             "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
@@ -329,10 +343,14 @@ class EventCfg:
 =======
             "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+>>>>>>> 23650e4deb (changes to scripts for logging)
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
     )
+<<<<<<< HEAD
     #randomises the scale of the object 
     randomise_object__scale = EventTerm(
         func=mdp.randomize_rigid_body_scale,
@@ -343,6 +361,8 @@ class EventCfg:
         },
     )
 
+=======
+>>>>>>> 23650e4deb (changes to scripts for logging)
 
 
 @configclass
@@ -391,6 +411,7 @@ class TerminationsCfg:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
 =======
     joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
@@ -401,6 +422,9 @@ class TerminationsCfg:
 =======
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+    joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
+>>>>>>> 23650e4deb (changes to scripts for logging)
     
    # object_orientation = DoneTerm(func=mdp.bad_orientation)
 
@@ -437,7 +461,11 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the lifting environment."""
     loghelper = LoggingHelper()
     # Scene settings
+<<<<<<< HEAD
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
+=======
+    scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5)
+>>>>>>> 23650e4deb (changes to scripts for logging)
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
@@ -455,6 +483,7 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("debug cfg : ", self.observations.policy.actions)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -466,11 +495,15 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
         # general settings
         
+=======
+        # general settings
+>>>>>>> 23650e4deb (changes to scripts for logging)
         self.decimation = 2
         self.episode_length_s = 60
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -484,6 +517,9 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
 =======
         self.viewer.eye = (1.0, 1.0, 1.0)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+        self.viewer.eye = (0.5, 0.5, 0.5)
+>>>>>>> 23650e4deb (changes to scripts for logging)
         self.viewer.lookat = (0.0, 0.0, -0.1)
         self.terminations.set_loghelper(self.loghelper)
         self.observations.subtask_terms.set_loghelper(self.loghelper)

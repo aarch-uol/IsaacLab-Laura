@@ -64,6 +64,7 @@ _build
 # Teleop Recorded Dataset
 datasets
 
+<<<<<<< HEAD
 # path 
 docs/training_runs
 
@@ -78,3 +79,8 @@ docs/training_runs/
 #Training Junk
 .pth
 docs/training_runs/
+=======
+#Training Junk
+.pth
+docs/training_runs/
+>>>>>>> 02f249c2c1 (fixed gitignore)

@@ -30,25 +30,6 @@ MDP terminations.
 
 def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
     """Terminate the episode when the episode length exceeds the maximum episode length."""
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    if torch.max(env.episode_length_buf) >= env.max_episode_length:
-=======
-    if env.episode_length_buf >= env.max_episode_length:
->>>>>>> dd8275653a (some extra changes!)
-=======
-    if torch.max(env.episode_length_buf) >= env.max_episode_length:
->>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
-=======
-    if torch.max(env.episode_length_buf) >= env.max_episode_length:
->>>>>>> b77a8f7870 (now with semi-working state machine!)
-        loghelper.logerror(ErrorType.TIMEOUT)        
-=======
-    # if torch.max(env.episode_length_buf) >= env.max_episode_length:
-    #     loghelper.logerror(ErrorType.TIMEOUT)        
->>>>>>> 8222bb8ed3 (added scikit learn to build)
     return env.episode_length_buf >= env.max_episode_length
 
 
@@ -59,8 +40,6 @@ def command_resample(env: ManagerBasedRLEnv, command_name: str, num_resamples: i
     sampled. It is useful in situations where delayed rewards are used :cite:`rudin2022advanced`.
     """
     command: CommandTerm = env.command_manager.get_term(command_name)
-    # if torch.logical_and((command.time_left <= env.step_dt), (command.command_counter == num_resamples)).item():
-    #     loghelper.logerror(ErrorType.RESAMPLE)
     return torch.logical_and((command.time_left <= env.step_dt), (command.command_counter == num_resamples))
 
 
@@ -79,8 +58,6 @@ def bad_orientation(
     """
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
-    # if (torch.acos(-asset.data.projected_gravity_b[:, 2]).abs()).item() > limit_angle:
-    #     loghelper.logerror(ErrorType.ORIENTATION)
     return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
 
 
@@ -95,9 +72,6 @@ def root_height_below_minimum(
     """
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
-    # if asset.data.root_pos_w[:, 2].item() < minimum_height:
-    #     loghelper.logerror(ErrorType.DROP)
-    #     print("dropped")
     return asset.data.root_pos_w[:, 2] < minimum_height
 
 
@@ -115,10 +89,7 @@ def joint_pos_out_of_limit(
     # compute any violations
     out_of_upper_limits = torch.any(asset.data.joint_pos > asset.data.soft_joint_pos_limits[..., 1], dim=1)
     out_of_lower_limits = torch.any(asset.data.joint_pos < asset.data.soft_joint_pos_limits[..., 0], dim=1)
-    # if torch.any(out_of_lower_limits) or torch.any(out_of_upper_limits):
-    #     loghelper.logerror(ErrorType.JOINT_VIO)
-        
-    return torch.any(out_of_lower_limits) or torch.any(out_of_upper_limits) #torch.logical_or(out_of_upper_limits[:, asset_cfg.joint_ids], out_of_lower_limits[:, asset_cfg.joint_ids])
+    return torch.logical_or(out_of_upper_limits[:, asset_cfg.joint_ids], out_of_lower_limits[:, asset_cfg.joint_ids])
 
 
 def joint_pos_out_of_manual_limit(
@@ -137,8 +108,6 @@ def joint_pos_out_of_manual_limit(
     # compute any violations
     out_of_upper_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] > bounds[1], dim=1)
     out_of_lower_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] < bounds[0], dim=1)
-    # if torch.logical_or(out_of_upper_limits, out_of_lower_limits).item():
-    #     loghelper.logerror(ErrorType.JOINT_VIO)
     return torch.logical_or(out_of_upper_limits, out_of_lower_limits)
 
 
@@ -150,9 +119,6 @@ def joint_vel_out_of_limit(
     asset: Articulation = env.scene[asset_cfg.name]
     # compute any violations
     limits = asset.data.soft_joint_vel_limits
-    # if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1).item():
-    #     loghelper.logerror(ErrorType.VEL_VIO)
-    #     print("Joint violation")
     return torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1)
 
 
@@ -164,8 +130,6 @@ def joint_vel_out_of_manual_limit(
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     # compute any violations
-    # if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1).item():
-    #     loghelper.logerror(ErrorType.VEL_VIO)
     return torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1)
 
 
@@ -185,8 +149,6 @@ def joint_effort_out_of_limit(
     out_of_limits = torch.isclose(
         asset.data.computed_torque[:, asset_cfg.joint_ids], asset.data.applied_torque[:, asset_cfg.joint_ids]
     )
-    # if torch.any(out_of_limits, dim=1):
-    #     loghelper.logerror(ErrorType.EFF_VIO)
     return torch.any(out_of_limits, dim=1)
 
 

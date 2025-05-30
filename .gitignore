@@ -75,3 +75,6 @@ tests/
 #Training Junk
 .pth
 docs/training_runs/
+#Training Junk
+.pth
+docs/training_runs/

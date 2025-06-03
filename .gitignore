@@ -65,6 +65,9 @@ _build
 datasets
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> bec55eb09f (model output added to git ignore)
 # path 
 docs/training_runs
 

@@ -35,6 +35,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", 
@@ -57,10 +58,15 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
          # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+         # Set actions for the specific robot type (franka)
+        self.actions.arm_action = mdp.JointPositionActionCfg(
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
             asset_name="robot", 
             joint_names=["panda_joint.*"], 
             scale=0.5, 
             use_default_offset=True
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
@@ -73,6 +79,8 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
         )
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
@@ -85,6 +93,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("Action shape : ", self.actions.__dict__)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -99,6 +108,9 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 =======
         print("Action shape : ", self.actions.__dict__)
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+        print("Action shape : ", self.actions.__dict__)
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "panda_hand"
 
@@ -148,12 +160,15 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
                 FrameTransformerCfg.FrameCfg(
                     prim_path="{ENV_REGEX_NS}/Robot/panda_rightfinger",
                     name="tool_rightfinger",
@@ -171,6 +186,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
@@ -181,6 +197,8 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
             ],
         )
 

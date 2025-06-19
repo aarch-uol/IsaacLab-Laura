@@ -32,6 +32,7 @@ def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()
     """Terminate the episode when the episode length exceeds the maximum episode length."""
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if torch.max(env.episode_length_buf) >= env.max_episode_length:
 =======
     if env.episode_length_buf >= env.max_episode_length:
@@ -39,6 +40,9 @@ def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()
 =======
     if torch.max(env.episode_length_buf) >= env.max_episode_length:
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+    if torch.max(env.episode_length_buf) >= env.max_episode_length:
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
         loghelper.logerror(ErrorType.TIMEOUT)        
     return env.episode_length_buf >= env.max_episode_length
 

@@ -166,6 +166,24 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
         spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=3000.0),
     )
 
+    flask = RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/flask",
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.4, 0.05],rot=[1, 0, 0, 0]),
+            spawn=UsdFileCfg(
+                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/solid_conical_flask.usd",
+                scale=(1, 1, 1),
+                rigid_props=RigidBodyPropertiesCfg(
+                    solver_position_iteration_count=16,
+                    solver_velocity_iteration_count=1,
+                    max_angular_velocity=1000.0,
+                    max_linear_velocity=1000.0,
+                    max_depenetration_velocity=5.0,
+                    disable_gravity=False,
+                ),
+                semantic_tags=[("class", "flask")],
+            ),
+        ) 
+
     
     
 <<<<<<< HEAD
@@ -194,6 +212,7 @@ class CommandsCfg:
         ranges=mdp.UniformPoseCommandCfg.Ranges(
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -201,6 +220,9 @@ class CommandsCfg:
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+=======
+            pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
         ),
     )
 
@@ -305,6 +327,7 @@ class EventCfg:
         params={
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
 =======
             "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
@@ -312,6 +335,9 @@ class EventCfg:
 =======
             "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+            "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
@@ -363,6 +389,7 @@ class TerminationsCfg:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
 =======
     joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
@@ -370,6 +397,9 @@ class TerminationsCfg:
 =======
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+    #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
     
    # object_orientation = DoneTerm(func=mdp.bad_orientation)
 
@@ -423,18 +453,23 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("debug cfg : ", self.observations.policy.actions)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
         print("debug cfg : ", self.observations.policy.actions)
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+        print("debug cfg : ", self.observations.policy.actions)
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
         # general settings
         self.decimation = 2
         self.episode_length_s = 60
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         self.viewer.eye = (1.0, 1.0, 1.0)
@@ -444,6 +479,9 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
 =======
         self.viewer.eye = (1.0, 1.0, 1.0)
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+        self.viewer.eye = (1.0, 1.0, 1.0)
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
         self.viewer.lookat = (0.0, 0.0, -0.1)
         self.terminations.set_loghelper(self.loghelper)
         self.observations.subtask_terms.set_loghelper(self.loghelper)

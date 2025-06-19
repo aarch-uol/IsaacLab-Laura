@@ -47,12 +47,16 @@ class FrankaCubeEnvCfg(joint_pos_env_cfg.FrankaCubeEnvCfg):
         )
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("action shape:  ", self.actions.arm_action.shape) 
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
         print("action shape:  ", self.actions.arm_action.shape) 
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+        print("action shape:  ", self.actions.arm_action.shape) 
+>>>>>>> b77a8f7870 (now with semi-working state machine!)
 
 
 @configclass

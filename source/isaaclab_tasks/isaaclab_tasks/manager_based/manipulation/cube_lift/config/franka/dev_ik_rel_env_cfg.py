@@ -8,12 +8,16 @@ from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsA
 from isaaclab.utils import configclass
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.assets import RigidObjectCfg
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
 from isaaclab.assets import RigidObjectCfg
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+from isaaclab.assets import RigidObjectCfg
+>>>>>>> 5fa2eec84e (with state machine)
 
 from . import dev_env_cfg
 
@@ -24,8 +28,11 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> 5fa2eec84e (with state machine)
 # wp.init()
 # ## state machine config 
 # class PickSmState:
@@ -113,10 +120,13 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 #     # increment wait time
 #     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> 5fa2eec84e (with state machine)
 
 @configclass
 class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
@@ -124,6 +134,7 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
         # post init of parent
         super().__post_init__()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         # replace with relative position controller 
@@ -137,6 +148,9 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 =======
         # replace with relative position controller 
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+        # replace with relative position controller 
+>>>>>>> 5fa2eec84e (with state machine)
         self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
             asset_name="robot",
             joint_names=["panda_joint.*"],
@@ -147,12 +161,16 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
         )
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
        
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+       
+>>>>>>> 5fa2eec84e (with state machine)
 
 
 @configclass

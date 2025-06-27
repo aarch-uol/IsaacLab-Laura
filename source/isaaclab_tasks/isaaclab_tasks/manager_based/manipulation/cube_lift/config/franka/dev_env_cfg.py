@@ -112,6 +112,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         cube_properties = RigidBodyPropertiesCfg(
             rigid_body_enabled=True,
@@ -125,10 +126,13 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         #what if its now a vial rack  ?
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> 5fa2eec84e (with state machine)
 
         cube_properties = RigidBodyPropertiesCfg(
             rigid_body_enabled=True,
             max_linear_velocity=1000.0,
+<<<<<<< HEAD
 <<<<<<< HEAD
             max_depenetration_velocity=5.0,
             disable_gravity=False,
@@ -138,6 +142,11 @@ class FrankaDevEnvCfg(CubeEnvCfg):
             max_depenetration_velocity=100.0,
             enable_gyroscopic_forces=True,
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+            max_angular_velocity=1000.0,
+            max_depenetration_velocity=100.0,
+            enable_gyroscopic_forces=True,
+>>>>>>> 5fa2eec84e (with state machine)
         )
 
         # Set each stacking cube deterministically
@@ -194,8 +203,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 =======
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.4, 0.05],rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
-                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/solid_conical_flask.usd",
+                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/conical_flask.usd",
                 scale=(1, 1, 1),
+<<<<<<< HEAD
                 rigid_props=RigidBodyPropertiesCfg(
                     solver_position_iteration_count=16,
                     solver_velocity_iteration_count=1,
@@ -205,6 +215,11 @@ class FrankaDevEnvCfg(CubeEnvCfg):
                     disable_gravity=False,
                 ),
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+                rigid_props=cube_properties,
+                visible=True,
+                copy_from_source = False,
+>>>>>>> 5fa2eec84e (with state machine)
                 semantic_tags=[("class", "flask")],
             ),
         ) 
@@ -220,12 +235,17 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 =======
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.3, 0.05],rot=[0, 0, 1, 0]),
             spawn=UsdFileCfg(
+<<<<<<< HEAD
                 usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial.usd",
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_20ml.usd",
+>>>>>>> 5fa2eec84e (with state machine)
                 scale=(1, 1, 1),
                 rigid_props=cube_properties,
                 visible=True,
                 copy_from_source = False,
+<<<<<<< HEAD
 =======
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.6, 0.3, 0.05],rot=[0, 0, 1, 0]),
 =======
@@ -249,6 +269,8 @@ class FrankaDevEnvCfg(CubeEnvCfg):
                 visible=True,
                 copy_from_source = False,
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> 5fa2eec84e (with state machine)
                 semantic_tags=[("class", "vial")],
             ),
         ) 
@@ -264,6 +286,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
                 usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_500ml.usd",
                 scale=(0.5, 0.5, 0.5),
 <<<<<<< HEAD
+<<<<<<< HEAD
                 rigid_props=cube_properties,
 =======
                 rigid_props=RigidBodyPropertiesCfg(
@@ -275,6 +298,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
                     disable_gravity=False,
                 ),
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+                rigid_props=cube_properties,
+>>>>>>> 5fa2eec84e (with state machine)
                 semantic_tags=[("class", "beaker")],
             ),
         ) 
@@ -284,6 +310,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
             spawn=UsdFileCfg(
                 usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/mag_hotplate.usd",
                 scale=(0.8, 0.8, 0.8),
+<<<<<<< HEAD
 <<<<<<< HEAD
                 rigid_props=cube_properties,
                 semantic_tags=[("class", "stirplate")],
@@ -317,6 +344,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
                     disable_gravity=False,
                 ),
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+                rigid_props=cube_properties,
+>>>>>>> 5fa2eec84e (with state machine)
                 semantic_tags=[("class", "stirplate")],
             ),
         ) 

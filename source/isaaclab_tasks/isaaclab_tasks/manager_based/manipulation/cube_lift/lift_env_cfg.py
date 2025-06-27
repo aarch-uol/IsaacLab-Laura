@@ -30,6 +30,7 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -129,6 +130,8 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
+=======
+>>>>>>> 5fa2eec84e (with state machine)
 
 
 
@@ -178,24 +181,7 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
         spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=3000.0),
     )
 
-    flask = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/flask",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.4, 0.05],rot=[1, 0, 0, 0]),
-            spawn=UsdFileCfg(
-                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/solid_conical_flask.usd",
-                scale=(1, 1, 1),
-                rigid_props=RigidBodyPropertiesCfg(
-                    solver_position_iteration_count=16,
-                    solver_velocity_iteration_count=1,
-                    max_angular_velocity=1000.0,
-                    max_linear_velocity=1000.0,
-                    max_depenetration_velocity=5.0,
-                    disable_gravity=False,
-                ),
-                semantic_tags=[("class", "flask")],
-            ),
-        ) 
-
+    
     
     
 <<<<<<< HEAD
@@ -237,6 +223,7 @@ class CommandsCfg:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -260,6 +247,10 @@ class CommandsCfg:
 =======
             pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+          #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+            pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+>>>>>>> 5fa2eec84e (with state machine)
         ),
     )
 

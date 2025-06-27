@@ -266,16 +266,21 @@ def main():
     env_cfg: LiftEnvCfg = parse_env_cfg(
         #"Isaac-Lift-Cube-Franka-IK-Abs-v0",
 <<<<<<< HEAD
+<<<<<<< HEAD
         "Dev-IK-Abs-v0",
 =======
         "Dev-IK-Rel-v0",
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+        "Dev-IK-Abs-v0",
+>>>>>>> 5fa2eec84e (with state machine)
         device=args_cli.device,
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
     # create environment
     #env = gym.make("Isaac-Lift-Cube-Franka-IK-Abs-v0", cfg=env_cfg)
+<<<<<<< HEAD
 <<<<<<< HEAD
     env = gym.make("Dev-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start
@@ -287,15 +292,25 @@ def main():
     env.reset()
     print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+    env = gym.make("Dev-IK-Abs-v0", cfg=env_cfg)
+    # reset environment at start
+    env.reset()
+   # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
+>>>>>>> 5fa2eec84e (with state machine)
     # create action buffers (position + quaternion)
     actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
     actions[:, 3] = 1.0
     
 <<<<<<< HEAD
+<<<<<<< HEAD
    # print("actions : ", actions)
 =======
     print("actions : ", actions)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+   # print("actions : ", actions)
+>>>>>>> 5fa2eec84e (with state machine)
     # desired object orientation (we only do position control of object)
     desired_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
     desired_orientation[:, 1] = 1.0
@@ -303,6 +318,7 @@ def main():
     pick_sm = PickAndLiftSm(
         env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.01
     )
+<<<<<<< HEAD
 <<<<<<< HEAD
    # print("debug1 : " , env.unwrapped.action_space.shape)
     n=0
@@ -314,14 +330,21 @@ def main():
            # print("debug2 : " , env.unwrapped.action_space.shape)
 =======
     print("debug1 : " , env.unwrapped.action_space.shape)
+=======
+   # print("debug1 : " , env.unwrapped.action_space.shape)
+>>>>>>> 5fa2eec84e (with state machine)
     n=0
     while simulation_app.is_running():
         # run everything in inference mode+
-        print("loop : ", n)
+       # print("loop : ", n)
         with torch.inference_mode():
             # step environment
+<<<<<<< HEAD
             print("debug2 : " , env.unwrapped.action_space.shape)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+           # print("debug2 : " , env.unwrapped.action_space.shape)
+>>>>>>> 5fa2eec84e (with state machine)
             dones = env.step(actions)[-2]
             #print("debug2 : " , env.unwrapped.action_space.shape)
             # observations
@@ -344,12 +367,17 @@ def main():
          
             
 <<<<<<< HEAD
+<<<<<<< HEAD
            # print(f"End of loop : {actions.shape}")
             #print("Action space shape:", env.unwrapped.action_space.shape)
 =======
             print(f"End of loop : {actions.shape}")
             print("Action space shape:", env.unwrapped.action_space.shape)
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+           # print(f"End of loop : {actions.shape}")
+            #print("Action space shape:", env.unwrapped.action_space.shape)
+>>>>>>> 5fa2eec84e (with state machine)
             
 
             

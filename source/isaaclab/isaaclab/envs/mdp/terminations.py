@@ -33,6 +33,14 @@ def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ec2c3a3a52a7b8ef6dfa907093f7abf8fe4c5831
+    if torch.max(env.episode_length_buf) >= env.max_episode_length:
+>>>>>>> 2d9871b4dfda077293810eda27c83855c6bbec14
 =======
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
@@ -42,7 +50,11 @@ def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()
 =======
     # if torch.max(env.episode_length_buf) >= env.max_episode_length:
     #     loghelper.logerror(ErrorType.TIMEOUT)        
+<<<<<<< HEAD
 >>>>>>> 8222bb8ed3 (added scikit learn to build)
+=======
+>>>>>>> laura/laura-dev
+>>>>>>> ec2c3a3a52a7b8ef6dfa907093f7abf8fe4c5831
     return env.episode_length_buf >= env.max_episode_length
 
 

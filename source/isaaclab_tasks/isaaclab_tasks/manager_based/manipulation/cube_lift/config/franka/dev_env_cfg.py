@@ -183,6 +183,11 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> ec2c3a3a52a7b8ef6dfa907093f7abf8fe4c5831
+>>>>>>> 2d9871b4dfda077293810eda27c83855c6bbec14
 
         cube_properties = RigidBodyPropertiesCfg(
             rigid_body_enabled=True,
@@ -574,6 +579,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         self.scene.stirplate = glassware.stirplate()
         self.scene.random = glassware.random_object()
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 8222bb8ed3 (added scikit learn to build)
 =======
                 semantic_tags=[("class", "beaker")],
@@ -592,7 +598,12 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         ) 
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
 =======
+=======
+>>>>>>> 2d9871b4dfda077293810eda27c83855c6bbec14
 >>>>>>> 8222bb8ed3 (added scikit learn to build)
+=======
+>>>>>>> laura/laura-dev
+>>>>>>> ec2c3a3a52a7b8ef6dfa907093f7abf8fe4c5831
 
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()

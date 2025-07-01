@@ -10,6 +10,7 @@ from isaaclab.utils import configclass
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.assets import RigidObjectCfg
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
@@ -21,6 +22,9 @@ from isaaclab.assets import RigidObjectCfg
 >>>>>>> 5fa2eec84e (with state machine)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+from isaaclab.assets import RigidObjectCfg
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
 from . import dev_env_cfg
 
@@ -33,10 +37,13 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 # wp.init()
 # ## state machine config 
 # class PickSmState:
@@ -125,6 +132,7 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 #     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
@@ -133,6 +141,8 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 >>>>>>> 5fa2eec84e (with state machine)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
 @configclass
 class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
@@ -140,6 +150,7 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
         # post init of parent
         super().__post_init__()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -163,6 +174,9 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 >>>>>>> 5fa2eec84e (with state machine)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+        # replace with relative position controller 
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
             asset_name="robot",
             joint_names=["panda_joint.*"],
@@ -171,6 +185,7 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
             scale=0.5,
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -186,6 +201,9 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
 >>>>>>> 5fa2eec84e (with state machine)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+       
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
 
 @configclass

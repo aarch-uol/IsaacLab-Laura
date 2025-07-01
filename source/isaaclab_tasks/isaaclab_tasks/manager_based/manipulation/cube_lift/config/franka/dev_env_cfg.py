@@ -14,6 +14,7 @@ from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 =======
@@ -32,6 +33,10 @@ from isaaclab_tasks.manager_based.manipulation.cube_lift.lift_env_cfg import Cub
 from isaaclab_assets.glassware.glassware_objects import Chem_Assets
 =======
 
+=======
+from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
+from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 from isaaclab_tasks.manager_based.manipulation.cube_lift import mdp
 from isaaclab_tasks.manager_based.manipulation.cube_lift.lift_env_cfg import CubeEnvCfg
 
@@ -44,6 +49,7 @@ from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
 =======
 from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
@@ -57,6 +63,9 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 =======
 from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
 
 @configclass
@@ -67,6 +76,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
        
@@ -114,16 +124,29 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
 =======
+=======
+       
+        # post init of parent
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         super().__post_init__()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # We switch here to a stiffer PD controller for IK tracking to be better.
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
-        self.actions.arm_action = mdp.JointPositionActionCfg(
-            asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
+        self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
+            asset_name="robot",
+            joint_names=["panda_joint.*"],
+            body_name="panda_hand",
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
+            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )
+<<<<<<< HEAD
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["panda_finger.*"],
@@ -138,6 +161,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         cube_properties = RigidBodyPropertiesCfg(
             rigid_body_enabled=True,
@@ -176,15 +200,21 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         # Set Cube as object
 
         #what if its now a vial rack  ?
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
         cube_properties = RigidBodyPropertiesCfg(
-            solver_position_iteration_count=16,
-            solver_velocity_iteration_count=1,
-            max_angular_velocity=1000.0,
+            rigid_body_enabled=True,
             max_linear_velocity=1000.0,
+<<<<<<< HEAD
             max_depenetration_velocity=5.0,
             disable_gravity=False,
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+            max_angular_velocity=1000.0,
+            max_depenetration_velocity=100.0,
+            enable_gyroscopic_forces=True,
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         )
 
         # Set each stacking cube deterministically
@@ -193,6 +223,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.4, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/vial_rack.usd",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -210,6 +241,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 =======
                 scale=(1.0, 1.0, 1.0),
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+                scale=(0.75, 0.75, 1.5),
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 rigid_props=cube_properties,
                 semantic_tags=[("class", "object")],
             ),
@@ -217,6 +251,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 
         self.scene.flask = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/flask",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -265,17 +300,26 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 >>>>>>> 5fa2eec84e (with state machine)
 =======
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.35, 0.05],rot=[1, 0, 0, 0]),
+=======
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.4, 0.05],rot=[1, 0, 0, 0]),
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             spawn=UsdFileCfg(
-                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_conical_flask.usd",
+                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/conical_flask.usd",
                 scale=(1, 1, 1),
                 rigid_props=cube_properties,
+<<<<<<< HEAD
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+                visible=True,
+                copy_from_source = False,
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 semantic_tags=[("class", "flask")],
             ),
         ) 
 
         self.scene.vial = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/vial",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -308,9 +352,13 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 =======
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.6, 0.3, 0.05],rot=[0, 0, 1, 0]),
+=======
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.3, 0.05],rot=[0, 0, 1, 0]),
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             spawn=UsdFileCfg(
-                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_sample_vial.usd",
+                usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_20ml.usd",
                 scale=(1, 1, 1),
+<<<<<<< HEAD
 >>>>>>> 23650e4deb (changes to scripts for logging)
                 rigid_props=RigidBodyPropertiesCfg(
                     solver_position_iteration_count=16,
@@ -331,6 +379,11 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 >>>>>>> 5fa2eec84e (with state machine)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+                rigid_props=cube_properties,
+                visible=True,
+                copy_from_source = False,
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 semantic_tags=[("class", "vial")],
             ),
         ) 
@@ -340,12 +393,16 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.65, 0.2, 0.05],rot=[0, 0, 1, 0]),
             spawn=UsdFileCfg(
                 usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_500ml.usd",
                 scale=(0.5, 0.5, 0.5),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 rigid_props=cube_properties,
@@ -362,6 +419,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 =======
                 rigid_props=cube_properties,
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+                rigid_props=cube_properties,
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 semantic_tags=[("class", "beaker")],
             ),
         ) 
@@ -371,6 +431,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
             spawn=UsdFileCfg(
                 usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/mag_hotplate.usd",
                 scale=(0.8, 0.8, 0.8),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 rigid_props=cube_properties,
@@ -434,6 +495,12 @@ class FrankaDevEnvCfg(CubeEnvCfg):
             ),
         ) 
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+                rigid_props=cube_properties,
+                semantic_tags=[("class", "stirplate")],
+            ),
+        ) 
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()

@@ -176,10 +176,13 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 =======
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 ) ,
                 "stirplate" : RigidObjectCfg(
                     prim_path="{ENV_REGEX_NS}/stirplate",
@@ -192,6 +195,7 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
                     ),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
 =======
@@ -200,6 +204,8 @@ class FrankaFumehoodEnvCfg(FumehoodEnvCfg):
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 ) 
 
             }

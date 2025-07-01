@@ -383,6 +383,9 @@ class EventCfg:
         },
     )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
     #randomises the scale of the object 
     randomise_object__scale = EventTerm(
         func=mdp.randomize_rigid_body_scale,
@@ -393,8 +396,11 @@ class EventCfg:
         },
     )
 
+<<<<<<< HEAD
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
 
 
 @configclass
@@ -502,10 +508,14 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
     loghelper = LoggingHelper()
     # Scene settings
 <<<<<<< HEAD
+<<<<<<< HEAD
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
 =======
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+    scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
@@ -543,9 +553,12 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
         # general settings
         
+<<<<<<< HEAD
 =======
         # general settings
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
         self.decimation = 2
         self.episode_length_s = 60
         # simulation settings

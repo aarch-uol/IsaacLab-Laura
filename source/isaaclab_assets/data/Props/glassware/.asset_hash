@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 1fb6def243b4e71db2a1fe52fb0a8802
 =======
 4393ee69b34368dcdad0a0f108ceb811
@@ -27,3 +28,6 @@ b08f65d115c91cca11e26721d039207f
 =======
 1fb6def243b4e71db2a1fe52fb0a8802
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+b08f65d115c91cca11e26721d039207f
+>>>>>>> 8222bb8ed3 (added scikit learn to build)

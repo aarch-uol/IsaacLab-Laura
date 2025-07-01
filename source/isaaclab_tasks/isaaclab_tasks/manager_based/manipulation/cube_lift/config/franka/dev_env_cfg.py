@@ -44,8 +44,12 @@ from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsA
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
 from isaaclab_tasks.manager_based.manipulation.cube_lift import mdp
 from isaaclab_tasks.manager_based.manipulation.cube_lift.lift_env_cfg import CubeEnvCfg
+<<<<<<< HEAD
 
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+from isaaclab_assets.glassware.glassware_objects import Chem_Assets
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
 ##
 # Pre-defined configs
 ##
@@ -171,6 +175,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "panda_hand"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -557,6 +562,10 @@ class FrankaDevEnvCfg(CubeEnvCfg):
 =======
         glassware = Chem_Assets()
         # Set each stacking cube deterministically
+=======
+        glassware = Chem_Assets()
+        # Set each stacking cube deterministically
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
         self.scene.object = glassware.beaker(pos=[0.4, 0.0, 0.0203],name="Object")
         #### everything else leave default
         # self.scene.flask = glassware.flask()
@@ -564,6 +573,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         # self.scene.beaker = glassware.beaker()
         self.scene.stirplate = glassware.stirplate()
         self.scene.random = glassware.random_object()
+<<<<<<< HEAD
 >>>>>>> 8222bb8ed3 (added scikit learn to build)
 =======
                 semantic_tags=[("class", "beaker")],
@@ -581,6 +591,8 @@ class FrankaDevEnvCfg(CubeEnvCfg):
             ),
         ) 
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
+=======
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
 
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()

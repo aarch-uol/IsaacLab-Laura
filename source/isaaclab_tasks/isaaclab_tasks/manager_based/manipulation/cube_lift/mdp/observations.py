@@ -53,6 +53,7 @@ def reach_object(
     # Distance of the end-effector to the object: (num_envs,)
     object_ee_distance = torch.norm(cube_pos_w - ee_w, dim=1)
 <<<<<<< HEAD
+<<<<<<< HEAD
  #   if object_ee_distance.item() < std :
         #print(f"Observed Object Reached : {object_ee_distance.item()}")
        # loghelper.logsubtask(LogType.APPR)
@@ -61,6 +62,11 @@ def reach_object(
         #print(f"Observed Object Reached : {object_ee_distance.item()}")
         loghelper.logsubtask(LogType.APPR)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+ #   if object_ee_distance.item() < std :
+        #print(f"Observed Object Reached : {object_ee_distance.item()}")
+       # loghelper.logsubtask(LogType.APPR)
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
     # if object_ee_distance[0] < std:
     #     print(f"Reached object, dist  :{object_ee_distance.item()}")
     return object_ee_distance < std
@@ -93,6 +99,7 @@ def object_grasped(
         grasped, torch.abs(robot.data.joint_pos[:, -2] - gripper_open_val.to(env.device)) > gripper_threshold
     )
 <<<<<<< HEAD
+<<<<<<< HEAD
     # if grasped[0]:
     #    # print(f"Observed Object grasped : {grasped.item()}")
     #     loghelper.logsubtask(LogType.GRASP)
@@ -101,6 +108,11 @@ def object_grasped(
        # print(f"Observed Object grasped : {grasped.item()}")
         loghelper.logsubtask(LogType.GRASP)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+    # if grasped[0]:
+    #    # print(f"Observed Object grasped : {grasped.item()}")
+    #     loghelper.logsubtask(LogType.GRASP)
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
     return grasped
 
 def is_object_lifted(
@@ -112,6 +124,7 @@ def is_object_lifted(
     #return true when object z coord above a threshold value 
     object = env.scene[obj_cfg.name]
 <<<<<<< HEAD
+<<<<<<< HEAD
     # if object.data.root_pos_w[:, 2].item() > threshold : 
     #     #print(f"Observed Object Lifted : {object.data.root_pos_w[:, 2].item()}")
     #     loghelper.logsubtask(LogType.LIFT)
@@ -120,6 +133,11 @@ def is_object_lifted(
         #print(f"Observed Object Lifted : {object.data.root_pos_w[:, 2].item()}")
         loghelper.logsubtask(LogType.LIFT)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+    # if object.data.root_pos_w[:, 2].item() > threshold : 
+    #     #print(f"Observed Object Lifted : {object.data.root_pos_w[:, 2].item()}")
+    #     loghelper.logsubtask(LogType.LIFT)
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
  
     return object.data.root_pos_w[:, 2] > threshold
 
@@ -173,6 +191,7 @@ def object_near_goal(
     # distance of the end-effector to the object: (num_envs,)
     distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)
 <<<<<<< HEAD
+<<<<<<< HEAD
     # if distance.item() < threshold:
     #  #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
     #     loghelper.logsubtask(LogType.GOAL)
@@ -181,5 +200,10 @@ def object_near_goal(
      #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
         loghelper.logsubtask(LogType.GOAL)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+    # if distance.item() < threshold:
+    #  #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
+    #     loghelper.logsubtask(LogType.GOAL)
+>>>>>>> 8222bb8ed3 (added scikit learn to build)
     return distance < threshold
 

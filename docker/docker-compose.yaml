@@ -140,6 +140,7 @@ services:
     
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   isaac-lab-ros2_mod:
     profiles: [ "ros2_mod" ]
     env_file:
@@ -167,6 +168,10 @@ services:
       - "/dev/hidraw3:/dev/hidraw3"
       #- "/dev/hidraw4:/dev/hidraw4"
 <<<<<<< HEAD
+=======
+
+ 
+>>>>>>> ec2c3a3a52a7b8ef6dfa907093f7abf8fe4c5831
 
   isaac-lab-harry:
     profiles: [ "harry" ]

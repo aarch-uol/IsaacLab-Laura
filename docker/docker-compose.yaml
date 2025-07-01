@@ -183,6 +183,7 @@ services:
     
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b77a8f7870 (now with semi-working state machine!)
   isaac-lab-ros2_mod:
     profiles: [ "ros2_mod" ]
@@ -212,6 +213,10 @@ services:
       #- "/dev/hidraw4:/dev/hidraw4"
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+
+ 
+>>>>>>> 2d9871b4df (Changes to be committed:)
 
   isaac-lab-harry:
     profiles: [ "harry" ]
@@ -238,6 +243,7 @@ services:
     devices:
       - "/dev/hidraw3:/dev/hidraw3"
       #- "/dev/hidraw4:/dev/hidraw4"
+<<<<<<< HEAD
 =======
 >>>>>>> e848d95d8b (more docker changes)
 
@@ -302,6 +308,8 @@ services:
 
  
 >>>>>>> 5fa2eec84e (with state machine)
+=======
+>>>>>>> 2d9871b4df (Changes to be committed:)
 
 volumes:
 

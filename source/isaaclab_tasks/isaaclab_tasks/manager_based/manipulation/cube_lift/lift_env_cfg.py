@@ -26,6 +26,7 @@ from . import mdp
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # wp.init()
 # ## state machine config 
@@ -114,6 +115,8 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 #     # increment wait time
 #     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
 
 
@@ -166,9 +169,13 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
     
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+    
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
 
 ##
 # MDP settings
@@ -186,9 +193,13 @@ class CommandsCfg:
         debug_vis=True,
         ranges=mdp.UniformPoseCommandCfg.Ranges(
 <<<<<<< HEAD
+<<<<<<< HEAD
           #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+          #  pos_x=(0.3,0.3), pos_y=(-0.28, -0.28), pos_z=(0.1, 0.1), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
@@ -293,10 +304,14 @@ class EventCfg:
         mode="reset",
         params={
 <<<<<<< HEAD
+<<<<<<< HEAD
             "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
 =======
             "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+            "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
@@ -347,10 +362,14 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
 =======
     joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+    #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
     
    # object_orientation = DoneTerm(func=mdp.bad_orientation)
 
@@ -403,9 +422,13 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
     def __post_init__(self):
         """Post initialization."""
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("debug cfg : ", self.observations.policy.actions)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+        print("debug cfg : ", self.observations.policy.actions)
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         # general settings
         self.decimation = 2
         self.episode_length_s = 60
@@ -413,10 +436,14 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.viewer.eye = (1.0, 1.0, 1.0)
 =======
         self.viewer.eye = (0.5, 0.5, 0.5)
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+        self.viewer.eye = (1.0, 1.0, 1.0)
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         self.viewer.lookat = (0.0, 0.0, -0.1)
         self.terminations.set_loghelper(self.loghelper)
         self.observations.subtask_terms.set_loghelper(self.loghelper)

@@ -31,6 +31,7 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
          # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", 
@@ -42,6 +43,14 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
         self.actions.arm_action = mdp.JointPositionActionCfg(
             asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+         # Set actions for the specific robot type (franka)
+        self.actions.arm_action = mdp.JointPositionActionCfg(
+            asset_name="robot", 
+            joint_names=["panda_joint.*"], 
+            scale=0.5, 
+            use_default_offset=True
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         )
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
@@ -50,9 +59,13 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
             close_command_expr={"panda_finger_.*": 0.0},
         )
 <<<<<<< HEAD
+<<<<<<< HEAD
         print("Action shape : ", self.actions.__dict__)
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+        print("Action shape : ", self.actions.__dict__)
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "panda_hand"
 
@@ -98,6 +111,9 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
                     ),
                 ),
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
                 FrameTransformerCfg.FrameCfg(
                     prim_path="{ENV_REGEX_NS}/Robot/panda_rightfinger",
                     name="tool_rightfinger",
@@ -112,8 +128,11 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
                         pos=(0.0, 0.0, 0.046),
                     ),
                 ),
+<<<<<<< HEAD
 =======
 >>>>>>> 23650e4deb (changes to scripts for logging)
+=======
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
             ],
         )
 

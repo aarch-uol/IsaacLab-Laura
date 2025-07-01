@@ -31,10 +31,14 @@ MDP terminations.
 def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
     """Terminate the episode when the episode length exceeds the maximum episode length."""
 <<<<<<< HEAD
+<<<<<<< HEAD
     if torch.max(env.episode_length_buf) >= env.max_episode_length:
 =======
     if env.episode_length_buf >= env.max_episode_length:
 >>>>>>> dd8275653a (some extra changes!)
+=======
+    if torch.max(env.episode_length_buf) >= env.max_episode_length:
+>>>>>>> 3add0cac05 (merged with IsaacLab-Laura)
         loghelper.logerror(ErrorType.TIMEOUT)        
     return env.episode_length_buf >= env.max_episode_length
 

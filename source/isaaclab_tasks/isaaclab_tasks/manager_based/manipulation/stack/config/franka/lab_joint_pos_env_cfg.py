@@ -1,15 +1,29 @@
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+from isaaclab.assets import RigidObjectCfg
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import FrameTransformerCfg
 from isaaclab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
+from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
+from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils import configclass
+from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+
 from isaaclab_tasks.manager_based.manipulation.stack import mdp
 from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
 from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
-from isaaclab.markers.config import FRAME_MARKER_CFG  
-from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  
-from . import glassware_files
 
+##
+# Pre-defined configs
+##
+from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
+from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
+
+from isaaclab.envs import ManagerBasedEnv
 
 @configclass
 class EventCfg:
@@ -43,27 +57,30 @@ class EventCfg:
         },
     )
 
-    randomize_cube_positions = EventTerm(
-        func=franka_stack_events.randomize_object_pose,
-        mode="reset",
+    # If want to manually overide the scale, this needs to be a part of the function, have a param=None and an if statement
+    # This has to be done with replicate_physics=False and prestartup, this only gives random before scene created
+    randomize_scale = EventTerm(
+        func=mdp.randomize_rigid_body_scale,
+        mode="prestartup",
         params={
-            "pose_range": {"x": (0.4, 0.6), "y": (-0.10, 0.10), "z": (0.0203, 0.0203), "yaw": (-1.0, 1, 0)},
-            "min_separation": 0.1,
-            "asset_cfgs": [SceneEntityCfg("conical_flask"), SceneEntityCfg("beaker")] 
+            "scale_range": (0.5, 1.5),
+            "asset_cfg": SceneEntityCfg("object1"),
         },
     )
 
+
+
+
 @configclass
-class FrankaCubeStackEnvCfg(StackEnvCfg):
+class FrankaLabStackEnvCfg(StackEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        glassware = glassware_files.Glassware()
 
         # Set events
         self.events = EventCfg()
 
-        # Set Franka as robot
+        # Set Franka as robotSample vial
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
 
@@ -84,14 +101,37 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
             close_command_expr={"panda_finger_.*": 0.0},
         )
 
-        #Spawn objects
-        self.scene.sample_vial = glassware.sample_vial
-        self.scene.beaker = glassware.beaker
-        self.scene.conical_flask = glassware.conical_flask
-        self.scene.hot_plate = glassware.hot_plate
-        self.scene.round_bottom_flask = glassware.round_bottom_flask
-        self.scene.cube = glassware.cube
+        # Rigid body properties of each cube
+        cube_properties = RigidBodyPropertiesCfg(
+            solver_position_iteration_count=16,
+            solver_velocity_iteration_count=1,
+            max_angular_velocity=1000.0,
+            max_linear_velocity=1000.0,
+            max_depenetration_velocity=5.0,
+            disable_gravity=False,
+        )
 
+        self.scene.hot_plate = RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/Hot_plate",
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.7, 0.3, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            spawn=UsdFileCfg(
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/hot_plate.usd",
+                scale=(0.03, 0.03, 0.03),
+                rigid_props=cube_properties,
+                semantic_tags=[("class", "hot_plate")],
+            ),
+        )
+        self.scene.object1 = RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/Sample_vial",
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0, 1, 1, 0]),
+            spawn=UsdFileCfg(
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
+                usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/red_block.usd",
+                scale=(1.0, 1.0, 1.0),
+                rigid_props=RigidBodyPropertiesCfg(),
+                semantic_tags=[("class", "object1")],
+            ),
+        )
 
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()

@@ -51,9 +51,9 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
             prim_path="{ENV_REGEX_NS}/Object",
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0, 0.02],rot=[1, 0, 0, 0]) ,#rot=[0, 0, 1, 0])
             spawn=UsdFileCfg(
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/vial_rack.usd",
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/vial_rack.usd",
                 #usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/test_cube.usd",
-                #usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
+                usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
                 #usd_path = f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_conical.usd",
                 #usd_path = f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_sample_vial.usd",
                 scale=(0.8, 0.8, 2.0),

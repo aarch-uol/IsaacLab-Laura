@@ -24,8 +24,9 @@ if TYPE_CHECKING:
 def cubes_stacked(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"), # cube_1
+    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("cube"), # cube_1
     cube_2_cfg: SceneEntityCfg = SceneEntityCfg("hot_plate"), # cube_2 
+    # xy_threshold: float = 0.05,
     xy_threshold: float = 0.1,
     height_threshold: float = 0.005,
     height_diff: float = 0.0468,
@@ -44,17 +45,14 @@ def cubes_stacked(
     # # Compute cube position difference in x-y plane
     xy_dist = torch.norm(pos_diff[:, :2], dim=1)
 
-    height_diff_actual = pos_diff[:, 2]
+    # Compute cube height difference
+    h_dist_c12 = torch.norm(pos_diff_c12[:, 2:], dim=1)
 
-    # Is true when reaches threshold
-    xy_check = xy_dist < xy_threshold
+    # Check cube positions
+    stacked = torch.norm(des_pos_xy - cube_1.data.root_pos_w[:, :3], dim=1) < height_diff
+    stacked = xy_dist_c12 < xy_threshold
+    stacked = torch.logical_and(h_dist_c12 - height_diff < height_threshold, stacked)
 
-    # Check that the object is stacked
-    overall_height = height_diff_actual - height_diff
-    height_check = torch.abs(overall_height) > height_threshold
-
-    # Combine [True] for all dimensions
-    stacked = torch.logical_and(xy_check, height_check)
     # Check gripper positions (right and left) are open
     stacked = torch.logical_and(
         torch.isclose(robot.data.joint_pos[:, -1], gripper_open_val.to(env.device), atol=atol, rtol=rtol), stacked

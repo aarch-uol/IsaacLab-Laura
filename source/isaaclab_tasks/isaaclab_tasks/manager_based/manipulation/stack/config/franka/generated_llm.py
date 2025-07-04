@@ -12,7 +12,7 @@ from . import glassware_files
 
 
 @configclass
-class EventCfg:
+class EventsCfg:
     """Configuration for events."""
 
     init_franka_arm_pose = EventTerm(
@@ -43,15 +43,6 @@ class EventCfg:
         },
     )
 
-    randomize_cube_positions = EventTerm(
-        func=franka_stack_events.randomize_object_pose,
-        mode="reset",
-        params={
-            "pose_range": {"x": (0.4, 0.6), "y": (-0.10, 0.10), "z": (0.0203, 0.0203), "yaw": (-1.0, 1, 0)},
-            "min_separation": 0.1,
-            "asset_cfgs": [SceneEntityCfg("conical_flask"), SceneEntityCfg("beaker")] 
-        },
-    )
 
 @configclass
 class FrankaCubeStackEnvCfg(StackEnvCfg):
@@ -61,7 +52,7 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         glassware = glassware_files.Glassware()
 
         # Set events
-        self.events = EventCfg()
+        self.events = EventsCfg()
 
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
@@ -84,14 +75,9 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
             close_command_expr={"panda_finger_.*": 0.0},
         )
 
-        #Spawn objects
-        self.scene.sample_vial = glassware.sample_vial
-        self.scene.beaker = glassware.beaker
-        self.scene.conical_flask = glassware.conical_flask
+        # Spawn objects
+        self.scene.object1 = glassware.cube
         self.scene.hot_plate = glassware.hot_plate
-        self.scene.round_bottom_flask = glassware.round_bottom_flask
-        self.scene.cube = glassware.cube
-
 
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()

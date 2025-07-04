@@ -184,3 +184,23 @@ def randomize_rigid_objects_in_focus(
             )
 
         env.rigid_objects_in_focus.append(selected_ids)
+
+def randomize_rigid_body_scale_with_override(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor,
+    scale_range: tuple[float, float],
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    relative_child_path=None,
+    manual_scale=None
+):
+    if manual_scale is not None:
+        # Instead of sampling random scale, just apply the manual_scale vector to all env_ids
+        rand_samples = [manual_scale] * len(env_ids)
+    else:
+        # original random sampling code here...
+        rand_samples = sample_random_scales(scale_range, env_ids)
+
+    # then apply rand_samples to the USD prims (same as original function)
+    # ...
+
+

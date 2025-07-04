@@ -14,20 +14,20 @@ from isaaclab.sensors import FrameTransformer
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
-
+# cube_1 -> cube, cube_2 -> beaker
 
 def cube_positions_in_world_frame(
     env: ManagerBasedRLEnv,
-    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("cube_1"),
-    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("cube_2"),
-    cube_3_cfg: SceneEntityCfg = SceneEntityCfg("cube_3"),
+    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("hot_plate"),
+    # cube_3_cfg: SceneEntityCfg = SceneEntityCfg("cube_3"),
 ) -> torch.Tensor:
     """The position of the cubes in the world frame."""
     cube_1: RigidObject = env.scene[cube_1_cfg.name]
     cube_2: RigidObject = env.scene[cube_2_cfg.name]
-    cube_3: RigidObject = env.scene[cube_3_cfg.name]
+    # cube_3: RigidObject = env.scene[cube_3_cfg.name]
 
-    return torch.cat((cube_1.data.root_pos_w, cube_2.data.root_pos_w, cube_3.data.root_pos_w), dim=1)
+    return torch.cat((cube_1.data.root_pos_w, cube_2.data.root_pos_w), dim=1) #, cube_3.data.root_pos_w), dim=1)
 
 
 def instance_randomize_cube_positions_in_world_frame(
@@ -60,16 +60,16 @@ def instance_randomize_cube_positions_in_world_frame(
 
 def cube_orientations_in_world_frame(
     env: ManagerBasedRLEnv,
-    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("cube_1"),
-    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("cube_2"),
-    cube_3_cfg: SceneEntityCfg = SceneEntityCfg("cube_3"),
+    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("hot_plate"),
+    # cube_3_cfg: SceneEntityCfg = SceneEntityCfg("cube_3"),
 ):
     """The orientation of the cubes in the world frame."""
     cube_1: RigidObject = env.scene[cube_1_cfg.name]
     cube_2: RigidObject = env.scene[cube_2_cfg.name]
-    cube_3: RigidObject = env.scene[cube_3_cfg.name]
+    # cube_3: RigidObject = env.scene[cube_3_cfg.name]
 
-    return torch.cat((cube_1.data.root_quat_w, cube_2.data.root_quat_w, cube_3.data.root_quat_w), dim=1)
+    return torch.cat((cube_1.data.root_quat_w, cube_2.data.root_quat_w), dim=1) #, cube_3.data.root_quat_w), dim=1)
 
 
 def instance_randomize_cube_orientations_in_world_frame(
@@ -102,9 +102,9 @@ def instance_randomize_cube_orientations_in_world_frame(
 
 def object_obs(
     env: ManagerBasedRLEnv,
-    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("cube_1"),
-    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("cube_2"),
-    cube_3_cfg: SceneEntityCfg = SceneEntityCfg("cube_3"),
+    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("hot_plate"),
+    # cube_3_cfg: SceneEntityCfg = SceneEntityCfg("cube_3"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ):
     """
@@ -124,7 +124,7 @@ def object_obs(
     """
     cube_1: RigidObject = env.scene[cube_1_cfg.name]
     cube_2: RigidObject = env.scene[cube_2_cfg.name]
-    cube_3: RigidObject = env.scene[cube_3_cfg.name]
+    # cube_3: RigidObject = env.scene[cube_3_cfg.name]
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
 
     cube_1_pos_w = cube_1.data.root_pos_w
@@ -133,17 +133,17 @@ def object_obs(
     cube_2_pos_w = cube_2.data.root_pos_w
     cube_2_quat_w = cube_2.data.root_quat_w
 
-    cube_3_pos_w = cube_3.data.root_pos_w
-    cube_3_quat_w = cube_3.data.root_quat_w
+    # cube_3_pos_w = cube_3.data.root_pos_w
+    # cube_3_quat_w = cube_3.data.root_quat_w
 
     ee_pos_w = ee_frame.data.target_pos_w[:, 0, :]
     gripper_to_cube_1 = cube_1_pos_w - ee_pos_w
     gripper_to_cube_2 = cube_2_pos_w - ee_pos_w
-    gripper_to_cube_3 = cube_3_pos_w - ee_pos_w
+    # gripper_to_cube_3 = cube_3_pos_w - ee_pos_w
 
     cube_1_to_2 = cube_1_pos_w - cube_2_pos_w
-    cube_2_to_3 = cube_2_pos_w - cube_3_pos_w
-    cube_1_to_3 = cube_1_pos_w - cube_3_pos_w
+    # cube_2_to_3 = cube_2_pos_w - cube_3_pos_w
+    # cube_1_to_3 = cube_1_pos_w - cube_3_pos_w
 
     return torch.cat(
         (
@@ -151,14 +151,9 @@ def object_obs(
             cube_1_quat_w,
             cube_2_pos_w - env.scene.env_origins,
             cube_2_quat_w,
-            cube_3_pos_w - env.scene.env_origins,
-            cube_3_quat_w,
             gripper_to_cube_1,
             gripper_to_cube_2,
-            gripper_to_cube_3,
             cube_1_to_2,
-            cube_2_to_3,
-            cube_1_to_3,
         ),
         dim=1,
     )
@@ -265,6 +260,7 @@ def gripper_pos(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityC
 
 
 def object_grasped(
+    # This is more general - when an object is grasped
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg,
     ee_frame_cfg: SceneEntityCfg,
@@ -295,8 +291,10 @@ def object_grasped(
 
 
 def object_stacked(
+    # Does this just check that two objects are stacked on one another
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg,
+    # Upper and lower object cfg defined in stack_env_cfg when stacked in subtask
     upper_object_cfg: SceneEntityCfg,
     lower_object_cfg: SceneEntityCfg,
     xy_threshold: float = 0.05,
@@ -316,6 +314,7 @@ def object_stacked(
 
     stacked = torch.logical_and(xy_dist < xy_threshold, (height_dist - height_diff) < height_threshold)
 
+    # Checking right and left gripper positions
     stacked = torch.logical_and(
         torch.isclose(robot.data.joint_pos[:, -1], gripper_open_val.to(env.device), atol=1e-4, rtol=1e-4), stacked
     )

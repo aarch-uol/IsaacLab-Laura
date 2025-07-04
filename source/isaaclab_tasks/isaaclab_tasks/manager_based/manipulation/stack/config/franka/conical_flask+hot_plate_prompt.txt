@@ -1,0 +1,31 @@
+    This file defines a configuration class for part of a simulation environment.
+    I am working with Isaaclab.
+    I want you to output a code script.
+    Write out the imports that are within the given file only once, at the **vert top** of your script.
+    All of the import statements should start with "isaaclab".
+    Do not repeat any imports elsewhere in the script.
+    Do not invent, modify, or add new imports.
+
+    Write of the first two event configurations using EventTerm() from the given file in the output file. 
+    Within the EventTerm(), write the same params in the output file as in the given file.
+
+    Your output script should include only three objects: the robot, a conical flask and a hot plate.
+    Only spawn objects that have been mentioned.
+    Use @configclass for FrankaCubeStackEnvCfg() and EventsCfg() as in the given file.
+    Define these objects in the class FrankaCubeStackEnvCfg(StackEnvCfg), and make sure the method super().__post_init__() is included in __post_init__().
+    Write the method to Set Franka as the robot from the given file in the output file including the same semantic tags.
+    Do not change the semantics for the plane and table in the FrankaCubeStackEnvCfg class.
+    Other than the code relating to spawning objects, within the FrankaCubeStackEnvCfg class, all the code should be the same from the given file.
+
+    Write the exact same end effector frame transformations from in the output file as is in the given file.
+
+    Specifically, ensure that:
+    - The `FrameTransformerCfg` uses the  same `prim_path`, `visualizer_cfg`, and `debug_vis` settings.
+    - The `target_frames` list contains `FrameTransformerCfg.FrameCfg` entries for all of: `panda_hand`, `panda_leftfinger`, and `panda_rightfinger`.
+    - All field values (e.g., `prim_path`, `name`, `offset`) must exactly match the original file. Do not modify or invent new values.
+    - Keep OffsetCfg property pos for the `panda_hand`, `panda_leftfinger`, and `panda_rightfinger` the same as in the given file.
+
+    Strictly ensure:
+    - No repeated imports.
+    - No duplicated sections of more than 5 lines in the output.
+    - Output a single, complete Python file.

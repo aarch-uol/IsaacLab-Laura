@@ -109,25 +109,17 @@ class ObservationsCfg:
             params={
                 "robot_cfg": SceneEntityCfg("robot"),
                 "ee_frame_cfg": SceneEntityCfg("ee_frame"),
-                "object_cfg": SceneEntityCfg("cube"), # cube_2
+                "object_cfg": SceneEntityCfg("object1"),
             },
         )
         stack_1 = ObsTerm(
             func=mdp.object_stacked,
             params={
                 "robot_cfg": SceneEntityCfg("robot"),
-                "upper_object_cfg": SceneEntityCfg("cube"), # cube_2
-                "lower_object_cfg": SceneEntityCfg("hot_plate"), # cube_1
+                "upper_object_cfg": SceneEntityCfg("object1"),
+                "lower_object_cfg": SceneEntityCfg("hot_plate"),
             },
         )
-        # grasp_2 = ObsTerm(
-        #     func=mdp.object_grasped,
-        #     params={
-        #         "robot_cfg": SceneEntityCfg("robot"),
-        #         "ee_frame_cfg": SceneEntityCfg("ee_frame"),
-        #         "object_cfg": SceneEntityCfg("cube_3"),
-        #     },
-        # )
 
         def __post_init__(self):
             self.enable_corruption = False
@@ -146,16 +138,8 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     cube_1_dropping = DoneTerm(
-        func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("cube")} # cube_1
+        func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")} # cube_1
     )
-
-    # cube_2_dropping = DoneTerm(
-    #     func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("cube_2")} # cube_2
-    # )
-
-    # cube_3_dropping = DoneTerm(
-    #     func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("cube_3")}
-    # )
 
     success = DoneTerm(func=mdp.cubes_stacked)
 

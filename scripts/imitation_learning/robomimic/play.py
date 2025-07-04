@@ -70,7 +70,6 @@ if args_cli.enable_pinocchio:
     import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
 from isaaclab_tasks.utils import parse_env_cfg
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 
 def rollout(policy, env, success_term, horizon, device):
@@ -88,20 +87,13 @@ def rollout(policy, env, success_term, horizon, device):
     """
     policy.start_episode()
     obs_dict, _ = env.reset()
-    #print(f"obs dict : {obs_dict}")
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[])
+    traj = dict(actions=[], obs=[], next_obs=[])
 
     for i in range(horizon):
         # Prepare observations
         obs = copy.deepcopy(obs_dict["policy"])
-        sub_obs = copy.deepcopy(obs_dict["subtask_terms"])
-       
         for ob in obs:
             obs[ob] = torch.squeeze(obs[ob])
-            #print(f"found observation : {obs[ob]}")
-        
-        for subob in sub_obs:
-            sub_obs[subob] = torch.squeeze(sub_obs[subob])
 
         # Check if environment image observations
         if hasattr(env.cfg, "image_obs_list"):
@@ -116,7 +108,6 @@ def rollout(policy, env, success_term, horizon, device):
                     obs[image_name] = image
 
         traj["obs"].append(obs)
-        traj["sub_obs"].append(sub_obs)
 
         # Compute actions
         actions = policy(obs)
@@ -132,7 +123,6 @@ def rollout(policy, env, success_term, horizon, device):
         # Apply actions
         obs_dict, _, terminated, truncated, _ = env.step(actions)
         obs = obs_dict["policy"]
-        sub_obs = obs_dict["subtask_terms"]
 
         # Record trajectory
         traj["actions"].append(actions.tolist())
@@ -154,9 +144,6 @@ def main():
 
     # Set observations to dictionary mode for Robomimic
     env_cfg.observations.policy.concatenate_terms = False
-
-    #create a log handler 
-    loghelper = LoggingHelper()
 
     # Set termination conditions
     env_cfg.terminations.time_out = None
@@ -180,16 +167,14 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-    
+
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
-        loghelper.startEpoch(trial)
         terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
-        loghelper.stopEpoch(trial)
 
     print(f"\nSuccessful trials: {results.count(True)}, out of {len(results)} trials")
     print(f"Success rate: {results.count(True) / len(results)}")

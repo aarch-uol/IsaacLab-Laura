@@ -64,26 +64,8 @@ _build
 # Teleop Recorded Dataset
 datasets
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> bec55eb09f (model output added to git ignore)
-# path 
-docs/training_runs
-
 # Tests
 tests/
 
 # Docker history
 .isaac-lab-docker-history
-#Training Junk
-.pth
-docs/training_runs/
-#Training Junk
-.pth
-docs/training_runs/
-=======
-#Training Junk
-.pth
-docs/training_runs/
->>>>>>> 02f249c2c1 (fixed gitignore)

@@ -1,0 +1,47 @@
+[project]
+name = "isaaclab-suite"
+version = "0.1.0"
+description = "Unified IsaacLab + extensions + custom IsaacChills"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+readme = "README.md"
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.10"
+dependencies = [
+  "torch==2.5.1",
+  "torchvision==0.20.1",
+  "gymnasium>=0.29",
+  "numpy>=1.24",
+  "isaacsim[all,extscache]==4.5.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "ruff", "mypy"]
+
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "source" }
+
+[tool.setuptools.packages.find]
+where = ["source"]
+include = ["isaaclab*", "IsaacChills"]
+
+[tool.pytest.ini_options]
+testpaths = ["tools/tests"]
+python_files = ["test_*.py"]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true

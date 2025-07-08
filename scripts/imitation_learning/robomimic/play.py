@@ -73,6 +73,7 @@ from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 
+
 def rollout(policy, env, success_term, horizon, device):
     """Perform a single rollout of the policy in the environment.
 
@@ -120,7 +121,7 @@ def rollout(policy, env, success_term, horizon, device):
 
         # Compute actions
         actions = policy(obs)
-
+        print(len(obs))
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (

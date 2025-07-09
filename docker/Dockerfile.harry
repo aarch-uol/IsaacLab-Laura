@@ -1,48 +1,30 @@
+# Start from base Isaac Lab image
+FROM isaac-lab-base AS harry
 
-# What is the docker name suffix for the base image to load? (defaults to empty string)
-ARG DOCKER_NAME_SUFFIX=""
-FROM isaac-lab-base${DOCKER_NAME_SUFFIX} AS harry
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    cmake \
-    git \
-    libglib2.0-0 \
-    ncurses-term \
-    wget && \
-    apt -y autoremove && apt clean autoclean && \
-    rm -rf /var/lib/apt/lists/*  
+# Set default RUN shell to bash
+SHELL ["/bin/bash", "-c"]
 
-COPY ../ ${ISAACLAB_PATH}
-RUN ln -sf ${ISAACSIM_ROOT_PATH} ${ISAACLAB_PATH}/_isaac_sim
+# Metadata
+LABEL version="1.0"
+LABEL description="Custom Harry profile for IsaacLab"
 
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install toml
+# Inherit ENV args (used in isaaclab.sh)
+ARG ISAACLAB_PATH_ARG
+ENV ISAACLAB_PATH=${ISAACLAB_PATH_ARG}
+ARG DOCKER_USER_HOME_ARG
+ENV DOCKER_USER_HOME=${DOCKER_USER_HOME_ARG}
 
-RUN --mount=type=cache,target=/var/cache/apt \
-    ${ISAACLAB_PATH}/isaaclab.sh -p ${ISAACLAB_PATH}/tools/install_deps.py apt ${ISAACLAB_PATH}/source && \
-    apt -y autoremove && apt clean autoclean && \
-    rm -rf /var/lib/apt/lists/* && \
-    chown -R ubuntu:ubuntu /workspace/isaaclab
+# Upgrade pip + install latest PyTorch nightly for CUDA 12.8
+RUN ${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip install --upgrade pip && \
+    ${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu128
 
+# Optionally: Install any custom packages here
+# RUN ${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip install -e ${ISAACLAB_PATH}/source/chills
 
-# Set working directory to root of IsaacLab repo
+# Set up aliases
+RUN echo "alias isaaclab=${ISAACLAB_PATH}/isaaclab.sh" >> ${HOME}/.bashrc && \
+    echo "alias python=${ISAACLAB_PATH}/_isaac_sim/python.sh" >> ${HOME}/.bashrc && \
+    echo "alias pip='${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip'" >> ${HOME}/.bashrc
+
+# Working directory
 WORKDIR ${ISAACLAB_PATH}
-
-# Upgrade pip first
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --upgrade pip
-
-# Install editable packages
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab && \
-    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_assets/ && \
-    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_mimic/ && \
-    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_tasks/ && \
-    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_rl/
-
-# Install chills
-WORKDIR ${ISAACLAB_PATH}/source/chills
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e .
-
-# Install PyTorch nightly (CUDA 12.8)
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --upgrade --pre torch torchvision \
-    --index-url https://download.pytorch.org/whl/nightly/cu128
-

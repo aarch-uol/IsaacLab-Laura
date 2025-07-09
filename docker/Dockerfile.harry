@@ -25,4 +25,24 @@ RUN --mount=type=cache,target=/var/cache/apt \
     chown -R ubuntu:ubuntu /workspace/isaaclab
 
 
+# Set working directory to root of IsaacLab repo
 WORKDIR ${ISAACLAB_PATH}
+
+# Upgrade pip first
+RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --upgrade pip
+
+# Install editable packages
+RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab && \
+    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_assets/ && \
+    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_mimic/ && \
+    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_tasks/ && \
+    ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e isaaclab_rl/
+
+# Install chills
+WORKDIR ${ISAACLAB_PATH}/source/chills
+RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install -e .
+
+# Install PyTorch nightly (CUDA 12.8)
+RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --upgrade --pre torch torchvision \
+    --index-url https://download.pytorch.org/whl/nightly/cu128
+

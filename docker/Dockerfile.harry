@@ -1,10 +1,7 @@
 
 # What is the docker name suffix for the base image to load? (defaults to empty string)
 ARG DOCKER_NAME_SUFFIX=""
-
 FROM isaac-lab-base${DOCKER_NAME_SUFFIX} AS harry
-
-
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -24,7 +21,8 @@ RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install toml
 RUN --mount=type=cache,target=/var/cache/apt \
     ${ISAACLAB_PATH}/isaaclab.sh -p ${ISAACLAB_PATH}/tools/install_deps.py apt ${ISAACLAB_PATH}/source && \
     apt -y autoremove && apt clean autoclean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    chown -R ubuntu:ubuntu /workspace/isaaclab
 
 
 WORKDIR ${ISAACLAB_PATH}

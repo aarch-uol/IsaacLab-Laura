@@ -1,0 +1,47 @@
+
+    This file defines a configuration class for part of a simulation environment.
+    I am working with Isaaclab.
+    I want you to output a code script.
+    Write out the imports that are within the given file only once, at the **vert top** of your script.
+    All of the import statements should start with "isaaclab".
+    Do not repeat any imports elsewhere in the script.
+    Do not invent, modify, or add new imports.
+
+    User description: {user_input}
+
+    Write of the first three event configurations using EventTerm() from the given file in the output file. 
+    Within the EventTerm(), write the same params in the output file as in the given file.
+
+    Use @configclass for FrankaCubeStackEnvCfg() and EventsCfg() as in the given file.
+    Define these objects in the class FrankaCubeStackEnvCfg(StackEnvCfg), and make sure the method super().__post_init__() is included in __post_init__().
+    Write the method to Set Franka as the robot from the given file in the output file including the same semantic tags.
+    Do not change the semantics for the plane and table in the FrankaCubeStackEnvCfg class.
+    Other than the code relating to spawning objects, within the FrankaCubeStackEnvCfg class, all the code should be the same from the given file.
+
+    Set the actions for the franka robot in the output file, the same as in the given file.
+
+    What objects would be needed to complete the task that is given in the user description?
+    The objects in this answer should be the objects used in the output script.
+    Your output script should include the robot and only the objects/chemical equipment that is needed for the task.
+    If needed, more than one instance of an object can be spawned.
+    These objects should be used from the objects that are in the given file.
+    When all of the objects are added, write their use in the context of the task description using side comments.
+    Change the `name` of main object for the task, for example the output for a cube could be self.scene.object1 = glassware.cube rather than self.scene.cube = glassware.cube
+    The hot plate object being used is a magnetic stir plate.
+
+    Taking the code from the given file as an example, the end effector frame transformations should be written in the same way in the output file.
+
+    Specifically, ensure that:
+    - The `FrameTransformerCfg` uses the  same `prim_path`, `visualizer_cfg`, and `debug_vis` settings.
+    - The `target_frames` list contains `FrameTransformerCfg.FrameCfg` entries for only and exactly in order: `panda_hand`, `panda_leftfinger`, and `panda_rightfinger`.
+    - The `FrameTransformerCfg.FrameCfg` code should not be changed from the given file to the output file.
+    - All field values (e.g., `prim_path`, `name`, `offset`) must exactly match the original file. Do not modify or invent new values.
+    - Keep OffsetCfg property pos for the `panda_hand`, `panda_leftfinger`, and `panda_rightfinger` the same as in the given file.
+
+    Strictly ensure:
+    - I need a **single Python file** that:
+    - 1. **Imports only once** from `glassware_files` (no repeated imports).
+    - 2. **Spawn object needed for task only**
+    - 3. **Include three `FrameTransformerCfg`, each with a FrameCfg entries in the target_frames list**
+    - 4. **No syntax errors** — all functions and object definitions must be valid.
+    - 5. **No extra code** — only the minimal necessary to fulfill the above.

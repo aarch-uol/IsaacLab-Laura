@@ -49,13 +49,13 @@ class Glassware:
                 semantic_tags=[("class", "conical_flask")],
             ),
         )
-        # Spawn a beaker
+        # Spawn a beaker - changed from 1,1,1 scale
         self.beaker = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Beaker",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.60, -0.1, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.60, -0.1, 0.0203], rot=[0, 1, 1, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_beaker_upright.usd",
-                scale=(1.0, 1.0, 1.0),
+                scale=(0.5, 0.5, 0.5),
                 rigid_props=cube_properties,
                 semantic_tags=[("class", "beaker")],
             ),

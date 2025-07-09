@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.managers import SceneEntityCfg
-
+from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
@@ -26,17 +26,21 @@ def cubes_stacked(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"), # cube_1
     cube_2_cfg: SceneEntityCfg = SceneEntityCfg("hot_plate"), # cube_2 
+    command_name: str = "object_pose",
     xy_threshold: float = 0.1,
-    height_threshold: float = 0.005,
-    height_diff: float = 0.0468,
+    height_threshold: float = 0.006,
+    # height_diff: float = 0.0468,
+    height_diff: float = 0.05,
     threshold: float = 0.02,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     atol=0.0001,
     rtol=0.0001,
+    loghelper : LoggingHelper = LoggingHelper(),
 ):
     robot: Articulation = env.scene[robot_cfg.name]
     cube_1: RigidObject = env.scene[cube_1_cfg.name]
     cube_2: RigidObject = env.scene[cube_2_cfg.name]
+    command = env.command_manager.get_command(command_name)
 
     # Position difference between cube and hot plate 
     pos_diff = cube_2.data.root_pos_w - cube_1.data.root_pos_w
@@ -50,8 +54,11 @@ def cubes_stacked(
     xy_check = xy_dist < xy_threshold
 
     # Check that the object is stacked
-    overall_height = height_diff_actual - height_diff
-    height_check = torch.abs(overall_height) > height_threshold
+    # overall_height = height_diff_actual - height_diff
+    overall_height = height_diff_actual + height_diff
+    # print(overall_height)
+    # height_check = torch.abs(overall_height) < height_threshold
+    height_check = torch.where(overall_height < 0, overall_height, torch.abs(overall_height))
 
     # Combine [True] for all dimensions
     stacked = torch.logical_and(xy_check, height_check)

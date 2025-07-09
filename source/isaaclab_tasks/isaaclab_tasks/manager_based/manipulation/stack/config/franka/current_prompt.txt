@@ -9,15 +9,16 @@
     Write of the first three event configurations using EventTerm() from the given file in the output file. 
     Within the EventTerm(), write the same params in the output file as in the given file.
 
-    Your output script should include only three objects: the robot, a cube and a hot plate.
-    Only spawn objects that have been mentioned.
+    Your output script should include the robot and the two objects: a cube and a hot plate.
+    Change the `name` of the cube, for example the output for a cube could be self.scene.object1 = glassware.cube rather than self.scene.cube = glassware.cube
     Use @configclass for FrankaCubeStackEnvCfg() and EventsCfg() as in the given file.
     Define these objects in the class FrankaCubeStackEnvCfg(StackEnvCfg), and make sure the method super().__post_init__() is included in __post_init__().
     Write the method to Set Franka as the robot from the given file in the output file including the same semantic tags.
     Do not change the semantics for the plane and table in the FrankaCubeStackEnvCfg class.
     Other than the code relating to spawning objects, within the FrankaCubeStackEnvCfg class, all the code should be the same from the given file.
 
-    Write the exact same end effector frame transformations from in the output file as is in the given file.
+    Set the actions for the franka robot in the output file, the same as in the given file.
+    Write the exact same code for the end effector frame transformations from in the output file as is in the given file.
 
     Specifically, ensure that:
     - The `FrameTransformerCfg` uses the  same `prim_path`, `visualizer_cfg`, and `debug_vis` settings.
@@ -26,14 +27,12 @@
     - Keep OffsetCfg property pos for the `panda_hand`, `panda_leftfinger`, and `panda_rightfinger` the same as in the given file.
 
     Strictly ensure:
-    - No repeated imports.
-    - No duplicated sections of more than 5 lines in the output.
-    - Output a single, complete Python file.
-
-    Strictly ensure:
-    - No repeated imports.
-    - No duplicated sections of more than 5 lines in the output.
-    - Only spawn the objects: a beaker and a hot plate.
-    - Output a single, complete Python file.
-    - No SyntaxError in the required transforms code.
-    - Include the three frame transformations
+    - I need a **single Python file** that:
+    - 1. **Imports only once** from `glassware_files` (no repeated imports).
+    - 2. **Spawns only two objects**: a cube (renamed to `object1`) and a hot plate.
+    - 3. **Includes three frame transformations**:
+        - `end_effector_frame()`
+        - `gripper_frame()`
+        - `gripper_joint_frame()`
+    - 4. **No syntax errors** — all functions and object definitions must be valid.
+    - 5. **No extra code** — only the minimal necessary to fulfill the above.

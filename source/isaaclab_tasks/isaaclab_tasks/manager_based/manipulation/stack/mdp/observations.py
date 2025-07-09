@@ -297,6 +297,7 @@ def object_stacked(
     # Upper and lower object cfg defined in stack_env_cfg when stacked in subtask
     upper_object_cfg: SceneEntityCfg,
     lower_object_cfg: SceneEntityCfg,
+    command_name: str = "object_pose",
     xy_threshold: float = 0.05,
     height_threshold: float = 0.005,
     height_diff: float = 0.0468,
@@ -307,6 +308,7 @@ def object_stacked(
     robot: Articulation = env.scene[robot_cfg.name]
     upper_object: RigidObject = env.scene[upper_object_cfg.name]
     lower_object: RigidObject = env.scene[lower_object_cfg.name]
+    command = env.command_manager.get_command(command_name)
 
     pos_diff = upper_object.data.root_pos_w - lower_object.data.root_pos_w
     height_dist = torch.linalg.vector_norm(pos_diff[:, 2:], dim=1)

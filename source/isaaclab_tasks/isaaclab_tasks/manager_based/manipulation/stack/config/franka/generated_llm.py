@@ -6,13 +6,12 @@ from isaaclab.utils import configclass
 from isaaclab_tasks.manager_based.manipulation.stack import mdp
 from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
 from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
-from isaaclab.markers.config import FRAME_MARKER_CFG  
-from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  
+from isaaclab.markers.config import FRAME_MARKER_CFG
+from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG
 from . import glassware_files
 
-
 @configclass
-class EventsCfg:
+class EventCfg:
     """Configuration for events."""
 
     init_franka_arm_pose = EventTerm(
@@ -43,7 +42,6 @@ class EventsCfg:
         },
     )
 
-
 @configclass
 class FrankaCubeStackEnvCfg(StackEnvCfg):
     def __post_init__(self):
@@ -52,7 +50,7 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         glassware = glassware_files.Glassware()
 
         # Set events
-        self.events = EventsCfg()
+        self.events = EventCfg()
 
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
@@ -62,7 +60,7 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.scene.table.spawn.semantic_tags = [("class", "table")]
 
         # Add semantics to ground
-        self.scene.plane.semantic_tags = [("class", "ground")]
+        self.scene.plane.spawn.semantic_tags = [("class", "ground")]
 
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
@@ -75,8 +73,10 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
             close_command_expr={"panda_finger_.*": 0.0},
         )
 
+        self.commands.object_pose.body_name = "panda_hand"
+
         # Spawn objects
-        self.scene.object1 = glassware.cube
+        self.scene.object1 = glassware.beaker  # Main object for the task: beaker
         self.scene.hot_plate = glassware.hot_plate
 
         # Listens to the required transforms

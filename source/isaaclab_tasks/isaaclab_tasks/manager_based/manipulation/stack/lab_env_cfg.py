@@ -62,6 +62,20 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 # MDP settings
 ##
 @configclass
+class CommandsCfg:
+    """Command terms for the MDP."""
+#### Goal Positions
+    object_pose = mdp.UniformPoseCommandCfg(
+        asset_name="robot",
+        body_name=MISSING,  # will be set by agent env cfg
+        resampling_time_range=(10.0, 10.0),
+        debug_vis=True,
+        ranges=mdp.UniformPoseCommandCfg.Ranges(
+            pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+        ),
+    )
+
+@configclass
 class ActionsCfg:
     """Action specifications for the MDP."""
 
@@ -138,7 +152,7 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     cube_1_dropping = DoneTerm(
-        func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")} # cube_1
+        func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")} 
     )
 
     success = DoneTerm(func=mdp.cubes_stacked)
@@ -155,9 +169,10 @@ class StackEnvCfg(ManagerBasedRLEnvCfg):
     actions: ActionsCfg = ActionsCfg()
     # MDP settings
     terminations: TerminationsCfg = TerminationsCfg()
+    commands: CommandsCfg = CommandsCfg()
 
     # Unused managers
-    commands = None
+    # commands = None
     rewards = None
     events = None
     curriculum = None

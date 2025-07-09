@@ -63,12 +63,10 @@ class EventCfg:
         func=mdp.randomize_rigid_body_scale,
         mode="prestartup",
         params={
-            "scale_range": (0.5, 1.5),
+            "scale_range": (0.8, 1.2),
             "asset_cfg": SceneEntityCfg("object1"),
         },
     )
-
-
 
 
 @configclass
@@ -100,6 +98,7 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
             open_command_expr={"panda_finger_.*": 0.04},
             close_command_expr={"panda_finger_.*": 0.0},
         )
+        self.commands.object_pose.body_name = "panda_hand"
 
         # Rigid body properties of each cube
         cube_properties = RigidBodyPropertiesCfg(
@@ -113,7 +112,7 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
 
         self.scene.hot_plate = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Hot_plate",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.7, 0.3, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.55, 0.3, 0.0203], rot=[0.707, 0.707, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/hot_plate.usd",
                 scale=(0.03, 0.03, 0.03),
@@ -123,10 +122,11 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
         )
         self.scene.object1 = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Sample_vial",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0, 1, 1, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
-                usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/red_block.usd",
+                # usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/red_block.usd",
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centre_beaker.usd",
                 scale=(1.0, 1.0, 1.0),
                 rigid_props=RigidBodyPropertiesCfg(),
                 semantic_tags=[("class", "object1")],

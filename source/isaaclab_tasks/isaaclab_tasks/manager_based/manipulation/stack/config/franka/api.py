@@ -6,12 +6,16 @@ import subprocess
 client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 
 class LLMClient:
-    def __init__(self, model_name="qwen3:8b"):
-        self.model_name = model_name
+    # def __init__(self, model_name="qwen3:8b"):
+    #     self.model_name = model_name
     # def __init__(self, model_name="gemma3:1b"):
     #     self.model_name = model_name
     # def __init__(self, model_name="gemma3:12b"):
     #     self.model_name = model_name
+    # def __init__(self, model_name="dolphin3:8b"):
+    #     self.model_name = model_name
+    def __init__(self, model_name="devstral:24b"):
+        self.model_name = model_name
 
     def read_file(self, file_path: str):
         """Reads a file."""
@@ -23,14 +27,16 @@ class LLMClient:
         # Extract the first Python code block (```python ... ```)
         code_blocks = re.findall(r"```(?:python)?\n(.*?)```", text, re.DOTALL)
         return code_blocks[0] if code_blocks else text  # fallback to full text
-    
-    def user_description(self):
-        # Could be within the output file function?
-        user_input = input("Please give a description of the environment")
-        return
 
     def output_file(self, file_path: str, output_file: str):
         """Reads a given file, connects to LLM through API and python code part of comment is written into a new file."""
+        # Heating a solution - gives beaker and a hot plate
+        # Stirring a solution - gives beaker and a hot plate 
+        # I want to complete the blue bottle experiment - devstral/dolphin3 gives beaker and hot plate - at moment just a cube
+        # devstral choosing the main object for first two above tasks
+        # dolphin3 is not removing any objects (like gemma3), cube=object and changing name of hot_plate to magnetic stir plate 
+        # I want to heat a conical flask - conical and hot plate, conical flask added twice (two names for same object so one instance) (devstral)
+        user_input = input("Please give a description of the environment: ")
         file_content = self.read_file(file_path)
 
         prompt = f"""
@@ -38,40 +44,84 @@ class LLMClient:
 
     {file_content}
 
+    This prompt applies to IsaacLab-based simulation code. 
+    Your task is to generate a single, valid Python file with no syntax errors. 
+    The output should be minimal, correct, and closely match the structure and content of the given file.
+    The content of the output file should only differ by the objects spawned from the given file.
     This file defines a configuration class for part of a simulation environment.
-    I am working with Isaaclab.
-    I want you to output a code script.
-    Write out the imports that are within the given file only once, at the **vert top** of your script.
-    All of the import statements should start with "isaaclab".
-    Do not repeat any imports elsewhere in the script.
-    Do not invent, modify, or add new imports.
 
-    Write of the first three event configurations using EventTerm() from the given file in the output file. 
-    Within the EventTerm(), write the same params in the output file as in the given file.
+    ### Task description
 
-    Your output script should include the robot and the two objects: a cube and a hot plate.
-    Change the `name` of the cube object, for example the output should be self.scene.object1 = glassware.cube rather than self.scene.cube = glassware.cube
-    Use @configclass for FrankaCubeStackEnvCfg() and EventsCfg() as in the given file.
-    Define these objects in the class FrankaCubeStackEnvCfg(StackEnvCfg), and make sure the method super().__post_init__() is included in __post_init__().
-    Write the method to Set Franka as the robot from the given file in the output file including the same semantic tags.
-    Do not change the semantics for the plane and table in the FrankaCubeStackEnvCfg class.
-    Other than the code relating to spawning objects, within the FrankaCubeStackEnvCfg class, all the code should be the same from the given file.
+    User description: {user_input}
+    Think about what chemical equipment might be used to complete the task in the user description.
 
-    Set the actions for the franka robot in the output file, the same as in the given file.
-    Write the exact same code for the end effector frame transformations from in the output file as is in the given file.
+    ### Imports
 
-    Specifically, ensure that:
-    - The `FrameTransformerCfg` uses the  same `prim_path`, `visualizer_cfg`, and `debug_vis` settings.
-    - The `target_frames` list contains `FrameTransformerCfg.FrameCfg` entries for all of: `panda_hand`, `panda_leftfinger`, and `panda_rightfinger`.
-    - All field values (e.g., `prim_path`, `name`, `offset`) must exactly match the original file. Do not modify or invent new values.
-    - Keep OffsetCfg property pos for the `panda_hand`, `panda_leftfinger`, and `panda_rightfinger` the same as in the given file.
+    - Extract **only the import statements** that are in the **given file**.
+    - Add them **once at the very top** of your output script.
+    - Every import must start with `isaaclab` or `glassware_files`.
+    - **Do not repeat or invent any import**.
+    - **Do not add extra imports**, even if they seem necessary.
+
+    ### EventTerm Definitions
+
+    - Include exactly the **first three EventTerm()** entries from the given file.
+    - These must be written **exactly as-is**: same function, mode, and params.
+    - Do not add, remove, or alter any parameters inside `params`.
+
+    ### Class Definitions
+
+    Use the `@configclass` decorator for both classes, as in the given file:
+    - `FrankaCubeStackEnvCfg(StackEnvCfg)`
+    - `EventsCfg(EventGroupCfg)`
+
+    In `FrankaCubeStackEnvCfg`:
+    - Include a method called `__post_init__()` that contains `super().__post_init__()`.
+    - **Do not change** the semantic tags for the plane or table.
+    - **Do not modify** how robot actions or robot commands are set.
+    - All code in this class must exactly match the given file — except for object spawning.
+
+    ### Task Specific Objects
+
+    - Use **only** objects defined in the original file — do **not invent new ones**.
+    - Instantiate only the **Franka robot** and **objects required** to complete the user task.
+    - The **hot plate** object in the USD file refers to a **magnetic stir plate**.
+    - If needed, multiple instances of the same object are allowed.
+
+    In the output file:
+    - For the task's main object, use this naming style:
+    Replace (this code should not be present in output code) # Example if the object is a cube
+    ```python
+    self.scene.cube = glassware.cube
+    ```
+    with this
+    ```python
+    self.scene.object1 = glassware.cube 
+    ```
+    - The “main object” is the one moved within the task. You must decide which one that is based on the task.
+    - Rename the chosen main object to follow the self.scene.object1 naming convention as shown above.
+    - This main object will be a piece of glassware.
+    - If there are two names for an instance, keep only the name involving object1.
+    - Add a side comment indicating which object was chosen as the main object for the task.
+
+    ### Robot and Frame Transformations
+
+    - Use the same robot setup code from the given file (Franka, with the correct semantic tags).
+    - Add one FrameTransformerCfg with the following three FrameCfg entries in this exact order:
+        1. panda_hand
+        2. panda_leftfinger
+        3. panda_rightfinger
+    - For each FrameCfg:
+    - Use the same prim_path, name, and OffsetCfg(pos=...) values as the original file.
+    - Do not change or invent any values or fields.
 
     Strictly ensure:
-    - No repeated imports.
-    - No duplicated sections of more than 5 lines in the output.
-    - Only spawn objects that have been mentioned in this prompt.
-    - Output a single, complete Python file.
-    - No SyntaxError in the required transforms code.
+    - I need a **single Python file** that:
+    - 1. **Imports only once** from `glassware_files` (no repeated imports).
+    - 2. **Spawn object needed for task only**
+    - 3. **Include three `FrameTransformerCfg`, each with a FrameCfg entries in the target_frames list**
+    - 4. **No syntax errors** — all functions and object definitions must be valid.
+    - 5. **No extra code** — only the minimal necessary to fulfill the above.
     """
 
     # {user_input} is a message input from the user
@@ -80,6 +130,7 @@ class LLMClient:
     ## If message includes a task - task of stacking is possible, if another then ??? so far
 
     # Could give scales known for the different sizes of chemical equipment, then whatever size that is asked the known scale would be known.
+    # Could create different sizes for chemical equipment which could be called to
     # Or to be less repetitive, it could know the general sizes of the equipment, allocate the sizes depending on how many there are
     # and then give the size of the respective one that was asked.
 
@@ -111,18 +162,14 @@ class LLMClient:
 
     
     def run_llm_file(self):
+        # Could be added to output_file function
         terminal_code = [
             "./isaaclab.sh",
             "-p",
-            "scripts/environments/teleoperation/teleop_se3_agent.py",
-            "--task",
-            "Isaac-Stack-LLM-Franka-IK-Rel-v0",
+            "scripts/environments/state_machine/stack_lab_sm.py",
             "--num_envs",
             "1",
-            "--teleop_device",
-            "keyboard"
             ]
-        
         terminal_result = subprocess.run(terminal_code)
         return terminal_result
 

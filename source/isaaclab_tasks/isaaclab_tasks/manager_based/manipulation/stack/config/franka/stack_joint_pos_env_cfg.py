@@ -84,6 +84,8 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
             close_command_expr={"panda_finger_.*": 0.0},
         )
 
+        self.commands.object_pose.body_name = "panda_hand"
+
         #Spawn objects
         self.scene.sample_vial = glassware.sample_vial
         self.scene.beaker = glassware.beaker
@@ -125,3 +127,5 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
                 ),
             ],
         )
+
+

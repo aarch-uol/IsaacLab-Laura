@@ -20,14 +20,28 @@ parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 
 args_cli = parser.parse_args()
 
-    
+
+def MC_dropout_uncertainty(policy, obs, niters=50):
+    """
+    Low std: Model is confident for that output dimension (joint position).
+
+    High std: Model is unsure - often in areas outside training distribution or in ambiguous states.
+    """
+    actions = [torch.from_numpy(policy(obs)) for i in range(niters)]
+    actions = torch.stack(actions)
+    #mean = torch.mean(actions, dim=0)
+    std = torch.std(actions, dim=0)
+
+    return std
+
+
 
 def inject_dropout_layers(policy, probability=0.5):
     modules = list(policy.policy.nets['policy'].named_modules())
     #print(f"Total modules found: {len(modules)}")
 
     def dropout_hook(module, _, output):
-        print("applying dropout")
+        #print("applying dropout")
         return F.dropout(output, p=probability, training=True) # setting training=True forces dropout to happen regardless of whether the model is in train or evaluation mode
 
     hooks = []
@@ -42,7 +56,7 @@ device = TorchUtils.get_torch_device(try_to_use_cuda=True)
 
 policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
 
-#inject_dropout_layers(policy=policy, probability=1)
+inject_dropout_layers(policy=policy, probability=0.5)
 
 obs_dict = {'policy': {
             'joint_pos': torch.tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0.]], device=device), 
@@ -78,8 +92,15 @@ for ob in obs:
 for subob in sub_obs:
     sub_obs[subob] = torch.squeeze(sub_obs[subob])
 
-action = policy(obs)
-print("Action:", action)
+import time
+
+start_time = time.time()
+std = MC_dropout_uncertainty(policy=policy, obs=obs, niters=50)
+end_time = time.time()
+
+print(f"tds: {std}\ntime taken: {end_time - start_time}")
+#action = policy(obs)
+#print("Action:", action)
 
 
 

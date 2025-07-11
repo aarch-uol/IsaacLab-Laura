@@ -89,7 +89,9 @@ def rollout(policy, env, success_term, horizon, device):
     """
     policy.start_episode()
     obs_dict, _ = env.reset()
-    #print(f"obs dict : {obs_dict}")
+    
+    print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
+
     traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[])
 
     for i in range(horizon):
@@ -121,7 +123,7 @@ def rollout(policy, env, success_term, horizon, device):
 
         # Compute actions
         actions = policy(obs)
-        print(len(obs))
+        
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (

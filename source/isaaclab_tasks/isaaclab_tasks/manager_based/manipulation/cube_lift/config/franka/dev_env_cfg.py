@@ -78,7 +78,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         # self.scene.flask = glassware.flask()
         # self.scene.vial = glassware.vial()
         # self.scene.beaker = glassware.beaker()
-        self.scene.stirplate = glassware.stirplate()
+        #self.scene.stirplate = glassware.stirplate()
         #self.scene.random = glassware.random_object()
 
         # Listens to the required transforms

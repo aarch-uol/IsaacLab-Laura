@@ -86,7 +86,6 @@ from robomimic.utils.log_utils import DataLogger, PrintLogger
 import isaaclab_tasks  # noqa: F401
 import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
-from evaluation import inject_dropout_layers
 
 def normalize_hdf5_actions(config: Config, log_dir: str) -> str:
     """Normalizes actions in hdf5 dataset to [-1, 1] range.
@@ -172,7 +171,11 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
 
     # load basic metadata from training file
     print("\n============= Loaded Environment Metadata =============")
-    env_meta = FileUtils.get_env_metadata_from_dataset(dataset_path=config.train.data)
+    try:
+        env_meta = FileUtils.get_env_metadata_from_dataset(dataset_path=config.train.data)
+    except:
+        env_meta = {"env_name": "Dev-IK-Rel-v0", "env_kwargs": {}}
+        print("No metadata found")
     shape_meta = FileUtils.get_shape_metadata_from_dataset(
         dataset_path=config.train.data, all_obs_keys=config.all_obs_keys, verbose=True
     )
@@ -385,7 +388,8 @@ def main(args: argparse.Namespace):
 
     # change location of experiment directory
     config.train.output_dir = os.path.abspath(os.path.join("./logs", args.log_dir, args.task))
-
+    #print("Config : ", config)
+   # print("dirs : ", TrainUtils.get_exp_dir(config))
     log_dir, ckpt_dir, video_dir = TrainUtils.get_exp_dir(config)
 
     if args.normalize_training_actions:

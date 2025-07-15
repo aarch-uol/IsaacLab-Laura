@@ -11,30 +11,46 @@ import torch.nn.functional as F
 import robomimic.utils.file_utils as FileUtils
 import robomimic.utils.torch_utils as TorchUtils
 
+import time
 
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Evaluate robomimic policy for Isaac Lab environment.")
-parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
-parser.add_argument("--seed", type=int, default=101, help="Random seed.")
+# parser = argparse.ArgumentParser(description="Evaluate robomimic policy for Isaac Lab environment.")
+# parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
+# parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 
-args_cli = parser.parse_args()
+
+
+# args_cli = parser.parse_args()
 
 
 def MC_dropout_uncertainty(policy, obs, niters=50):
     """
-    Low std: Model is confident for that output dimension (joint position).
+    Low std and variance: Model is confident for that output dimension (joint position).
 
-    High std: Model is unsure - often in areas outside training distribution or in ambiguous states.
+    High std and variance: Model is unsure - often in areas outside training distribution or in ambiguous states.
     """
+
     actions = [torch.from_numpy(policy(obs)) for i in range(niters)]
     actions = torch.stack(actions)
-    #mean = torch.mean(actions, dim=0)
+    
+    mean = torch.mean(actions, dim=0)
     std = torch.std(actions, dim=0)
+    variance = torch.sqrt(std)
 
-    return std
+    
+
+    return {
+        'mean': mean,
+        'std': std,
+        'variance': variance
+    }
 
 
+
+def remove_dropout_layers(hooks):
+    for hook in hooks:
+        hook.remove()    
 
 def inject_dropout_layers(policy, probability=0.5):
     modules = list(policy.policy.nets['policy'].named_modules())
@@ -50,57 +66,69 @@ def inject_dropout_layers(policy, probability=0.5):
             hook = module.register_forward_hook(dropout_hook)
             hooks.append(hook)
     
+    return hooks
+
+def prepare_observations(obs_dict: dict):
+    # Prepare observations
+    obs = copy.deepcopy(obs_dict["policy"])
+    sub_obs = copy.deepcopy(obs_dict["subtask_terms"])
+
+    for ob in obs:
+        obs[ob] = torch.squeeze(obs[ob])
+
+    for subob in sub_obs:
+        sub_obs[subob] = torch.squeeze(sub_obs[subob])
     
-
-device = TorchUtils.get_torch_device(try_to_use_cuda=True)
-
-policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-
-inject_dropout_layers(policy=policy, probability=0.5)
-
-obs_dict = {'policy': {
-            'joint_pos': torch.tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0.]], device=device), 
-            'joint_vel': torch.tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0.]], device=device), 
-            'object_position': torch.tensor([[0.4975, 0.0483, 0.0203]], device=device), 
-            'target_object_position': torch.tensor([[ 0.4000, -0.3000,  0.0800,  1.0000,  0.0000,  0.0000,  0.0000]], device=device), 
-            'actions': torch.tensor([[0., 0., 0., 0., 0., 0., 0.]], device=device), 
-            'object_to_target': torch.tensor([False], device=device), 
-            'eef_pos': torch.tensor([[ 0.3764, -0.0050,  0.0891]], device=device), 
-            'eef_quat': torch.tensor([[ 0.6433,  0.0366,  0.7636, -0.0415]], device=device), 
-            'gripper_pos': torch.tensor([[ 0.0400, -0.0400]], device=device)
-        }, 
-    'subtask_terms': {
-            'appr': torch.tensor([False], device=device), 
-            'grasp': torch.tensor([False], device=device), 
-            'lift': torch.tensor([False], device=device), 
-            'appr_goal': torch.tensor([False], device=device)
-        }
-    }
+    return obs, sub_obs
 
 
-policy.start_episode()
-#policy.policy.nets['policy'].eval()
+# device = TorchUtils.get_torch_device(try_to_use_cuda=True)
 
-# Prepare observations
-obs = copy.deepcopy(obs_dict["policy"])
-sub_obs = copy.deepcopy(obs_dict["subtask_terms"])
+# policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
 
-for ob in obs:
-    obs[ob] = torch.squeeze(obs[ob])
-    #print(f"found observation : {obs[ob]}")
 
-for subob in sub_obs:
-    sub_obs[subob] = torch.squeeze(sub_obs[subob])
+# obs_dict = {'policy': {
+#             'joint_pos': torch.tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0.]], device=device), 
+#             'joint_vel': torch.tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0.]], device=device), 
+#             'object_position': torch.tensor([[0.4975, 0.0483, 0.0203]], device=device), 
+#             'target_object_position': torch.tensor([[ 0.4000, -0.3000,  0.0800,  1.0000,  0.0000,  0.0000,  0.0000]], device=device), 
+#             'actions': torch.tensor([[0., 0., 0., 0., 0., 0., 0.]], device=device), 
+#             'object_to_target': torch.tensor([False], device=device), 
+#             'eef_pos': torch.tensor([[ 0.3764, -0.0050,  0.0891]], device=device), 
+#             'eef_quat': torch.tensor([[ 0.6433,  0.0366,  0.7636, -0.0415]], device=device), 
+#             'gripper_pos': torch.tensor([[ 0.0400, -0.0400]], device=device)
+#         }, 
+#     'subtask_terms': {
+#             'appr': torch.tensor([False], device=device), 
+#             'grasp': torch.tensor([False], device=device), 
+#             'lift': torch.tensor([False], device=device), 
+#             'appr_goal': torch.tensor([False], device=device)
+#         }
+#     }
 
-import time
+# inject_dropout_layers(policy=policy, probability=0.7)
 
-start_time = time.time()
-std = MC_dropout_uncertainty(policy=policy, obs=obs, niters=50)
-end_time = time.time()
+# policy.start_episode()
+# obs, sub_obs = prepare_observations(obs_dict=obs_dict)
 
-print(f"tds: {std}\ntime taken: {end_time - start_time}")
-#action = policy(obs)
-#print("Action:", action)
+
+# start_time = time.time()
+# results_dict = MC_dropout_uncertainty(policy=policy, obs=obs, niters=100)
+# end_time = time.time()
+
+# print(results_dict)
+# print(f"time taken: {end_time - start_time}")
 
 
 
+
+"""
+train a model that:
+
+takes as input joint positions (so a combination of joint positions and their values).
+
+outputs whether that specific combination of joint positions is safe or not.
+
+for the training data use joint position input of the current policy and see if it resulted in task success or not.
+
+"""

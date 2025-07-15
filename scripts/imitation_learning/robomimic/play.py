@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+# run this script: ./isaaclab.sh -p scripts/imitation_learning/robomimic/play.py --device cuda --task Dev-IK-Rel-v0 --num_rollouts 50 --checkpoint ./docs/Models/model_epoch_5000.pth
+
 """Script to play and evaluate a trained policy from robomimic.
 
 This script loads a robomimic policy and plays it in an Isaac Lab environment.
@@ -72,9 +74,11 @@ if args_cli.enable_pinocchio:
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
+from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers
+from JointSafetyClassifier import JointSafetyClassifier
 
 
-def rollout(policy, env, success_term, horizon, device):
+def rollout(policy, env, success_term, horizon, device, jointsafetyclassifier):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -90,9 +94,10 @@ def rollout(policy, env, success_term, horizon, device):
     policy.start_episode()
     obs_dict, _ = env.reset()
     
-    print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
+    #print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
 
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[])
+    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
+    uncertainties = []
 
     for i in range(horizon):
         # Prepare observations
@@ -120,10 +125,22 @@ def rollout(policy, env, success_term, horizon, device):
 
         traj["obs"].append(obs)
         traj["sub_obs"].append(sub_obs)
+        
+        # Add dropout layers to the model and calculate uncertainty
+        hooks = inject_dropout_layers(policy=policy, probability=0.5)
+        uncertainty_dict = MC_dropout_uncertainty(policy=policy, obs=obs, niters=15)
+        traj['uncertainties'].append(uncertainty_dict['variance'])
+        remove_dropout_layers(hooks)
 
         # Compute actions
         actions = policy(obs)
-        
+        # if jointsafetyclassifier.isSafe(torch.tensor(actions)):
+        #     print("YES")
+        # else:
+        #     print("NO")
+        #print(f"joint positions: {obs['joint_pos']}")
+        #print(f"actions: {actions}")
+
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (
@@ -140,6 +157,7 @@ def rollout(policy, env, success_term, horizon, device):
         # Record trajectory
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)
+
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -183,13 +201,39 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-    
+
+    jointsafetyclassifier = JointSafetyClassifier()
+    jointsafetyclassifier.load_state_dict(torch.load('./docs/training_data/JointSafetyClassifier.pth', weights_only=True))
+    jointsafetyclassifier.eval()
+
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
         loghelper.startEpoch(trial)
-        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
+        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device, jointsafetyclassifier)
+        with open("./docs/training_data/uncertainties.txt", 'a') as file:
+            for i, var in enumerate(traj['uncertainties']):
+                line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"
+                file.write(f"{str(i)} {line}")
+                
+            
+        # data = []
+        # for joint_positions in traj['actions']:
+        #     if terminated == False:
+        #         data.append((joint_positions, 0))
+        #     else:
+        #         data.append((joint_positions, 1))
+
+        # print(data)
+        # with open("./docs/training_data/training_data.txt", "a") as file:
+        #     for sample in data:
+        #         # sample[0] is the list of floats (joint positions)
+        #         joint_strs = [str(x) for x in sample[0]]  # Convert all floats to strings
+        #         sample_str = ' '.join(joint_strs)
+        #         sample_str += f" {sample[1]}\n"  # Append the label (0 or 1)
+        #         file.write(sample_str)
+    
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
         loghelper.stopEpoch(trial)

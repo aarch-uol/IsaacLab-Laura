@@ -22,4 +22,3 @@ __version__ = ISAACLAB_ASSETS_METADATA["package"]["version"]
 
 from .robots import *
 from .sensors import *
-from .glassware import *

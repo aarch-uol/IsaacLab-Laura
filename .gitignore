@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # C++
 **/cmake-build*/
 **/build*/
@@ -61,14 +62,17 @@ _build
 # Pre-Trained Checkpoints
 /.pretrained_checkpoints/
 
-# Teleop Recorded Dataset
-datasets
-
-# path 
-docs/training_runs
-
-# Tests
-tests/
 
 # Docker history
 .isaac-lab-docker-history
+=======
+
+
+# Python
+.DS_Store
+**/*.egg-info/
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+**/*.pb
+>>>>>>> Stashed changes

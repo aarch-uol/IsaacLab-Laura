@@ -171,6 +171,7 @@ class DifferentialIKController:
             pose_error = torch.cat((position_error, axis_angle_error), dim=1)
             delta_joint_pos = self._compute_delta_joint_pos(delta_pose=pose_error, jacobian=jacobian)
         # return the desired joint positions
+       # print(f"Joint Pos : {joint_pos} \n Delta Joint Pos : {delta_joint_pos}")
         return joint_pos + delta_joint_pos
 
     """

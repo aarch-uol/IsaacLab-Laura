@@ -57,14 +57,14 @@ class Chem_Assets:
                 ),
             )
 
-        def stirplate(self,pos=[0.50, -0.3, 0.05],rot=[0.707, 0, 0, -0.707], name="Stirplate")-> RigidObjectCfg:
+        def stirplate(self,pos=[0.50, -0.3, 0.0],rot=[0.707, 0, 0, -0.707], name="Stirplate")-> RigidObjectCfg:
             return RigidObjectCfg(
                 prim_path="{ENV_REGEX_NS}/" + name ,
                 init_state=RigidObjectCfg.InitialStateCfg(pos=pos,rot=rot),
                 spawn=UsdFileCfg(
                     usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/mag_hotplate.usd",
                     scale=(0.8, 0.8, 0.8),
-                    rigid_props=self.cube_properties,
+                    rigid_props=RigidBodyPropertiesCfg(kinematic_enabled=True),
                     semantic_tags=[("class", name)],
                 ),
             ) 

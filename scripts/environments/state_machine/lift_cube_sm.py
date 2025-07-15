@@ -11,7 +11,7 @@ It uses the `warp` library to run the state machine in parallel on the GPU.
 
 .. code-block:: bash
 
-    ../isaaclab.sh -p scripts/environments/state_machine/lift_cube_sm-copy.py --num_envs 1
+    ../isaaclab.sh -p scripts/environments/state_machine/lift_cube_sm.py --num_envs 1
 
 """
 
@@ -49,6 +49,8 @@ from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
+
+from isaaclab.controllers import OperationalSpaceController, OperationalSpaceControllerCfg
 
 # initialize warp
 wp.init()
@@ -286,7 +288,7 @@ def main():
     desired_orientation[:, 1] = 1.0
     # create state machine
     pick_sm = PickAndLiftSm(
-        env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.01
+        env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.05
     )
    # print("debug1 : " , env.unwrapped.action_space.shape)
     n=0

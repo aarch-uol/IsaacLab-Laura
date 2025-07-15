@@ -24,7 +24,6 @@ import math
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
 from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
 
-
 @configclass
 class FrankaDevEnvCfg(CubeEnvCfg):
     def __post_init__(self):
@@ -79,7 +78,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         # self.scene.flask = glassware.flask()
         # self.scene.vial = glassware.vial()
         # self.scene.beaker = glassware.beaker()
-        #self.scene.stirplate = glassware.stirplate()
+        self.scene.stirplate = glassware.stirplate()
         #self.scene.random = glassware.random_object()
 
         # Listens to the required transforms

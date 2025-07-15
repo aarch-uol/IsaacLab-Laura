@@ -1,4 +1,47 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+[package]
+
+# Note: Semantic Versioning is used: https://semver.org/
+version = "0.40.21"
+
+# Description
+title = "Isaac Lab framework for Robot Learning"
+description="Extension providing main framework interfaces and abstractions for robot learning."
+readme  = "docs/README.md"
+repository = "https://github.com/isaac-sim/IsaacLab"
+category = "robotics"
+keywords = ["kit", "robotics", "learning", "ai"]
+
+[python.pipapi]
+requirements = [
+    "numpy",
+    "prettytable==3.3.0",
+    "toml",
+    "hidapi",
+    "gymnasium==0.29.0",
+    "trimesh"
+]
+
+modules = [
+    "numpy",
+    "prettytable",
+    "toml",
+    "hid",
+    "gymnasium",
+    "trimesh"
+]
+
+use_online_index=true
+
+[core]
+reloadable = false
+
+[[python.module]]
+name = "isaaclab"
+=======
+>>>>>>> d6a958f75e8709dbc47441339e9f43b0aff891ce
 [package]
 
 # Note: Semantic Versioning is used: https://semver.org/
@@ -38,6 +81,7 @@ reloadable = false
 
 [[python.module]]
 name = "isaaclab"
+<<<<<<< HEAD
 =======
 [package]
 
@@ -79,3 +123,6 @@ reloadable = false
 [[python.module]]
 name = "isaaclab"
 >>>>>>> upstream/main
+=======
+>>>>>>> harry/main
+>>>>>>> d6a958f75e8709dbc47441339e9f43b0aff891ce

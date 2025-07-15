@@ -86,6 +86,7 @@ from robomimic.utils.log_utils import DataLogger, PrintLogger
 import isaaclab_tasks  # noqa: F401
 import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
+from evaluation import inject_dropout_layers
 
 def normalize_hdf5_actions(config: Config, log_dir: str) -> str:
     """Normalizes actions in hdf5 dataset to [-1, 1] range.

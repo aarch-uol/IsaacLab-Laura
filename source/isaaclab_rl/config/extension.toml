@@ -5,16 +5,16 @@ version = "0.1.8"
 
 # Description
 title = "Isaac Lab RL"
-description = "Extension containing reinforcement learning related utilities."
-readme = "docs/README.md"
+description="Extension containing reinforcement learning related utilities."
+readme  = "docs/README.md"
 repository = "https://github.com/isaac-sim/IsaacLab"
 category = "robotics"
 keywords = ["robotics", "rl", "wrappers", "learning"]
 
 [dependencies]
-isaaclab = {}
-isaaclab_assets = {}
-isaaclab_tasks = {}
+"isaaclab" = {}
+"isaaclab_assets" = {}
+"isaaclab_tasks" = {}
 
 [core]
 reloadable = false

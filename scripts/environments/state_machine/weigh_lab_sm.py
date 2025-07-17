@@ -52,6 +52,7 @@ from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 
 # initialize warp
 wp.init()
+z_val = None
 
 
 class GripperState:
@@ -136,12 +137,13 @@ def infer_state_machine(
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT:
         CONICAL = False
-        processed = False
+        count = 0
         des_ee_pose[tid] = object_pose[tid]
         pos = wp.transform_get_translation(object_pose[tid])
-        z_val = pos.z
-        if not processed and z_val > 0.08 and state == PickSmState.APPROACH_OBJECT:
-            processed = True
+        if count == 0:
+            z_val = pos.z
+            count += 1
+        if  z_val > 0.07 and state == PickSmState.APPROACH_OBJECT:
             CONICAL = True
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
@@ -182,12 +184,15 @@ def infer_state_machine(
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
         if CONICAL: 
-            offset_pos = wp.vec3(offset_pos.x, offset_pos.y, offset_pos.z + 0.15)  # raise 25 cm 
+            offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.15)  # raise 25 cm 
             new_offset = wp.transform(offset_pos, offset_rot)
             # Target pose: above the object using offset
             above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
         else:
-            above_target_pose = wp.transform_multiply(offset[tid], final_object_pose[tid])
+            offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.1)  # raise 5 cm 
+            new_offset = wp.transform(offset_pos, offset_rot)
+            ########## changed offset[tid]
+            above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
         # Blend time for smooth approach
         APPROACH_BLEND_TIME = 0.4  # seconds, tune as needed
         alpha = wp.clamp(sm_wait_time[tid] / APPROACH_BLEND_TIME, 0.0, 1.0)
@@ -204,24 +209,35 @@ def infer_state_machine(
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
         # Evaluate readiness to transition
-        if CONICAL:
-            dx = wp.abs(current_pos.x - target_pos.x)
-            dy = wp.abs(current_pos.y - target_pos.y)
-            dz = wp.abs(current_pos.z - target_pos.z)
-            if (dx < 0.02) and (dy < 0.02) and (dz < 0.5):
-                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                    print("[SM_INFO] : Moving from APPR_ABOVE to UNGRASP")
-                    sm_state[tid] = PickSmState.UNGRASP_OBJECT
-                    sm_wait_time[tid] = 0.0
-        else:
-            if distance_below_threshold(current_pos, target_pos, position_threshold):
-                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                    print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
-                    sm_state[tid] = PickSmState.APPROACH_OBJECT2
-                    sm_wait_time[tid] = 0.0
+        # if CONICAL:
+        #     dx = wp.abs(current_pos.x - target_pos.x)
+        #     dy = wp.abs(current_pos.y - target_pos.y)
+        #     dz = wp.abs(current_pos.z - target_pos.z)
+        #     if (dx < 0.02) and (dy < 0.02) and (dz < 0.5):
+        #         if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
+        #             print("[SM_INFO] : Moving from APPR_ABOVE_OBJ2 to UNGRASP")
+        #             sm_state[tid] = PickSmState.UNGRASP_OBJECT
+        #             sm_wait_time[tid] = 0.0
+        # else:
+        if distance_below_threshold(current_pos, target_pos, 0.02):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
+                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
+                sm_state[tid] = PickSmState.APPROACH_OBJECT2
+                sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT2:
-        ## Pushes a bit into flask because already on hot plate at this point - check weigh version
-        des_ee_pose[tid] = final_object_pose[tid]
+        ## Pushes a bit into flask because already on hot plate at this point
+        # Get original transform from final_object_pose[tid]
+        pose_pos = wp.transform_get_translation(final_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(final_object_pose[tid])
+        if CONICAL:
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z)
+        else:
+            # Apply offset in x-direction (5 cm = 0.05 m)
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z)
+
+        # Reconstruct the transform with new position and same rotation
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+        # des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.CLOSE
             # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:

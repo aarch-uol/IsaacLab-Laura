@@ -3,9 +3,16 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+from isaaclab.assets import DeformableObjectCfg
 from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.sim.spawners import UsdFileCfg
 from isaaclab.utils import configclass
+from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
+
+import isaaclab_tasks.manager_based.manipulation.cube_lift.mdp as mdp
 
 from . import stack_joint_pos_env_cfg
 
@@ -30,5 +37,6 @@ class FrankaCubeStackEnvCfg(stack_joint_pos_env_cfg.FrankaCubeStackEnvCfg):
             asset_name="robot",
             joint_names=["panda_joint.*"],
             body_name="panda_hand",
-            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="trans"),
+            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )

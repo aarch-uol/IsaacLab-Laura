@@ -17,15 +17,16 @@ from typing import TYPE_CHECKING
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+from isaaclab.utils.math import subtract_frame_transforms, combine_frame_transforms
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
 
-def cubes_stacked(
+def objects_stacked(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"), # cube_1
-    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("hot_plate"), # cube_2 
+    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"), 
     command_name: str = "object_pose",
     xy_threshold: float = 0.1,
     height_threshold: float = 0.006,
@@ -71,3 +72,39 @@ def cubes_stacked(
     )
 
     return stacked
+
+
+def object_reached_goal(
+    env: ManagerBasedRLEnv,
+    threshold: float = 0.02,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    loghelper : LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
+    """Termination condition for the object reaching the goal position.
+
+    Args:
+        env: The environment.
+        threshold: The threshold for the object to reach the goal position. Defaults to 0.02.
+        robot_cfg: The robot configuration. Defaults to SceneEntityCfg("robot").
+        object_cfg: The object configuration. Defaults to SceneEntityCfg("object").
+
+    """
+    #### Currently won't show where this is
+    robot: RigidObject = env.scene[robot_cfg.name]
+    object: RigidObject = env.scene[object_cfg.name]
+    # Desired position in robot base frame
+    des_pos_b = torch.tensor([0.6, 0.0, 0.0203], device=robot.data.root_pos_w.device)
+    # Transform desired pos to world frame
+    des_pos_w, _ = combine_frame_transforms(
+        robot.data.root_state_w[:, :3],        # root position
+        robot.data.root_state_w[:, 3:7],       # root rotation (quat)
+        des_pos_b
+    )
+    # Compute distance to object
+    distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)  # shape: (num_envs,)
+    # Log if any environment meets condition
+    mask = distance < threshold
+    if torch.any(mask):
+        loghelper.logsubtask(LogType.FINISH)
+    return mask  # or return distance < threshold

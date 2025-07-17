@@ -7,7 +7,7 @@ from isaaclab_tasks.manager_based.manipulation.stack import mdp
 from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
 from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
 from isaaclab.markers.config import FRAME_MARKER_CFG  
-from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  
+from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG 
 from . import glassware_files
 
 
@@ -37,9 +37,18 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.15, 0.15), "z": (0.0, 0.0)},
             "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object1"),
+            "asset_cfg": SceneEntityCfg("object1"), 
+        },
+    )
+    reset_object2_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.2, 0.2), "y": (-0.05, 0.05), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("object2"),
         },
     )
 
@@ -83,15 +92,23 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
             open_command_expr={"panda_finger_.*": 0.04},
             close_command_expr={"panda_finger_.*": 0.0},
         )
-
         self.commands.object_pose.body_name = "panda_hand"
 
-        #Spawn objects
+        # Spawn Glassware
         self.scene.sample_vial = glassware.sample_vial
         self.scene.beaker = glassware.beaker
         self.scene.conical_flask = glassware.conical_flask
-        self.scene.hot_plate = glassware.hot_plate
         self.scene.round_bottom_flask = glassware.round_bottom_flask
+        self.scene.funnel = glassware.funnel
+
+        # Spawn Lab Equipment
+        self.scene.hot_plate = glassware.hot_plate
+        self.scene.electric_balance = glassware.electric_balance
+        self.scene.clamp_stand = glassware.clamp_stand
+        self.scene.ring_stand = glassware.ring_stand
+        self.scene.test_tube_rack = glassware.test_tube_rack
+
+        # Spawn other objects
         self.scene.cube = glassware.cube
 
 

@@ -22,6 +22,9 @@ from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnv
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
 from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
+# from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG
+# from isaaclab.assets import ArticulationCfg
+# import math
 
 from isaaclab.envs import ManagerBasedEnv
 
@@ -36,6 +39,14 @@ class EventCfg:
             "default_pose": [0.0444, -0.1894, -0.1107, -2.5148, 0.0044, 2.3775, 0.6952, 0.0400, 0.0400],
         },
     )
+    ### Twists arm but state machine but immediately tries to reorient it
+    # init_franka_arm_pose = EventTerm(
+    #     func=franka_stack_events.set_default_joint_pose,
+    #     mode="startup",
+    #     params={
+    #         "default_pose": [0.405, 0.35, -0.22, -3.0, -2.85, math.pi / 2, 0.9, 0.0400, 0.0400],
+    #     },
+    # )
 
     randomize_franka_joint_state = EventTerm(
         func=franka_stack_events.randomize_joint_by_gaussian_offset,
@@ -51,7 +62,35 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.2, 0.10), "y": (-0.35, -0.175), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("hot_plate"),
+        },
+    )
+    reset_object2_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.2, 0.25), "y": (0.3, 0.35), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("object2"),
+        },
+    )
+    ### Stays upside down if sample vial?
+    # randomize_cube_positions = EventTerm(
+    #     func=franka_stack_events.randomize_object_pose,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": (0.0, 0.2), "y": (0.0, 0.2), "z": (0.0203, 0.0203)},
+    #         "min_separation": 0.1,
+    #         "asset_cfgs": [SceneEntityCfg("object1")] 
+    #     },
+    # )
+    randomize_object1_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.2, 0.25), "y": (-0.05, 0.125), "z": (0.0203, 0.0203)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object1"),
         },
@@ -78,8 +117,42 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
         # Set events
         self.events = EventCfg()
 
-        # Set Franka as robotSample vial
+        # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
+        #     prim_path="{ENV_REGEX_NS}/Robot",
+        #     init_state=ArticulationCfg.InitialStateCfg(
+        #         joint_pos={
+        #             "panda_joint1":  0.405,
+        #             "panda_joint2": 0.35,   
+        #             "panda_joint3":  -0.22,
+        #             "panda_joint4": -3.0,  
+        #             "panda_joint5":  -2.85, # was -2.85, try math.pi / 2
+        #             "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
+        #             "panda_joint7":  0.9,
+        #             "panda_finger_joint1": 0.04,   # open gripper
+        #             "panda_finger_joint2": 0.04,
+        #         }
+        #     ),
+        # )
+        ### Switched joints using FRANKA_PANDA_CFG
+        # self.scene.robot = FRANKA_PANDA_CFG.replace(
+        #     prim_path="{ENV_REGEX_NS}/Robot",
+        #     init_state=ArticulationCfg.InitialStateCfg(
+        #         joint_pos={
+        #             "panda_joint1":  0.405,
+        #             "panda_joint2": 0.35,   
+        #             "panda_joint3":  -0.22,
+        #             "panda_joint4": -3.0,  
+        #             "panda_joint5":  -2.85, # was -2.85, try math.pi / 2
+        #             "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
+        #             "panda_joint7":  0.9,
+        #             "panda_finger_joint1": 0.04,   # open gripper
+        #             "panda_finger_joint2": 0.04,
+        #         }
+        #     ),
+        # )
+
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
 
         # Add semantics to table
@@ -112,7 +185,7 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
 
         self.scene.hot_plate = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Hot_plate",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.55, 0.3, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/hot_plate.usd",
                 scale=(0.03, 0.03, 0.03),
@@ -121,17 +194,52 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
             ),
         )
         self.scene.object1 = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Sample_vial",
+            prim_path="{ENV_REGEX_NS}/Object1",
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
+            # init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
             spawn=UsdFileCfg(
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
                 # usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/red_block.usd",
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centre_beaker.usd",
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centre_beaker.usd",
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centered_conical_flask_glass.usd",
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
                 scale=(1.0, 1.0, 1.0),
                 rigid_props=RigidBodyPropertiesCfg(),
                 semantic_tags=[("class", "object1")],
             ),
         )
+        ### As soon as I create this usd, hot plate doesn't work and vice versa
+        self.scene.object2 = RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/Electronic_balance",
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
+            spawn=UsdFileCfg(
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/scale/balance_electronic.usd",
+                scale=(0.01, 0.01, 0.01),
+                rigid_props=cube_properties,
+                semantic_tags=[("class", "electronic_balance")],
+            ),
+        )
+        # self.scene.funnel = RigidObjectCfg(
+        #     prim_path="{ENV_REGEX_NS}/Funnel",
+        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.55, -0.2, 0.0203], rot=[0.707, 0.707, 0, 0]),
+        #     spawn=UsdFileCfg(
+        #         usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/funnel.usd",
+        #         scale=(0.02, 0.02, 0.02),
+        #         rigid_props=cube_properties,
+        #         semantic_tags=[("class", "funnel")],
+        #     ),
+        # )
+        # self.scene.tube_rack = RigidObjectCfg(
+        #     prim_path="{ENV_REGEX_NS}/Tube_rack",
+        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.85, -0.1, 0.0203], rot=[0.707, 0.707, 0, 0]),
+        #     spawn=UsdFileCfg(
+        #         usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/test_tube_rack/test_tube_rack.usd",
+        #         scale=(0.03, 0.03, 0.03),
+        #         rigid_props=cube_properties,
+        #         semantic_tags=[("class", "tube_rack")],
+        #     ),
+        # )
 
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()

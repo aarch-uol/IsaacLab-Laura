@@ -42,6 +42,6 @@ class FrankaCubeStackEnvCfg(lab_joint_pos_env_cfg.FrankaLabStackEnvCfg):
             asset_name="robot",
             joint_names=["panda_joint.*"],
             body_name="panda_hand",
-            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="trans"),
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )

@@ -30,12 +30,7 @@ class LLMClient:
 
     def output_file(self, file_path: str, output_file: str):
         """Reads a given file, connects to LLM through API and python code part of comment is written into a new file."""
-        # Heating a solution - gives beaker and a hot plate
-        # Stirring a solution - gives beaker and a hot plate 
-        # I want to complete the blue bottle experiment - devstral/dolphin3 gives beaker and hot plate - at moment just a cube
-        # devstral choosing the main object for first two above tasks
-        # dolphin3 is not removing any objects (like gemma3), cube=object and changing name of hot_plate to magnetic stir plate 
-        # I want to heat a conical flask - conical and hot plate, conical flask added twice (two names for same object so one instance) (devstral)
+
         user_input = input("Please give a description of the environment: ")
         file_content = self.read_file(file_path)
 
@@ -57,7 +52,7 @@ class LLMClient:
 
     ### Imports
 
-    - Extract **only the import statements** that are in the **given file**.
+    - Extract **only and all of the 11 lines of import statements** that are in the **given file**.
     - Add them **once at the very top** of your output script.
     - Every import must start with `isaaclab` or `glassware_files`.
     - **Do not repeat or invent any import**.
@@ -65,7 +60,7 @@ class LLMClient:
 
     ### EventTerm Definitions
 
-    - Include exactly the **first three EventTerm()** entries from the given file.
+    - Include exactly the **first four EventTerm()** entry from the given file.
     - These must be written **exactly as-is**: same function, mode, and params.
     - Do not add, remove, or alter any parameters inside `params`.
 
@@ -74,6 +69,10 @@ class LLMClient:
     Use the `@configclass` decorator for both classes, as in the given file:
     - `FrankaCubeStackEnvCfg(StackEnvCfg)`
     - `EventsCfg(EventGroupCfg)`
+
+    Change the inheritance of `FrankaCubeStackEnvCfg` if the task involves `pouring` in the task description:
+    - Change `StackEnvCfg` to `PourEnvCfg`.
+    If `pouring` is not in the task description then keep `StackEnvCfg`.
 
     In `FrankaCubeStackEnvCfg`:
     - Include a method called `__post_init__()` that contains `super().__post_init__()`.
@@ -90,19 +89,21 @@ class LLMClient:
 
     In the output file:
     - For the task's main object, use this naming style:
-    Replace (this code should not be present in output code) # Example if the object is a cube
-    ```python
-    self.scene.cube = glassware.cube
-    ```
-    with this
-    ```python
-    self.scene.object1 = glassware.cube 
-    ```
-    - The “main object” is the one moved within the task. You must decide which one that is based on the task.
+    Replace (this code should not be present in output code): # Example for a <glassware>
+        ```python
+        self.scene.<glassware> = glassware.<glassware>
+        ```
+    with this:
+        ```python
+        self.scene.object1 = glassware.<glassware>
+        ```
+    - The “main object” is the one moved within the task. You must decide which one that is based on the task description.
     - Rename the chosen main object to follow the self.scene.object1 naming convention as shown above.
+    - Rename the lab equipment that is completing the task to follow the self.scene.object2 naming convention similar to above.
     - This main object will be a piece of glassware.
     - If there are two names for an instance, keep only the name involving object1.
     - Add a side comment indicating which object was chosen as the main object for the task.
+    - Include as many objects within the scene as are expected for the task.
 
     ### Robot and Frame Transformations
 
@@ -157,21 +158,26 @@ class LLMClient:
         with open(output_file, "w") as f:
             f.write(code)
 
-        print(f"Extracted code saved to: {output_file}")
-        return code
+        if "weigh" in user_input.lower():
+            state_machine = "weigh_lab_sm"
+        elif "pour" in user_input.lower():
+            state_machine = "pour_lab_sm"
+        else:
+            state_machine = "stack_lab_sm"
 
-    
-    def run_llm_file(self):
-        # Could be added to output_file function
+        print(f"Extracted code saved to: {output_file}")
+
         terminal_code = [
-            "./isaaclab.sh",
-            "-p",
-            "scripts/environments/state_machine/stack_lab_sm.py",
-            "--num_envs",
-            "1",
+            f"./isaaclab.sh",
+            f"-p",
+            f"scripts/environments/state_machine/{state_machine}.py",
+            f"--num_envs",
+            f"1",
             ]
+        # Run another .py file automatically
         terminal_result = subprocess.run(terminal_code)
-        return terminal_result
+
+        return code
 
 
 def main():
@@ -179,9 +185,6 @@ def main():
     output_file = "source/isaaclab_tasks/isaaclab_tasks/manager_based/manipulation/stack/config/franka/generated_llm.py"
     model_client = LLMClient()
     code = model_client.output_file(file_name, output_file)
-    print("\nExtracted Code:\n")
-    print(code)
-    model_client.run_llm_file()
 
 
 

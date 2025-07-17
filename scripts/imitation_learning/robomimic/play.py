@@ -75,10 +75,10 @@ from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers
-from JointSafetyClassifier import JointSafetyClassifier
 
 
-def rollout(policy, env, success_term, horizon, device, jointsafetyclassifier):
+
+def rollout(policy, env, success_term, horizon, device):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -97,7 +97,6 @@ def rollout(policy, env, success_term, horizon, device, jointsafetyclassifier):
     #print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
 
     traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
-    uncertainties = []
 
     for i in range(horizon):
         # Prepare observations
@@ -126,21 +125,16 @@ def rollout(policy, env, success_term, horizon, device, jointsafetyclassifier):
         traj["obs"].append(obs)
         traj["sub_obs"].append(sub_obs)
         
-        # Add dropout layers to the model and calculate uncertainty
-        hooks = inject_dropout_layers(policy=policy, probability=0.5)
+        # Add dropout layers to the model and calculate uncertainty and remove at the end to not effect final action
+
+        hooks = inject_dropout_layers(policy=policy, probability=0.3)
         uncertainty_dict = MC_dropout_uncertainty(policy=policy, obs=obs, niters=15)
         traj['uncertainties'].append(uncertainty_dict['variance'])
         remove_dropout_layers(hooks)
 
         # Compute actions
         actions = policy(obs)
-        # if jointsafetyclassifier.isSafe(torch.tensor(actions)):
-        #     print("YES")
-        # else:
-        #     print("NO")
-        #print(f"joint positions: {obs['joint_pos']}")
-        #print(f"actions: {actions}")
-
+      
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (
@@ -167,6 +161,27 @@ def rollout(policy, env, success_term, horizon, device, jointsafetyclassifier):
 
     return False, traj
 
+# ./isaaclab.sh -p scripts/imitation_learning/robomimic/play.py \
+# --device cuda --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --num_rollouts 50 \
+# --checkpoint /logs/docs/Models/bc/model1/Isaac-Stack-Cube-Franka-IK-Rel-v0/bc_rnn_low_dim_franka_stack/20250715152224/models/model_epoch_2000.pth
+
+# stack cube task:
+# Successful trials: 37, out of 50 trials
+# Success rate: 0.74
+
+# Dropout as a Bayesian Approximation:
+# Representing Model Uncertainty in Deep Learning
+# Yarin Gal YG279@CAM.AC.UK
+# Zoubin Ghahramani ZG201@CAM.AC.UK
+# University of Cambridge
+
+# High-Quality Prediction Intervals for Deep Learning:
+# A Distribution-Free, Ensembled Approach
+# Tim Pearce 1 2 Mohamed Zaki 1 Alexandra Brintrup 1 Andy Neely 1
+
+# ./isaaclab.sh -p scripts/imitation_learning/robomimic/train.py \
+# --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --algo bc \
+# --dataset ./docs/training_data/generated_dataset_split.hdf5 --logdir ./logs/docs/Models/bc/model8/
 
 def main():
     """Run a trained policy from robomimic with Isaac Lab environment."""
@@ -201,38 +216,20 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-
-    jointsafetyclassifier = JointSafetyClassifier()
-    jointsafetyclassifier.load_state_dict(torch.load('./docs/training_data/JointSafetyClassifier.pth', weights_only=True))
-    jointsafetyclassifier.eval()
+    policy_copy = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
 
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
         loghelper.startEpoch(trial)
-        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device, jointsafetyclassifier)
-        with open("./docs/training_data/uncertainties.txt", 'a') as file:
+        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
+        with open("./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model9/uncertainties.txt", 'a') as file:
             for i, var in enumerate(traj['uncertainties']):
                 line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"
                 file.write(f"{str(i)} {line}")
                 
             
-        # data = []
-        # for joint_positions in traj['actions']:
-        #     if terminated == False:
-        #         data.append((joint_positions, 0))
-        #     else:
-        #         data.append((joint_positions, 1))
-
-        # print(data)
-        # with open("./docs/training_data/training_data.txt", "a") as file:
-        #     for sample in data:
-        #         # sample[0] is the list of floats (joint positions)
-        #         joint_strs = [str(x) for x in sample[0]]  # Convert all floats to strings
-        #         sample_str = ' '.join(joint_strs)
-        #         sample_str += f" {sample[1]}\n"  # Append the label (0 or 1)
-        #         file.write(sample_str)
     
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")

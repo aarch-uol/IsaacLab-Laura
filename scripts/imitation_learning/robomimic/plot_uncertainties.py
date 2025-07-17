@@ -1,89 +1,115 @@
 import matplotlib.pyplot as plt
-
-
-rollouts = []
-rollout = []
-labels = []
-all_uncertainties = []
-all_timesteps = []
-with open("./docs/training_data/uncertainties.txt", 'r') as file:
-    lines = file.readlines()
-    for line in lines:
-        line = line.strip().split()
-        timestep = int(line[0])
-        uncertainties = [float(f) for f in line[1:8]]
-        label = line[-1]
-        
-        if timestep % 50 == 0:
-            labels.append(True if label == 'True' else False)
-            all_uncertainties.append(uncertainties)
-            all_timesteps.append(timestep)
-
-        if timestep == 0 and rollout:
-            rollouts.append(rollout)
-            rollout = []
-
-        rollout.append((timestep, uncertainties))
-
-if rollout:
-    rollouts.append(rollout)
-
 import numpy as np
-num_joints = 7
-for joint_num in range(num_joints):
-    
-    success_uncertainties = []
-    failure_uncertainties = []
 
-    for label, unc in zip(labels, all_uncertainties):
-        if label:
-            success_uncertainties.append(unc[joint_num])
-            failure_uncertainties.append(np.nan)
-        else:
-            success_uncertainties.append(np.nan)
-            failure_uncertainties.append(unc[joint_num])
-    # success_uncertainties = [unc[joint_num] for label, unc in zip(labels, all_uncertainties) if label == True]
-    # failure_uncertainties = [unc[joint_num] for label, unc in zip(labels, all_uncertainties) if label == False]
 
-    # while len(success_uncertainties) != len(all_timesteps):
-    #     success_uncertainties.append(np.nan)
-    # while len(failure_uncertainties) != len(all_timesteps):
-    #     failure_uncertainties.append(np.nan)
 
-    plt.figure(figsize=(10, 6))
 
-    plt.plot(all_timesteps, success_uncertainties, label=f"Task Success", color='green')
-    plt.plot(all_timesteps, failure_uncertainties, label=f"Task Failure", color='red')
-    
-    plt.title(f"Uncertainties for Joint {joint_num}")
-    plt.xlabel('Timestep')
-    plt.ylabel('Uncertainty Value')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
+def load_data(file):
+    rollouts = []
+    rollout = []
+    labels = []
+    all_uncertainties = []
+    all_timesteps = []
 
-    plt.savefig(f"./docs/training_data/uncertainty_joint_{joint_num}_plot.png")
-    plt.close()
+    with open(stack_cube_uncertainties_path, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            line = line.strip().split()
+            timestep = int(line[0])
+            uncertainties = [float(f) for f in line[1:8]]
+            label = line[-1]
 
-# for rollout_num, rollout in enumerate(rollouts):
-#     timesteps = [t for t, _ in rollout if t%10==0]
-#     num_elements = 7
+            if timestep == 0: 
+                if rollout:
+                    rollouts.append(rollout)
+                    rollout = []
+                labels.append(True if label == 'True' else False)
 
-#     plt.figure(figsize=(10, 6))
+            if timestep % 100 == 0:
+                rollout.append((timestep, uncertainties))
+                all_timesteps.append(timestep)
+                all_uncertainties.append(uncertainties)
 
-#     for i in range(num_elements):
-      
-#         values = [unc[i] for t, unc in rollout if t%10==0]
-#         plt.plot(timesteps, values, label=f'Uncertainty {i}')
+    # Add final rollout
+    if rollout:
+        rollouts.append(rollout)
 
-#     plt.xlabel('Timestep')
-#     plt.ylabel('Uncertainty value')
-#     plt.title('Uncertainties per Timestep for Rollout 0')
-#     plt.legend()
-#     plt.grid(True)
-#     plt.tight_layout()
+    return rollouts, labels, all_uncertainties, all_timesteps
 
-#     plt.savefig(f"./docs/training_data/rollout_{rollout_num}_plot.png")
+
+def plot_rollouts(rollouts, results_path):
+    num_joints = 7
+    for i, rollout in enumerate(rollouts):
+        rollout_timesteps = [t for t, _ in rollout]
+        rollout_uncertainties = [unc for _, unc in rollout]
+
+        # Transpose the list of uncertainties so each sublist is for one joint
+        rollout_uncertainties_per_joint = list(zip(*rollout_uncertainties))
+
+        plt.figure(figsize=(10, 6))
+        for joint_num in range(num_joints):
+            plt.plot(rollout_timesteps, rollout_uncertainties_per_joint[joint_num], label=f"Joint {joint_num}")
+
+        plt.title(f"Uncertainty per Joint for Rollout {i}")
+        plt.xlabel('Timestep')
+        plt.ylabel('Uncertainty Value')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(f"{results_path}uncertainty_rollout_{i}_plot_stack_cube.png")
+        plt.close()
+
+
+
+def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
+    num_joints = 7
+    label_idx = 0
+    success_uncertainties = [[] for _ in range(num_joints)]
+    failure_uncertainties = [[] for _ in range(num_joints)]
+    used_timesteps = []
+
+    for i, (timestep, uncertainties) in enumerate(zip(all_timesteps, all_uncertainties)):
+        # Use the current rollout label
+        if i > 0 and all_timesteps[i] < all_timesteps[i - 1]:
+            label_idx += 1  # New rollout started
+
+        label = labels[label_idx]
+        used_timesteps.append(timestep)
+
+        for joint_num in range(num_joints):
+            if label:
+                success_uncertainties[joint_num].append(uncertainties[joint_num])
+                failure_uncertainties[joint_num].append(np.nan)
+            else:
+                success_uncertainties[joint_num].append(np.nan)
+                failure_uncertainties[joint_num].append(uncertainties[joint_num])
+
+    # Plot
+    for joint_num in range(num_joints):
+        plt.figure(figsize=(10, 6))
+        plt.plot(used_timesteps, success_uncertainties[joint_num], label="Task Success", color='green')
+        plt.plot(used_timesteps, failure_uncertainties[joint_num], label="Task Failure", color='red')
+
+        plt.title(f"Uncertainties for Joint {joint_num}")
+        plt.xlabel('Timestep')
+        plt.ylabel('Uncertainty Value')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+
+        plt.savefig(f"./docs/training_data/uncertainty_joint_{joint_num}_plot_stack_cube.png")
+        plt.close()
+
+
+stack_cube_results_path = "./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model9/" 
+stack_cube_uncertainties_path = "./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model9/uncertainties.txt"
+
+
+rollouts, labels, all_uncertainties, all_timesteps = load_data(stack_cube_uncertainties_path)
+
+plot_rollouts(rollouts, stack_cube_results_path)
+
+
 
 
 

@@ -25,20 +25,12 @@ import time
 
 
 def MC_dropout_uncertainty(policy, obs, niters=50):
-    """
-    Low std and variance: Model is confident for that output dimension (joint position).
-
-    High std and variance: Model is unsure - often in areas outside training distribution or in ambiguous states.
-    """
-
     actions = [torch.from_numpy(policy(obs)) for i in range(niters)]
     actions = torch.stack(actions)
     
     mean = torch.mean(actions, dim=0)
     std = torch.std(actions, dim=0)
     variance = torch.sqrt(std)
-
-    
 
     return {
         'mean': mean,
@@ -54,6 +46,22 @@ def remove_dropout_layers(hooks):
 
 def inject_dropout_layers(policy, probability=0.5):
     modules = list(policy.policy.nets['policy'].named_modules())
+    #print(f"Total modules found: {len(modules)}")
+
+    def dropout_hook(module, _, output):
+        #print("applying dropout")
+        return F.dropout(output, p=probability, training=True) # setting training=True forces dropout to happen regardless of whether the model is in train or evaluation mode
+
+    hooks = []
+    for name, module in modules:
+        if isinstance(module, nn.Linear):
+            hook = module.register_forward_hook(dropout_hook)
+            hooks.append(hook)
+    
+    return hooks
+
+def inject_dropout_layers_for_training(model, probability=0.5):
+    modules = list(model.nets['policy'].named_modules())
     #print(f"Total modules found: {len(modules)}")
 
     def dropout_hook(module, _, output):
@@ -119,7 +127,9 @@ def prepare_observations(obs_dict: dict):
 # print(results_dict)
 # print(f"time taken: {end_time - start_time}")
 
-
+# ./isaaclab.sh -p scripts/imitation_learning/robomimic/play.py \
+# --device cuda --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --num_rollouts 50 \
+# --checkpoint /logs/docs/Models/bc/model1/Isaac-Stack-Cube-Franka-IK-Rel-v0/bc_rnn_low_dim_franka_stack/20250715152224/models/model_epoch_2000.pth
 
 
 """

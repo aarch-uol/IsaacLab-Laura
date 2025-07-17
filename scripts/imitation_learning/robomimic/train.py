@@ -86,6 +86,7 @@ from robomimic.utils.log_utils import DataLogger, PrintLogger
 import isaaclab_tasks  # noqa: F401
 import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
+from evaluation import inject_dropout_layers_for_training, remove_dropout_layers
 
 def normalize_hdf5_actions(config: Config, log_dir: str) -> str:
     """Normalizes actions in hdf5 dataset to [-1, 1] range.
@@ -220,6 +221,9 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
     print("\n============= Model Summary =============")
     print(model)  # print model summary
     print("")
+    
+    hooks = inject_dropout_layers_for_training(model, probability=0.3)
+    #remove_dropout_layers(hooks)
 
     # load training data
     trainset, validset = TrainUtils.load_data_for_training(config, obs_keys=shape_meta["all_obs_keys"])
@@ -385,8 +389,8 @@ def main(args: argparse.Namespace):
     # change location of experiment directory
     config.train.output_dir = os.path.abspath(os.path.join("./logs", args.log_dir, args.task))
 
-    print(TrainUtils.get_exp_dir(config))
-    log_dir, ckpt_dir, video_dir, _ = TrainUtils.get_exp_dir(config)
+    
+    log_dir, ckpt_dir, video_dir = TrainUtils.get_exp_dir(config)
 
     if args.normalize_training_actions:
         config.train.data = normalize_hdf5_actions(config, log_dir)

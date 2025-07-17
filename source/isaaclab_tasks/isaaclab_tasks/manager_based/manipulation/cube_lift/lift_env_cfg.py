@@ -132,7 +132,7 @@ class ObservationsCfg():
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
         target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)
-        object_to_target = ObsTerm(func=mdp.object_reached_goal)
+       # object_to_target = ObsTerm(func=mdp.object_reached_goal)
         eef_pos = ObsTerm(func=mdp.ee_frame_pos)
         eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)

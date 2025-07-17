@@ -1,20 +1,20 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc-test",
+        "name": "bc_trans_20250716_1",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
             "log_tb": true,
             "log_wandb": true,
-            "wandb_proj_name": "bc-test"
+            "wandb_proj_name": "pick-place-tabletop"
         },
         "save": {
             "enabled": true,
             "every_n_seconds": null,
             "every_n_epochs": 100,
             "epochs": [],
-            "on_best_validation": false,
+            "on_best_validation": true,
             "on_best_rollout_return": false,
             "on_best_rollout_success_rate": true
         },
@@ -36,7 +36,7 @@
     },
     "train": {
         "data": null,
-        "output_dir": "../bc_test",
+        "output_dir": "~/workspace/isaaclab/docs/training_runs/bc_trans",
         "num_data_workers": 1,
         "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
@@ -53,7 +53,7 @@
         "goal_mode": null,
         "cuda": true,
         "batch_size": 100,
-        "num_epochs": 5000,
+        "num_epochs": 3000,
         "seed": 101
     },
     "algo": {
@@ -88,15 +88,21 @@
             "enabled": false
         },
         "rnn": {
+            "enabled": false
+        },
+        "transformer": {
             "enabled": true,
-            "horizon": 10,
-            "hidden_dim": 400,
-            "rnn_type": "LSTM",
-            "num_layers": 2,
-            "open_loop": false,
-            "kwargs": {
-                "bidirectional": false
-            }
+            "context_length": 10,
+            "embed_dim": 512,
+            "num_layers": 6,
+            "num_heads": 8,
+            "emb_dropout": 0.1,
+            "attn_dropout": 0.1,
+            "block_output_dropout": 0.1,
+            "sinusoidal_embedding": false,
+            "activation": "gelu",
+            "supervise_all_steps": false,
+            "nn_parameter_for_timesteps": true
         }
     },
     "observation": {
@@ -108,7 +114,7 @@
                     "gripper_pos",
                     "object_position",
                     "target_object_position",
-                    "object_to_target",
+                    
                     "joint_pos",
                     "joint_vel",
                     "actions"

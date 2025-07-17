@@ -69,7 +69,7 @@ import torch
 import traceback
 from collections import OrderedDict
 from torch.utils.data import DataLoader
-
+import wandb
 import psutil
 
 # Robomimic imports
@@ -143,6 +143,8 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
         ckpt_dir: Directory to save checkpoints.
         video_dir: Directory to save videos.
     """
+
+
     # first set seeds
     np.random.seed(config.train.seed)
     torch.manual_seed(config.train.seed)
@@ -160,7 +162,8 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
         logger = PrintLogger(os.path.join(log_dir, "log.txt"))
         sys.stdout = logger
         sys.stderr = logger
-
+ 
+    
     # read config to set up metadata for observation modalities (e.g. detecting rgb observations)
     ObsUtils.initialize_obs_utils_with_config(config)
 
@@ -171,11 +174,7 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
 
     # load basic metadata from training file
     print("\n============= Loaded Environment Metadata =============")
-    try:
-        env_meta = FileUtils.get_env_metadata_from_dataset(dataset_path=config.train.data)
-    except:
-        env_meta = {"env_name": "Dev-IK-Rel-v0", "env_kwargs": {}}
-        print("No metadata found")
+    env_meta = FileUtils.get_env_metadata_from_dataset(dataset_path=config.train.data)
     shape_meta = FileUtils.get_shape_metadata_from_dataset(
         dataset_path=config.train.data, all_obs_keys=config.all_obs_keys, verbose=True
     )
@@ -201,6 +200,7 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
                 render=False,
                 render_offscreen=config.experiment.render_video,
                 use_image_obs=shape_meta["use_images"],
+                #env_kwargs = env_meta.get("env_kwargs", {})
             )
             envs[env.name] = env
             print(envs[env.name])
@@ -208,7 +208,7 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
     print("")
 
     # setup for a new training run
-    data_logger = DataLogger(log_dir, config=config, log_tb=config.experiment.logging.log_tb)
+    data_logger = DataLogger(log_dir, config=config, log_tb=config.experiment.logging.log_tb, log_wandb=config.experiment.logging.log_wandb,)
     model = algo_factory(
         algo_name=config.algo_name,
         config=config,
@@ -385,11 +385,16 @@ def main(args: argparse.Namespace):
 
     if args.name is not None:
         config.experiment.name = args.name
-
+    
+    run=wandb.init(
+        project=config.experiment.logging.wandb_proj_name,
+        name=config.experiment.name
+    )
+    run.define_metric("train reward", step_metric="episode")
+    run.define_metric("episode error", step_metric="episode")
     # change location of experiment directory
     config.train.output_dir = os.path.abspath(os.path.join("./logs", args.log_dir, args.task))
-    #print("Config : ", config)
-   # print("dirs : ", TrainUtils.get_exp_dir(config))
+
     log_dir, ckpt_dir, video_dir = TrainUtils.get_exp_dir(config)
 
     if args.normalize_training_actions:
@@ -407,6 +412,7 @@ def main(args: argparse.Namespace):
     except Exception as e:
         res_str = f"run failed with error:\n{e}\n\n{traceback.format_exc()}"
     print(res_str)
+    run.finish()
 
 
 if __name__ == "__main__":

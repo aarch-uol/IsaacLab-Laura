@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -13,8 +13,10 @@ from setuptools import setup
 
 # Obtain the extension data from the extension.toml file
 EXTENSION_PATH = os.path.dirname(os.path.realpath(__file__))
+# Read the extension.toml file
 EXTENSION_TOML_DATA = toml.load(os.path.join(EXTENSION_PATH, "config", "extension.toml"))
 
+# Minimum dependencies required prior to installation
 INSTALL_REQUIRES = [
     # generic
     "numpy<2",
@@ -25,7 +27,7 @@ INSTALL_REQUIRES = [
     # devices
     "hidapi==0.14.0.post2",
     # reinforcement learning
-    "gymnasium==1.2.0",  # Pin if you want strict compatibility, or ">=1.0" if flexible
+    "gymnasium",
     # procedural-generation
     "trimesh",
     "pyglet<2",
@@ -34,7 +36,7 @@ INSTALL_REQUIRES = [
     "einops",  # needed for transformers, doesn't always auto-install
     "warp-lang",
     # make sure this is consistent with isaac sim version
-    "pillow==11.2.1",  # Pin to latest compatible; adjust if you hit sim issues
+    "pillow==11.0.0",
     # livestream
     "starlette==0.45.3",
     # testing
@@ -44,7 +46,7 @@ INSTALL_REQUIRES = [
     "flatdict==4.0.1",
 ]
 
-# Additional dependencies only on Linux
+# Additional dependencies that are only available on Linux platforms
 if platform.system() == "Linux":
     INSTALL_REQUIRES += [
         "pin-pink==3.1.0",  # required by isaaclab.isaaclab.controllers.pink_ik
@@ -53,6 +55,7 @@ if platform.system() == "Linux":
 
 PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 
+# Installation operation
 setup(
     name="isaaclab",
     author="Isaac Lab Project Developers",

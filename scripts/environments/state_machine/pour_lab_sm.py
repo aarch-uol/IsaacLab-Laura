@@ -49,6 +49,7 @@ from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
+import math
 
 # initialize warp
 wp.init()
@@ -112,7 +113,6 @@ def quat_mul(q1: wp.quatf, q2: wp.quatf) -> wp.quatf:
 
     return wp.quatf(x, y, z, w)
 
-
 @wp.kernel
 def infer_state_machine(
     dt: wp.array(dtype=float),
@@ -157,6 +157,7 @@ def infer_state_machine(
                 sm_state[tid] = PickSmState.APPROACH_OBJECT
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT:
+        ### Getting position and rotation for the robot to go to the object at
         des_ee_pose[tid] = object_pose[tid]
         processed = False
         pos = wp.transform_get_translation(object_pose[tid])
@@ -187,8 +188,6 @@ def infer_state_machine(
     elif state == PickSmState.LIFT_OBJECT:
         des_ee_pose[tid] = des_object_pose[tid]
         gripper_state[tid] = GripperState.CLOSE
-        print(wp.transform_get_translation(ee_pose[tid]))
-        print(wp.transform_get_translation(des_ee_pose[tid]))
         # wait for a while
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
@@ -247,7 +246,7 @@ def infer_state_machine(
     elif state == PickSmState.POUR:
         # Tilt hand 45 degrees down (around local X axis)
         # Due to how holding beaker, this would not pour properly, if holding from side then it would probably work
-        angle_rad = wp.radians(25.0)  # or wp.pi / 4
+        angle_rad = wp.radians(-45.0)  # or wp.pi / 4
         tilt_quat = wp.quat_from_axis_angle(wp.vec3(0.25, 0.1, 0.0), angle_rad)
 
         # Get current pose of end-effector
@@ -266,7 +265,7 @@ def infer_state_machine(
             sm_state[tid] = PickSmState.REORIENT
             sm_wait_time[tid] = 0.0
     elif state == PickSmState.REORIENT:
-        angle_rad = wp.radians(25.0)  # or wp.pi / 4
+        angle_rad = wp.radians(-45.0)  # or wp.pi / 4
         tilt_quat = wp.quat_from_axis_angle(wp.vec3(0.25, 0.1, 0.0), -angle_rad)
 
         # Get current pose of end-effector
@@ -284,7 +283,7 @@ def infer_state_machine(
             print("[SM_INFO] : Moving from REORIENT to REST")
             sm_state[tid] = PickSmState.REST
             sm_wait_time[tid] = 0.0
-
+    ### Need to add an end step
     # increment wait time
     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
 
@@ -320,6 +319,7 @@ class PickAndLiftSm:
         self.device = device
         self.position_threshold = position_threshold
         self.conical = False
+
         # initialize state machine
         self.sm_dt = torch.full((self.num_envs,), self.dt, device=self.device)
         self.sm_state = torch.full((self.num_envs,), 0, dtype=torch.int32, device=self.device)
@@ -396,32 +396,36 @@ def main():
     # parse configuration
     env_cfg: LiftEnvCfg = parse_env_cfg(
         #"Isaac-Lift-Cube-Franka-IK-Abs-v0",
-        # "Isaac-Stack-Lab-Franka-IK-Abs-v0",
-        "Isaac-Stack-LLM-Franka-IK-Abs-v0",
+        "Isaac-Stack-Lab-Franka-IK-Abs-v0",
+        # "Isaac-Stack-LLM-Franka-IK-Abs-v0",
         device=args_cli.device,
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
     # create environment
     #env = gym.make("Isaac-Lift-Cube-Franka-IK-Abs-v0", cfg=env_cfg)
-    # env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
-    env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
+    # env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start
     env.reset()
-   # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
+    # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
     # create action buffers (position + quaternion)
     actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
     actions[:, 3] = 1.0
     
-   # print("actions : ", actions)
+    # print("actions : ", actions)
     # desired object orientation (we only do position control of object)
     desired_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
     desired_orientation[:, 1] = 1.0 #0?
-    # create state machine
+
+    # Create state machine
     pick_sm = PickAndLiftSm(
         env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.01
     )
-   # print("debug1 : " , env.unwrapped.action_space.shape)
+
+    # Set the EE orientation offset in the state machine
+    # pick_sm.set_ee_orientation_offset(ee_quat_xyzw)
+    # print("debug1 : " , env.unwrapped.action_space.shape)
     n=0
     while simulation_app.is_running():
         # run everything in inference mode+
@@ -436,11 +440,12 @@ def main():
             ee_frame_sensor = env.unwrapped.scene["ee_frame"]
             tcp_rest_position = ee_frame_sensor.data.target_pos_w[..., 0, :].clone() - env.unwrapped.scene.env_origins
             tcp_rest_orientation = ee_frame_sensor.data.target_quat_w[..., 0, :].clone()
-            # -- object frame - changed object -> object1 like my env
+
+            # -- object frame 
             object_data: RigidObjectData = env.unwrapped.scene["object1"].data
             object_position = object_data.root_pos_w - env.unwrapped.scene.env_origins
 
-            final_data: RigidObjectData = env.unwrapped.scene["object2"].data # object2
+            final_data: RigidObjectData = env.unwrapped.scene["object2"].data
             final_position = final_data.root_pos_w - env.unwrapped.scene.env_origins
 
             # -- target object frame
@@ -449,18 +454,14 @@ def main():
             # advance state machine
             actions = pick_sm.compute(
                 torch.cat([tcp_rest_position, tcp_rest_orientation], dim=-1),
-                torch.cat([object_position, desired_orientation], dim=-1),
-                torch.cat([desired_position, desired_orientation], dim=-1),
-                torch.cat([final_position, desired_orientation], dim=-1),
+                torch.cat([object_position, tcp_rest_orientation], dim=-1),
+                torch.cat([desired_position, tcp_rest_orientation], dim=-1),
+                torch.cat([final_position, tcp_rest_orientation], dim=-1),
             )
-        
-            
+
            # print(f"End of loop : {actions.shape}")
             #print("Action space shape:", env.unwrapped.action_space.shape)
-            
 
-            
-           
             # reset state machine
             if dones.any():
                 pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))

@@ -15,16 +15,16 @@ from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
 from isaaclab_tasks.manager_based.manipulation.stack import mdp
 from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
-from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
+from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import PourEnvCfg
 
 ##
 # Pre-defined configs
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
 from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
-# from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG
-# from isaaclab.assets import ArticulationCfg
-# import math
+from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG
+from isaaclab.assets import ArticulationCfg
+import math
 
 from isaaclab.envs import ManagerBasedEnv
 
@@ -32,19 +32,11 @@ from isaaclab.envs import ManagerBasedEnv
 class EventCfg:
     """Configuration for events."""
 
-    init_franka_arm_pose = EventTerm(
-        func=franka_stack_events.set_default_joint_pose,
-        mode="startup",
-        params={
-            "default_pose": [0.0444, -0.1894, -0.1107, -2.5148, 0.0044, 2.3775, 0.6952, 0.0400, 0.0400],
-        },
-    )
-    ### Twists arm but state machine but immediately tries to reorient it
     # init_franka_arm_pose = EventTerm(
     #     func=franka_stack_events.set_default_joint_pose,
     #     mode="startup",
     #     params={
-    #         "default_pose": [0.405, 0.35, -0.22, -3.0, -2.85, math.pi / 2, 0.9, 0.0400, 0.0400],
+    #         "default_pose": [0.0444, -0.1894, -0.1107, -2.5148, 0.0044, 2.3775, 0.6952, 0.0400, 0.0400],
     #     },
     # )
 
@@ -55,6 +47,14 @@ class EventCfg:
             "mean": 0.0,
             "std": 0.02,
             "asset_cfg": SceneEntityCfg("robot"),
+        },
+    )
+
+    set_pose_event = EventTerm(
+        func=franka_stack_events.set_default_joint_pose,
+        mode="startup",  # or "reset"
+        params={
+            "default_pose": [0.405, 0.35, -0.22, -3.0, -2.85, math.pi/2, 0.9, 0.02, 0.02],
         },
     )
 
@@ -71,12 +71,11 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.2, 0.25), "y": (0.3, 0.35), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.2, 0.15), "y": (0.3, 0.35), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object2"),
         },
     )
-    ### Stays upside down if sample vial?
     # randomize_cube_positions = EventTerm(
     #     func=franka_stack_events.randomize_object_pose,
     #     mode="reset",
@@ -109,7 +108,7 @@ class EventCfg:
 
 
 @configclass
-class FrankaLabStackEnvCfg(StackEnvCfg):
+class FrankaLabStackEnvCfg(PourEnvCfg): # StackEnvCfg
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
@@ -118,40 +117,23 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
         self.events = EventCfg()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-        # self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
-        #     prim_path="{ENV_REGEX_NS}/Robot",
-        #     init_state=ArticulationCfg.InitialStateCfg(
-        #         joint_pos={
-        #             "panda_joint1":  0.405,
-        #             "panda_joint2": 0.35,   
-        #             "panda_joint3":  -0.22,
-        #             "panda_joint4": -3.0,  
-        #             "panda_joint5":  -2.85, # was -2.85, try math.pi / 2
-        #             "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
-        #             "panda_joint7":  0.9,
-        #             "panda_finger_joint1": 0.04,   # open gripper
-        #             "panda_finger_joint2": 0.04,
-        #         }
-        #     ),
-        # )
-        ### Switched joints using FRANKA_PANDA_CFG
-        # self.scene.robot = FRANKA_PANDA_CFG.replace(
-        #     prim_path="{ENV_REGEX_NS}/Robot",
-        #     init_state=ArticulationCfg.InitialStateCfg(
-        #         joint_pos={
-        #             "panda_joint1":  0.405,
-        #             "panda_joint2": 0.35,   
-        #             "panda_joint3":  -0.22,
-        #             "panda_joint4": -3.0,  
-        #             "panda_joint5":  -2.85, # was -2.85, try math.pi / 2
-        #             "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
-        #             "panda_joint7":  0.9,
-        #             "panda_finger_joint1": 0.04,   # open gripper
-        #             "panda_finger_joint2": 0.04,
-        #         }
-        #     ),
-        # )
+        # self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
+            prim_path="{ENV_REGEX_NS}/Robot",
+            init_state=ArticulationCfg.InitialStateCfg(
+                joint_pos={
+                    "panda_joint1":  0.405,
+                    "panda_joint2": 0.35,   
+                    "panda_joint3":  -0.22, 
+                    "panda_joint4": -3.0,
+                    "panda_joint5":  -2.85, 
+                    "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
+                    "panda_joint7":  0.9, 
+                    "panda_finger_joint1": 0.04,   # open gripper
+                    "panda_finger_joint2": 0.04,
+                }
+            ),
+        )
 
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
 
@@ -171,6 +153,8 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
             open_command_expr={"panda_finger_.*": 0.04},
             close_command_expr={"panda_finger_.*": 0.0},
         )
+
+
         self.commands.object_pose.body_name = "panda_hand"
 
         # Rigid body properties of each cube
@@ -201,8 +185,8 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
                 # usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/red_block.usd",
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centre_beaker.usd",
-                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centered_conical_flask_glass.usd",
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/centered_conical_flask_glass.usd",
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
                 scale=(1.0, 1.0, 1.0),
                 rigid_props=RigidBodyPropertiesCfg(),
@@ -273,3 +257,22 @@ class FrankaLabStackEnvCfg(StackEnvCfg):
                 ),
             ],
         )
+
+        # marker_cfg = FRAME_MARKER_CFG.copy()
+        # marker_cfg.markers["frame"].scale = (0.1, 0.1, 0.1)
+        # marker_cfg.prim_path = "/Visuals/FrameTransformer"
+        # self.scene.ee_frame = FrameTransformerCfg(
+        #     prim_path="{ENV_REGEX_NS}/Robot/panda_link0",
+        #     debug_vis=False,
+        #     visualizer_cfg=marker_cfg,
+        #     target_frames=[
+        #         FrameTransformerCfg.FrameCfg(
+        #             prim_path="{ENV_REGEX_NS}/Robot/panda_hand",
+        #             name="end_effector",
+        #             offset=OffsetCfg(
+        #                 pos=[0.0, 0.0, 0.1034],
+                        
+        #             ),
+        #         ),
+        #     ],
+        # )

@@ -13,6 +13,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import FrameTransformer
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 from isaaclab.utils.math import subtract_frame_transforms, combine_frame_transforms
+import math
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -194,6 +195,7 @@ def reach_object2(
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
     # extract the used quantities (to enable type-hinting)
+    ### Currently not working
     object2: RigidObject = env.scene[object2_cfg.name]
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
     # Target object2 position: (num_envs, 3)
@@ -210,6 +212,7 @@ def pour_object(
     env: ManagerBasedEnv,
     object1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    angle_threshold = math.radians(45), 
     loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """The agent is pouring into something else"""
@@ -218,6 +221,7 @@ def pour_object(
     q = [pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w]
     r = R.from_quat(q)
     roll, pitch, yaw = r.as_euler('xyz', degrees=True)
+    print(pitch > angle_threshold)
     return pitch > angle_threshold
 
 def object_stacked(

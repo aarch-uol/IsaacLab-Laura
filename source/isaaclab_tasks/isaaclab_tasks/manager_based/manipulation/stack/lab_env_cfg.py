@@ -74,6 +74,15 @@ class CommandsCfg:
             pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
+    # low_pose = mdp.UniformPoseCommandCfg(
+    #     asset_name="robot",
+    #     body_name=MISSING,  # will be set by agent env cfg
+    #     resampling_time_range=(10.0, 10.0),
+    #     debug_vis=True,
+    #     ranges=mdp.UniformPoseCommandCfg.Ranges(
+    #         pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.25, 0.25), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+    #     ),
+    # )
 
 @configclass
 class ActionsCfg:
@@ -223,7 +232,7 @@ class Observations2Cfg:
             func=mdp.object_reached_midgoal,
             params={ 
                 "threshold": 0.04, 
-                "command_name": "object_pose",
+                "command_name": "object_pose", # change to low_pose and comment out object_pose
                 
             },
         )
@@ -246,7 +255,7 @@ class Observations2Cfg:
         #     func=mdp.object_near_goal,
         #     params={ 
         #         "threshold": 0.04, 
-        #         "command_name": "object_pose",
+        #         "command_name": "end_pose", # end_pose doesn't exist
                 
         #     },
         # )

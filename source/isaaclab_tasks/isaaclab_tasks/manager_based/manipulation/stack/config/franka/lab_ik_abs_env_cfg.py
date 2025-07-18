@@ -13,6 +13,7 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
 
 import isaaclab_tasks.manager_based.manipulation.cube_lift.mdp as mdp
+from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
 
 from . import lab_joint_pos_env_cfg
 
@@ -20,6 +21,8 @@ from . import lab_joint_pos_env_cfg
 # Pre-defined configs
 ##
 from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
+from isaaclab.assets import ArticulationCfg
+import math
 
 
 ##
@@ -28,14 +31,30 @@ from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: ski
 
 
 @configclass
-class FrankaCubeStackEnvCfg(lab_joint_pos_env_cfg.FrankaLabStackEnvCfg):
+class FrankaLabStackEnvCfg(lab_joint_pos_env_cfg.FrankaLabStackEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
 
         # Set Franka as robot
         # We switch here to a stiffer PD controller for IK tracking to be better.
-        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
+            prim_path="{ENV_REGEX_NS}/Robot",
+            init_state=ArticulationCfg.InitialStateCfg(
+                joint_pos={
+                    "panda_joint1":  0.405,
+                    "panda_joint2": 0.35,   
+                    "panda_joint3":  -0.22, 
+                    "panda_joint4": -3.0,
+                    "panda_joint5":  -2.85, 
+                    "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
+                    "panda_joint7":  0.9, 
+                    "panda_finger_joint1": 0.04,   # open gripper
+                    "panda_finger_joint2": 0.04,
+                }
+            ),
+        )
 
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = DifferentialInverseKinematicsActionCfg(

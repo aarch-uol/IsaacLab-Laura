@@ -209,21 +209,21 @@ def infer_state_machine(
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
         # Evaluate readiness to transition
-        # if CONICAL:
-        #     dx = wp.abs(current_pos.x - target_pos.x)
-        #     dy = wp.abs(current_pos.y - target_pos.y)
-        #     dz = wp.abs(current_pos.z - target_pos.z)
-        #     if (dx < 0.02) and (dy < 0.02) and (dz < 0.5):
-        #         if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-        #             print("[SM_INFO] : Moving from APPR_ABOVE_OBJ2 to UNGRASP")
-        #             sm_state[tid] = PickSmState.UNGRASP_OBJECT
-        #             sm_wait_time[tid] = 0.0
-        # else:
-        if distance_below_threshold(current_pos, target_pos, 0.02):
-            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
-                sm_state[tid] = PickSmState.APPROACH_OBJECT2
-                sm_wait_time[tid] = 0.0
+        if CONICAL:
+            dx = wp.abs(current_pos.x - target_pos.x)
+            dy = wp.abs(current_pos.y - target_pos.y)
+            dz = wp.abs(current_pos.z - target_pos.z)
+            if (dx < 0.02) and (dy < 0.02) and (dz < 0.6):
+                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
+                    print("[SM_INFO] : Moving from APPR_ABOVE_OBJ2 to APPROACH_OBJECT2")
+                    sm_state[tid] = PickSmState.APPROACH_OBJECT2
+                    sm_wait_time[tid] = 0.0
+        else:
+            if distance_below_threshold(current_pos, target_pos, 0.02):
+                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
+                    print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
+                    sm_state[tid] = PickSmState.APPROACH_OBJECT2
+                    sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT2:
         ## Pushes a bit into flask because already on hot plate at this point
         # Get original transform from final_object_pose[tid]
@@ -365,16 +365,16 @@ def main():
     # parse configuration
     env_cfg: LiftEnvCfg = parse_env_cfg(
         #"Isaac-Lift-Cube-Franka-IK-Abs-v0",
-        # "Isaac-Stack-Lab-Franka-IK-Abs-v0",
-        "Isaac-Stack-LLM-Franka-IK-Abs-v0",
+        "Isaac-Stack-Lab-Franka-IK-Abs-v0",
+        # "Isaac-Stack-LLM-Franka-IK-Abs-v0",
         device=args_cli.device,
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
     # create environment
     #env = gym.make("Isaac-Lift-Cube-Franka-IK-Abs-v0", cfg=env_cfg)
-    # env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
-    env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
+    # env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start
     env.reset()
    # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)

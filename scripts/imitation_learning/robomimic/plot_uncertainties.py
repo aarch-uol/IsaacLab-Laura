@@ -25,7 +25,7 @@ def load_data(file):
                     rollout = []
                 labels.append(True if label == 'True' else False)
 
-            if timestep % 100 == 0:
+            if timestep % 10 == 0:
                 rollout.append((timestep, uncertainties))
                 all_timesteps.append(timestep)
                 all_uncertainties.append(uncertainties)
@@ -101,8 +101,8 @@ def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
         plt.close()
 
 
-stack_cube_results_path = "./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model9/" 
-stack_cube_uncertainties_path = "./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model9/uncertainties.txt"
+stack_cube_results_path = "./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model_70/" 
+stack_cube_uncertainties_path = "./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model_70/uncertainties.txt"
 
 
 rollouts, labels, all_uncertainties, all_timesteps = load_data(stack_cube_uncertainties_path)

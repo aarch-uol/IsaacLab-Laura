@@ -69,6 +69,7 @@ import torch
 import traceback
 from collections import OrderedDict
 from torch.utils.data import DataLoader
+from torch.utils.data import Subset
 
 import psutil
 
@@ -227,7 +228,26 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
 
     # load training data
     trainset, validset = TrainUtils.load_data_for_training(config, obs_keys=shape_meta["all_obs_keys"])
-    train_sampler = trainset.get_dataset_sampler()
+    
+    # reduce size of the dataset
+    og_len = len(trainset)
+    percentage = args.dataset_percentage # keep only x% of the samples 
+    total_size = len(trainset)
+    num_samples = int(total_size * (percentage))
+    indices = np.random.choice(total_size, num_samples, replace=False)
+    trainset = Subset(trainset, indices)
+    print(f"size of trainset after reduction is {len(trainset)}")
+    new_len = len(trainset)
+    retained_percent = (new_len / og_len) * 100
+    print(f"Retained: {retained_percent:.2f}% of original dataset")
+
+    #train_sampler = trainset.get_dataset_sampler()
+    if isinstance(trainset, Subset):
+        train_sampler = trainset.dataset.get_dataset_sampler()
+    else:
+        train_sampler = trainset.get_dataset_sampler()
+
+
     print("\n============= Training Dataset =============")
     print(trainset)
     print("")
@@ -432,6 +452,8 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, default=None, help="Name of the algorithm.")
     parser.add_argument("--log_dir", type=str, default="robomimic", help="Path to log directory")
     parser.add_argument("--normalize_training_actions", action="store_true", default=False, help="Normalize actions")
+    
+    parser.add_argument("--dataset_percentage", type=float, default=1.0, help="Percentage of samples from the dataset to use")
 
     args = parser.parse_args()
 

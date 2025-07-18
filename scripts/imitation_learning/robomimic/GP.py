@@ -148,24 +148,14 @@ def load_dataset_from_hdf5(hdf5_path, obs_key='obs', action_key='actions'):
         train_y (torch.Tensor): actions
     """
     with h5py.File(hdf5_path, 'r') as f:
-        # You can adapt these keys based on your dataset structure
-        # Here assuming dataset structured as /data/demo_*/obs and /data/demo_*/actions
         obs_list = []
         act_list = []
         data_group = f['data']
-        for demo_key in data_group.keys():
-            demo_group = data_group[demo_key]
-            obs = np.array(demo_group[obs_key])
-            actions = np.array(demo_group[action_key])
-            obs_list.append(obs)
-            act_list.append(actions)
-
-        # Concatenate along the first dimension (time steps)
-        all_obs = np.concatenate(obs_list, axis=0)
-        all_actions = np.concatenate(act_list, axis=0)
-
-        train_x = torch.from_numpy(all_obs).float()
-        train_y = torch.from_numpy(all_actions).float()
+        mask_group = f['mask']
+        for data_group_key in data_group.keys():
+            print(data_group_key)
+            print(np.array(data_group[data_group_key]['actions'])[:5][0])
+            exit()   
 
     return train_x, train_y
 

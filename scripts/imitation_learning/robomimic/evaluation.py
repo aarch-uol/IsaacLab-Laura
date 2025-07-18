@@ -31,7 +31,7 @@ def MC_dropout_uncertainty(policy, obs, niters=50):
     mean = torch.mean(actions, dim=0)
     std = torch.std(actions, dim=0)
     variance = torch.sqrt(std)
-
+    # TODO: use covariance instead?
     return {
         'mean': mean,
         'std': std,

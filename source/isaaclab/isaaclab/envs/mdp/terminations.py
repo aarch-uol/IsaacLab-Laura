@@ -52,19 +52,41 @@ Root terminations.
 """
 
 
-def bad_orientation(
-    env: ManagerBasedRLEnv, limit_angle: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), 
-    loghelper : LoggingHelper = LoggingHelper()
-) -> torch.Tensor:
-    """Terminate when the asset's orientation is too far from the desired orientation limits.
+# def bad_orientation(
+#     env: ManagerBasedRLEnv, limit_angle: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), 
+#     loghelper : LoggingHelper = LoggingHelper()
+# ) -> torch.Tensor:
+#     """Terminate when the asset's orientation is too far from the desired orientation limits.
 
-    This is computed by checking the angle between the projected gravity vector and the z-axis.
+#     This is computed by checking the angle between the projected gravity vector and the z-axis.
+#     """
+#     # extract the used quantities (to enable type-hinting)
+#     asset: RigidObject = env.scene[asset_cfg.name]
+#     # if (torch.acos(-asset.data.projected_gravity_b[:, 2]).abs()).item() > limit_angle:
+#     #     loghelper.logerror(ErrorType.ORIENTATION)
+#     return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
+
+
+def bad_orientation(
+    env: ManagerBasedRLEnv,
+    limit_angle: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    loghelper: LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
     """
-    # extract the used quantities (to enable type-hinting)
+    Terminate when the asset's orientation deviates too far from its original upright pose.
+    Deviation is computed from the initial projected gravity vector.
+    """
     asset: RigidObject = env.scene[asset_cfg.name]
-    # if (torch.acos(-asset.data.projected_gravity_b[:, 2]).abs()).item() > limit_angle:
-    #     loghelper.logerror(ErrorType.ORIENTATION)
-    return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
+
+    # Use persistent state on the function to store upright baseline
+    if not hasattr(bad_orientation, "_baseline_upright"):
+        bad_orientation._baseline_upright = torch.acos(-asset.data.projected_gravity_b[:, 2]).detach()
+    current_angle = torch.acos(-asset.data.projected_gravity_b[:, 2])
+    deviation = (current_angle - bad_orientation._baseline_upright).abs()
+    if torch.any(deviation > limit_angle):
+        print(f"[DEBUG] Upright deviation: {deviation.item():.4f} rad (limit: {limit_angle})")
+    return deviation > limit_angle
 
 
 def root_height_below_minimum(
@@ -72,15 +94,14 @@ def root_height_below_minimum(
     loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Terminate when the asset's root height is below the minimum height.
-
     Note:
         This is currently only supported for flat terrains, i.e. the minimum height is in the world frame.
     """
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
-    # if asset.data.root_pos_w[:, 2].item() < minimum_height:
-    #     loghelper.logerror(ErrorType.DROP)
-    #     print("dropped")
+    if torch.any(asset.data.root_pos_w[:, 2] < minimum_height):
+        # loghelper.logerror(ErrorType.DROP)
+        print(f"[DEBUG] Asset {asset_cfg.name} dropped below minimum height: {asset.data.root_pos_w[:, 2].item()} < {minimum_height}")
     return asset.data.root_pos_w[:, 2] < minimum_height
 
 

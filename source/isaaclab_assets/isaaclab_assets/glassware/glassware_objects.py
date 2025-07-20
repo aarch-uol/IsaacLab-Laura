@@ -6,6 +6,11 @@ from isaaclab.sim.spawners.wrappers import MultiUsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
+import os
+GLASSWARE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSETS_ROOT = os.path.abspath(os.path.join(GLASSWARE_DIR, "..", "..", "data", "Props", "glassware"))
+
+
 @configclass
 class Chem_Assets:
         cube_properties = RigidBodyPropertiesCfg(
@@ -49,7 +54,7 @@ class Chem_Assets:
                 prim_path="{ENV_REGEX_NS}/" + name,
                 init_state=RigidObjectCfg.InitialStateCfg(pos = pos,rot=rot ),
                 spawn=UsdFileCfg(
-                    usd_path="/media/haz/Playground/IsaacLabs/IsaacLab-Laura/source/isaaclab_assets/data/Props/glassware/beaker/beaker.usd",
+                    usd_path = os.path.join(ASSETS_ROOT, "beaker.usd"),
                     scale=(0.5, 0.5, 0.5),
                     rigid_props=self.cube_properties,
                     semantic_tags=[("class", name)],

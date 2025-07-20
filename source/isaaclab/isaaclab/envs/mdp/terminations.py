@@ -81,7 +81,7 @@ def bad_orientation(
 
     # Use persistent state on the function to store upright baseline
     if not hasattr(bad_orientation, "_baseline_upright"):
-        bad_orientation._baseline_upright = torch.acos(-asset.data.projected_gravity_b[:, 2]).detach()
+        bad_orientation._baseline_upright = torch.acos(-asset.data.projected_gravity_b[:, 2]).abs().detach()
     current_angle = torch.acos(-asset.data.projected_gravity_b[:, 2])
     deviation = (current_angle - bad_orientation._baseline_upright).abs()
     if torch.any(deviation > limit_angle):

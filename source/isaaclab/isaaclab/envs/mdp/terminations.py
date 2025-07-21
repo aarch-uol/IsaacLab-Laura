@@ -78,7 +78,6 @@ def bad_orientation(
     Deviation is computed from the initial projected gravity vector.
     """
     asset: RigidObject = env.scene[asset_cfg.name]
-<<<<<<< HEAD
 
     # Use persistent state on the function to store upright baseline
     if not hasattr(bad_orientation, "_baseline_upright"):
@@ -88,12 +87,10 @@ def bad_orientation(
     if torch.any(deviation > limit_angle):
         print(f"[DEBUG] Upright deviation: {deviation.item():.4f} rad (limit: {limit_angle})")
     return deviation > limit_angle
-=======
     if (torch.acos(-asset.data.projected_gravity_b[:, 2]).abs()).item() > limit_angle:
     #     loghelper.logerror(ErrorType.ORIENTATION)
         print("bad orientation")
     return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
->>>>>>> abc3c2f1676da18e4ca19bb43a6b54fc0e0a2964
 
 
 def root_height_below_minimum(

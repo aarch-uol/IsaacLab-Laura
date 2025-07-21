@@ -163,7 +163,7 @@ def gripper_pos(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityC
 def object_near_goal(
     env: ManagerBasedRLEnv,
     command_name: str = "object_pose",
-    threshold: float = 0.02,
+    threshold: float = 0.03,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     loghelper : LoggingHelper = LoggingHelper()

@@ -279,10 +279,8 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
-    
     #object_orientation = DoneTerm(func=mdp.bad_orientation)
-
-    #joint_effort = DoneTerm(func=mdp.joint_effort_out_of_limit)
+    #joint_effort = DoneTerm(func=mdp5.joint_effort_out_of_limit)
 
     object_dropping = DoneTerm(
         func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object")}

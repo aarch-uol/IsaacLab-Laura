@@ -1,7 +1,7 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_trans_20250716_1",
+        "name": "bc_trans_20250721_1",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
@@ -15,7 +15,7 @@
             "every_n_epochs": 100,
             "epochs": [],
             "on_best_validation": true,
-            "on_best_rollout_return": false,
+            "on_best_rollout_return": true,
             "on_best_rollout_success_rate": true
         },
         "epoch_every_n_steps": 100,
@@ -62,7 +62,7 @@
                 "optimizer_type": "adam",
                 "learning_rate": {
                     "initial": 0.0001,
-                    "decay_factor": 0.1,
+                    "decay_factor": 0.01,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"
                 },

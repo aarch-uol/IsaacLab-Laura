@@ -393,7 +393,7 @@ def main(args: argparse.Namespace):
     run.define_metric("train reward", step_metric="episode")
     run.define_metric("episode error", step_metric="episode")
     # change location of experiment directory
-    config.train.output_dir = os.path.abspath(os.path.join("./logs", args.log_dir, args.task))
+    config.train.output_dir = os.path.abspath(os.path.join("/docs", args.log_dir, args.task))
 
     log_dir, ckpt_dir, video_dir = TrainUtils.get_exp_dir(config)
 

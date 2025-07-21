@@ -75,6 +75,7 @@ class ArticulationData:
         self._joint_acc = TimestampedBuffer()
         self._joint_vel = TimestampedBuffer()
         self._body_incoming_joint_wrench_b = TimestampedBuffer()
+        print(f"[DEBUG] : Joint effort limit : {self.joint_effort_limits}")
 
     def update(self, dt: float):
         # update the simulation timestamp
@@ -82,6 +83,7 @@ class ArticulationData:
         # Trigger an update of the joint acceleration buffer at a higher frequency
         # since we do finite differencing.
         self.joint_acc
+        #print(f"[DEBUG] : Joint effort limit : {self.joint_effort_limits}")
 
     ##
     # Names.
@@ -303,7 +305,7 @@ class ArticulationData:
 
     joint_effort_limits: torch.Tensor = None
     """Joint maximum effort provided to the simulation. Shape is (num_instances, num_joints)."""
-
+   
     ##
     # Joint properties - Custom.
     ##
@@ -837,6 +839,7 @@ class ArticulationData:
 
         This quantity is the angular acceleration of the rigid bodies' center of mass frame relative to the world.
         """
+        print(f"Body ang Acc : {self.body_acc_w[..., 3:6]}")
         return self.body_acc_w[..., 3:6]
 
     ##

@@ -28,14 +28,14 @@ gym.register(
     },
     disable_env_checker=True,
 )
-gym.register(
-    id="Isaac-Stack-Cube-Franka-IK-Rel-Mimic",
-    entry_point="isaaclab_mimic.envs:FrankaCubeStackIKRelMimicEnv",
-    kwargs={
-        "env_cfg_entry_point": franka_stack_ik_rel_mimic_env_cfg.FrankaCubeStackIKRelMimicEnvCfg,
-    },
-    disable_env_checker=True,
-)
+# gym.register(
+#     id="Isaac-Stack-Cube-Franka-IK-Rel-Mimic",
+#     entry_point="isaaclab_mimic.envs:FrankaCubeStackIKRelMimicEnv",
+#     kwargs={
+#         "env_cfg_entry_point": franka_stack_ik_rel_mimic_env_cfg.FrankaCubeStackIKRelMimicEnvCfg,
+#     },
+#     disable_env_checker=True,
+# )
 
 gym.register(
     id="Isaac-Stack-Cube-Franka-IK-Rel-Blueprint-Mimic-v0",

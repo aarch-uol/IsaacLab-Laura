@@ -332,7 +332,8 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
         # general settings
         
         self.decimation = 2
-        self.episode_length_s = 60
+        self.episode_length_s = 30
+        self.max_episode_length_s = 30 # if this breaks, yeet this line
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation

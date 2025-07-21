@@ -31,12 +31,38 @@ def MC_dropout_uncertainty(policy, obs, niters=50):
     mean = torch.mean(actions, dim=0)
     std = torch.std(actions, dim=0)
     variance = torch.sqrt(std)
-    # TODO: use covariance instead?
+    
     return {
         'mean': mean,
         'std': std,
         'variance': variance
     }
+
+
+def mc_dropout_uncertainty_eval(policy, obs, niters=50):
+    policy.policy.nets['policy'].train()
+
+
+    actions = []
+    with torch.no_grad():
+        for _ in range(niters):
+            action = torch.from_numpy(policy(obs))
+            actions.append(action)
+    
+    actions = torch.stack(actions)
+
+    mean = torch.mean(actions, dim=0)
+    std = torch.std(actions, dim=0)
+    variance = torch.var(actions, dim=0)
+
+    policy.policy.nets['policy'].eval()
+
+    return {
+        'mean': mean,
+        'std': std,
+        'variance': variance
+    }
+
 
 
 

@@ -69,3 +69,6 @@ docs/training_runs
 
 # Tests
 tests/
+
+# Models
+**/*.pth

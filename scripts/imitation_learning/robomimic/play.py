@@ -127,10 +127,10 @@ def rollout(policy, env, success_term, horizon, device):
         
         # Add dropout layers to the model and calculate uncertainty and remove at the end to not effect final action
 
-        hooks = inject_dropout_layers(policy=policy, probability=0.3)
+        #hooks = inject_dropout_layers(policy=policy, probability=0.1)
         uncertainty_dict = MC_dropout_uncertainty(policy=policy, obs=obs, niters=15)
         traj['uncertainties'].append(uncertainty_dict['variance'])
-        remove_dropout_layers(hooks)
+        #remove_dropout_layers(hooks)
 
         # Compute actions
         actions = policy(obs)
@@ -165,6 +165,8 @@ def rollout(policy, env, success_term, horizon, device):
 # --device cuda --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --num_rollouts 50 \
 # --checkpoint /logs/docs/Models/bc/model1/Isaac-Stack-Cube-Franka-IK-Rel-v0/bc_rnn_low_dim_franka_stack/20250715152224/models/model_epoch_2000.pth
 
+
+# ./isaaclab.sh -p scripts/imitation_learning/robomimic/play.py --device cuda --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --num_rollouts 10 --checkpoint logs/docs/Models/bc/model2/Isaac-Stack-Cube-Franka-IK-Rel-v0/bc_rnn_low_dim_franka_stack/20250715152538/models/model_epoch_2000.pth --headless
 # stack cube task:
 # Successful trials: 37, out of 50 trials
 # Success rate: 0.74
@@ -216,7 +218,11 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-    policy_copy = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
+    #policy_copy = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
+    
+    model_name = "model2"
+    task = "stack_cube" # stack_cube or pick_place
+    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
 
     # Run policy
     results = []
@@ -224,13 +230,12 @@ def main():
         print(f"[INFO] Starting trial {trial}")
         loghelper.startEpoch(trial)
         terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
-        with open("./docs/training_data/stack_cube/uncertainty_rollout_stack_cube/model9/uncertainties.txt", 'a') as file:
+        with open(uncertainties_path, 'a') as file:
             for i, var in enumerate(traj['uncertainties']):
                 line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"
                 file.write(f"{str(i)} {line}")
                 
             
-    
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
         loghelper.stopEpoch(trial)

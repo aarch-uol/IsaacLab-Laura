@@ -177,7 +177,7 @@ class ObservationsCfg():
             func=mdp.is_object_lifted,
             params={
                 "obj_cfg": SceneEntityCfg("object"),
-                "threshold" : 0.01
+                "threshold" : 0.05
             }
         )
         appr_goal = ObsTerm(

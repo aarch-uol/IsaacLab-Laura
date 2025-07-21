@@ -130,12 +130,18 @@ class DataGenInfoPool:
                     diffs = subtask_indicators[1:] - subtask_indicators[:-1]
                     end_ind = int(diffs.nonzero()[0][0]) + 1
                     subtask_term_ind = end_ind + 1  # increment to support indexing like demo[start:end]
+                
+                try:
+                    if subtask_term_ind <= prev_subtask_term_ind:
+                        raise ValueError(
+                            f"subtask termination signal is not increasing: {subtask_term_ind} should be greater than"
+                            f" {prev_subtask_term_ind}"
+                        )
+                except ValueError as e:
+                    print(f"[WARN] Skipping episode due to datagen parsing error: {e}")
+                    return
 
-                if subtask_term_ind <= prev_subtask_term_ind:
-                    raise ValueError(
-                        f"subtask termination signal is not increasing: {subtask_term_ind} should be greater than"
-                        f" {prev_subtask_term_ind}"
-                    )
+                
                 eef_subtask_boundaries.append((prev_subtask_term_ind, subtask_term_ind))
                 prev_subtask_term_ind = subtask_term_ind
 
@@ -146,23 +152,20 @@ class DataGenInfoPool:
             #
             for i in range(1, len(eef_subtask_boundaries)):
                 prev_max_offset_range = self.subtask_term_offset_ranges[eef_name][i - 1][1]
-                assert (
-                    eef_subtask_boundaries[i - 1][1] + prev_max_offset_range
-                    < eef_subtask_boundaries[i][1] + self.subtask_term_offset_ranges[eef_name][i][0]
-                ), (
-                    "subtask sanity check violation in demo with subtask {} end ind {}, subtask {} max offset {},"
-                    " subtask {} end ind {}, and subtask {} min offset {}".format(
-                        i - 1,
-                        eef_subtask_boundaries[i - 1][1],
-                        i - 1,
-                        prev_max_offset_range,
-                        i,
-                        eef_subtask_boundaries[i][1],
-                        i,
-                        self.subtask_term_offset_ranges[eef_name][i][0],
-                    )
-                )
-
+                prev_end = eef_subtask_boundaries[i - 1][1]
+                curr_end = eef_subtask_boundaries[i][1]
+                curr_min_offset = self.subtask_term_offset_ranges[eef_name][i][0]
+                try: 
+                    if prev_end + prev_max_offset_range >= curr_end + curr_min_offset:
+                        raise AssertionError(
+                            f"[FAIL] Subtask sanity check failed in episode '{episode}' "
+                            f"(eef: '{eef_name}'): "
+                            f"subtask {i-1} end={prev_end}, max offset={prev_max_offset_range} → "
+                            f"subtask {i} end={curr_end}, min offset={curr_min_offset}"
+                        )
+                except AssertionError as e:
+                    print(f"[WARN] Skipping episode due to datagen parsing error: {e}")
+                    return
             self._subtask_boundaries[eef_name].append(eef_subtask_boundaries)
 
     def load_from_dataset_file(self, file_path, select_demo_keys: str | None = None):

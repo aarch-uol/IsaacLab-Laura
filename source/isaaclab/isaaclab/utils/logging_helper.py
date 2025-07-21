@@ -18,7 +18,7 @@ class ErrorType(Enum):
 
 
 class LoggingHelper:
-    def __init__(self, logname : str= "docs/vialrack_4k.txt"):
+    def __init__(self, logname : str= "docs/CubeStack.txt"):
         self.namefile = logname
     
     def startEpoch(self, epochnum : int):

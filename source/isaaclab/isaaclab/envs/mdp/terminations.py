@@ -78,6 +78,7 @@ def bad_orientation(
     Deviation is computed from the initial projected gravity vector.
     """
     asset: RigidObject = env.scene[asset_cfg.name]
+<<<<<<< HEAD
 
     # Use persistent state on the function to store upright baseline
     if not hasattr(bad_orientation, "_baseline_upright"):
@@ -87,6 +88,12 @@ def bad_orientation(
     if torch.any(deviation > limit_angle):
         print(f"[DEBUG] Upright deviation: {deviation.item():.4f} rad (limit: {limit_angle})")
     return deviation > limit_angle
+=======
+    if (torch.acos(-asset.data.projected_gravity_b[:, 2]).abs()).item() > limit_angle:
+    #     loghelper.logerror(ErrorType.ORIENTATION)
+        print("bad orientation")
+    return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
+>>>>>>> abc3c2f1676da18e4ca19bb43a6b54fc0e0a2964
 
 
 def root_height_below_minimum(
@@ -116,13 +123,25 @@ def joint_pos_out_of_limit(
     """Terminate when the asset's joint positions are outside of the soft joint limits."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
-    # compute any violations
-    out_of_upper_limits = torch.any(asset.data.joint_pos > asset.data.soft_joint_pos_limits[..., 1], dim=1)
-    out_of_lower_limits = torch.any(asset.data.joint_pos < asset.data.soft_joint_pos_limits[..., 0], dim=1)
-    # if torch.any(out_of_lower_limits) or torch.any(out_of_upper_limits):
+    if asset_cfg.joint_ids is None:
+        asset_cfg.joint_ids = slice(None)
+
+    limits = asset.data.soft_joint_pos_limits[:, asset_cfg.joint_ids]
+    
+    out_of_upper_limits = torch.isclose(limits[..., 1], asset.data.joint_pos[:, asset_cfg.joint_ids] )
+    out_of_lower_limits = torch.isclose(limits[..., 0], asset.data.joint_pos[:, asset_cfg.joint_ids])
+    if torch.any(out_of_lower_limits) or torch.any(out_of_upper_limits):
     #     loghelper.logerror(ErrorType.JOINT_VIO)
+        print("Joint pos violation")
+        print("limits : ", limits)
+        print("joints : ", asset.data.joint_pos[:, asset_cfg.joint_ids])
+        print("upper violation : ", out_of_upper_limits)
+        print("lower limit : ", out_of_lower_limits)
         
-    return torch.any(out_of_lower_limits) or torch.any(out_of_upper_limits) #torch.logical_or(out_of_upper_limits[:, asset_cfg.joint_ids], out_of_lower_limits[:, asset_cfg.joint_ids])
+    out_of_upper_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] > limits[..., 1], dim=1)
+    out_of_lower_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] < limits[..., 0], dim=1)
+    
+    return torch.logical_or(out_of_upper_limits, out_of_lower_limits) #torch.logical_or(out_of_upper_limits[:, asset_cfg.joint_ids], out_of_lower_limits[:, asset_cfg.joint_ids])
 
 
 def joint_pos_out_of_manual_limit(
@@ -141,8 +160,10 @@ def joint_pos_out_of_manual_limit(
     # compute any violations
     out_of_upper_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] > bounds[1], dim=1)
     out_of_lower_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] < bounds[0], dim=1)
-    # if torch.logical_or(out_of_upper_limits, out_of_lower_limits).item():
+    if torch.logical_or(out_of_upper_limits, out_of_lower_limits).item():
     #     loghelper.logerror(ErrorType.JOINT_VIO)
+        print("joint pos violation")
+    
     return torch.logical_or(out_of_upper_limits, out_of_lower_limits)
 
 
@@ -154,9 +175,9 @@ def joint_vel_out_of_limit(
     asset: Articulation = env.scene[asset_cfg.name]
     # compute any violations
     limits = asset.data.soft_joint_vel_limits
-    # if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1).item():
+    if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1).item():
     #     loghelper.logerror(ErrorType.VEL_VIO)
-    #     print("Joint violation")
+        print("Joint violation")
     return torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1)
 
 
@@ -168,7 +189,8 @@ def joint_vel_out_of_manual_limit(
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     # compute any violations
-    # if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1).item():
+    if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1).item():
+        print("joint velocity violation")
     #     loghelper.logerror(ErrorType.VEL_VIO)
     return torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1)
 
@@ -185,11 +207,13 @@ def joint_effort_out_of_limit(
     """
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
+    applied_torque = asset.data.applied_torque[:, asset_cfg.joint_ids]
     # check if any joint effort is out of limit
     out_of_limits = torch.isclose(
-        asset.data.computed_torque[:, asset_cfg.joint_ids], asset.data.applied_torque[:, asset_cfg.joint_ids]
+        applied_torque, asset.data.joint_effort_limits
     )
-    # if torch.any(out_of_limits, dim=1):
+    if torch.any(torch.any(out_of_limits, dim=1)):
+        print(f"joint effort violation: limit {asset.data.joint_effort_limits}:  \n applied torque : {asset.data.applied_torque[:, asset_cfg.joint_ids]} ")
     #     loghelper.logerror(ErrorType.EFF_VIO)
     return torch.any(out_of_limits, dim=1)
 
@@ -211,6 +235,7 @@ def illegal_contact(
         torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold, dim=1
     ).item():
         loghelper.logerror(ErrorType.CONTACT)
+        print("Illegal contact")
         
     return torch.any(
         torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold, dim=1

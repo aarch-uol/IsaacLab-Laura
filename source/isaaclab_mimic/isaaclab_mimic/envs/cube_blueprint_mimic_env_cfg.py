@@ -63,7 +63,7 @@ class CubeBlueprintMimicEnvCfg(FrankaDevEnvCfg, MimicEnvCfg):
                 # Corresponding key for the binary indicator in "datagen_info" for completion
                 subtask_term_signal="grasp",
                 # Time offsets for data generation when splitting a trajectory
-                subtask_term_offset_range=(0, 0),
+                subtask_term_offset_range=(0, 10),
                 # Selection strategy for source subtask segment
                selection_strategy="nearest_neighbor_object",
                 # Optional parameters for the selection strategy function
@@ -86,7 +86,7 @@ class CubeBlueprintMimicEnvCfg(FrankaDevEnvCfg, MimicEnvCfg):
                 # End of final subtask does not need to be detected
                 subtask_term_signal="lift",
                 # No time offsets for the final subtask
-                subtask_term_offset_range=(0, 0),
+                subtask_term_offset_range=(5, 10),
                 # Selection strategy for source subtask segment
                 selection_strategy="nearest_neighbor_robot_distance",
                 # Optional parameters for the selection strategy function

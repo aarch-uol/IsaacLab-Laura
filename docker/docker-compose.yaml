@@ -104,9 +104,15 @@ services:
     stdin_open: true
     tty: true
     devices:
+<<<<<<< HEAD
       - /dev/hidraw0:/dev/hidraw0
       - /dev/hidraw1:/dev/hidraw1
       # - /dev/hidraw2:/dev/hidraw2
+=======
+    - /dev/hidraw0:/dev/hidraw0
+    - /dev/hidraw1:/dev/hidraw1
+    - /dev/hidraw2:/dev/hidraw2
+>>>>>>> abc3c2f1676da18e4ca19bb43a6b54fc0e0a2964
 
   # ROS2 on top of base image
   isaac-lab-ros2:
@@ -129,9 +135,16 @@ services:
     stdin_open: true
     tty: true
     devices:
+<<<<<<< HEAD
       - /dev/hidraw0:/dev/hidraw0
       - /dev/hidraw1:/dev/hidraw1
       # - /dev/hidraw2:/dev/hidraw2
+=======
+    - /dev/hidraw0:/dev/hidraw0
+    - /dev/hidraw1:/dev/hidraw1
+    - /dev/hidraw2:/dev/hidraw2
+    
+>>>>>>> abc3c2f1676da18e4ca19bb43a6b54fc0e0a2964
 
   # Harry's custom IsaacLab variant
   isaac-lab-harry:

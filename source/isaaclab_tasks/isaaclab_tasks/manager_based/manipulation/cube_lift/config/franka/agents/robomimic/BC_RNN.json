@@ -1,7 +1,7 @@
 {
     "algo_name": "bc_rnn",
     "experiment": {
-        "name": "BC_RNN",
+        "name": "bd",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,

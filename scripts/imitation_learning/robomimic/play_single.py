@@ -70,6 +70,7 @@ if args_cli.enable_pinocchio:
     import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
 from isaaclab_tasks.utils import parse_env_cfg
+from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers
 
 
 def rollout(policy, env, success_term, horizon, device):
@@ -87,13 +88,17 @@ def rollout(policy, env, success_term, horizon, device):
     """
     policy.start_episode()
     obs_dict, _ = env.reset()
-    traj = dict(actions=[], obs=[], next_obs=[])
+    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
 
     for i in range(horizon):
         # Prepare observations
         obs = copy.deepcopy(obs_dict["policy"])
+        sub_obs = copy.deepcopy(obs_dict["subtask_terms"])
         for ob in obs:
             obs[ob] = torch.squeeze(obs[ob])
+        for subob in sub_obs:
+            sub_obs[subob] = torch.squeeze(sub_obs[subob])
+
 
         # Check if environment image observations
         if hasattr(env.cfg, "image_obs_list"):
@@ -108,7 +113,7 @@ def rollout(policy, env, success_term, horizon, device):
                     obs[image_name] = image
 
         traj["obs"].append(obs)
-
+        traj["sub_obs"].append(sub_obs)
         # Compute actions
         actions = policy(obs)
 
@@ -117,6 +122,9 @@ def rollout(policy, env, success_term, horizon, device):
             actions = (
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
+
+        
+        #traj['uncertainties'].append(uncertainty_dict['variance'])
 
         actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
 
@@ -131,10 +139,10 @@ def rollout(policy, env, success_term, horizon, device):
        # print("Action : " ,actions.tolist())
        # print("Next obs : ", obs)
 
-        print("Current EE position : ", obs["eef_pos"])
+       # print("Current EE position : ", obs["eef_pos"])
         # this is where the intervention class will be 
 
-        
+
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):

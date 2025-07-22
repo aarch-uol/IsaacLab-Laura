@@ -163,7 +163,7 @@ def rollout(policy, env, success_term, horizon, device):
         # Record trajectory - traj["next_obs"] should append the raw observation dictionary from env.step().
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs_dict["policy"])
-        print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
+       # print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
 
 
         # Check if rollout was successful

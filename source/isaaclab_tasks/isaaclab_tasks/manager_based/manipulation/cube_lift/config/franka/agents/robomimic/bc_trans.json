@@ -1,7 +1,7 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_trans_20250722_frame_10",
+        "name": "bc_trans_20250722_frame_20",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
@@ -45,7 +45,7 @@
         "hdf5_filter_key": "train",
         "hdf5_validation_filter_key": "valid",
         "seq_length": 1,
-        "frame_stack" : 10,
+        "frame_stack" : 20,
         "dataset_keys": [
             "actions",
             "rewards",
@@ -94,7 +94,7 @@
         },
         "transformer": {
             "enabled": true,
-            "context_length": 10,
+            "context_length": 20,
             
             "embed_dim": 512,
             "num_layers": 6,

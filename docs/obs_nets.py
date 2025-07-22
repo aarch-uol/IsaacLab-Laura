@@ -543,7 +543,7 @@ class MIMO_MLP(Module):
 
         # flat encoder output dimension
         mlp_input_dim = self.nets["encoder"].output_shape()[0]
-
+        print("layer dims : " , layer_dims)
         # intermediate MLP layers
         self.nets["mlp"] = MLP(
             input_dim=mlp_input_dim,

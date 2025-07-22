@@ -188,7 +188,7 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
     if config.experiment.rollout.enabled:
         # create environments for validation runs
         env_names = [env_meta["env_name"]]
-
+    
         if config.experiment.additional_envs is not None:
             for name in config.experiment.additional_envs:
                 env_names.append(name)
@@ -393,7 +393,7 @@ def main(args: argparse.Namespace):
     run.define_metric("train reward", step_metric="episode")
     run.define_metric("episode error", step_metric="episode")
     # change location of experiment directory
-    config.train.output_dir = os.path.abspath(os.path.join("/docs", args.log_dir, args.task))
+    config.train.output_dir = os.path.abspath(os.path.join("/workspace/isaaclab/", args.log_dir, args.task))
 
     log_dir, ckpt_dir, video_dir = TrainUtils.get_exp_dir(config)
 

@@ -1,7 +1,7 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_trans_20250721_1",
+        "name": "bc_rnn_202507211230",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
@@ -20,7 +20,7 @@
         },
         "epoch_every_n_steps": 100,
         "validation_epoch_every_n_steps": 10,
-        "env": null,
+        "env": "Dev-IK-Rel-v0",
         "additional_envs": null,
         "render": false,
         "render_video": true,
@@ -36,7 +36,7 @@
     },
     "train": {
         "data": null,
-        "output_dir": "~/workspace/isaaclab/docs/training_runs/bc_trans",
+        "output_dir": "/training_runs/bc_rnn",
         "num_data_workers": 1,
         "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
@@ -88,10 +88,18 @@
             "enabled": false
         },
         "rnn": {
-            "enabled": false
+            "enabled": true,
+            "horizon": 10,
+            "hidden_dim": 400,
+            "rnn_type": "LSTM",
+            "num_layers": 2,
+            "open_loop": false,
+            "kwargs": {
+                "bidirectional": false
+            }
         },
         "transformer": {
-            "enabled": true,
+            "enabled": false,
             "context_length": 10,
             "embed_dim": 512,
             "num_layers": 6,
@@ -114,11 +122,9 @@
                     "gripper_pos",
                     "object_position",
                     "target_object_position",
-                    
                     "joint_pos",
                     "joint_vel",
                     "actions"
-                
                 ],
                 "rgb": [],
                 "depth": [],

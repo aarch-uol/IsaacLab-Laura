@@ -107,9 +107,9 @@ def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
         plt.close()
 
 
-model_name = "model_transformer"
-model_arch = "BC_Transformer_GMM"
+model_arch = "BC_RNN_GMM"
 task = "pick_place" # stack_cube or pick_place
+model_name = f"model_bcc_rnn_gmm"
 
 results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/" 
 uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"

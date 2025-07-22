@@ -78,7 +78,7 @@ from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dro
 
 
 
-def rollout(policy, env, success_term, horizon, device):
+def rollout(policy, env, success_term, horizon, device, ensemble):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -185,6 +185,15 @@ def rollout(policy, env, success_term, horizon, device):
 # --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --algo bc \
 # --dataset ./docs/training_data/generated_dataset_split.hdf5 --logdir ./logs/docs/Models/bc/model8/
 
+
+def load_ensemble(device, ensemble_paths):
+    ensemble = []
+    for path in ensemble_paths:
+        policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=path, device=device, verbose=True)
+        ensemble.append(policy)
+
+    return ensemble
+
 def main():
     """Run a trained policy from robomimic with Isaac Lab environment."""
     # parse configuration
@@ -217,11 +226,11 @@ def main():
     device = TorchUtils.get_torch_device(try_to_use_cuda=True)
 
     # Load policy
-    policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-    #policy_copy = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
+    #policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
     
-    model_name = "model2"
+
     task = "stack_cube" # stack_cube or pick_place
+    model_name = f"model_bcc_rnn_gmm"
     uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
 
     # Run policy
@@ -229,7 +238,7 @@ def main():
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
         loghelper.startEpoch(trial)
-        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
+        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device, en)
         with open(uncertainties_path, 'a') as file:
             for i, var in enumerate(traj['uncertainties']):
                 line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"

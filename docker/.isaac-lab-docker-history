@@ -1,0 +1,240 @@
+exit
+ls -l /proc/3693235/fd
+cd source/chills/chills 
+ls
+cd datasets/
+cd ParallelLiftLabware/
+ls
+ls -lh
+cd ..
+cd chills_lfs/Parallel_LiftLabware/
+ls -lh
+h5dump -n generated1000.hdf5
+h5dump
+apt update
+h5dump
+apt install h5
+apt install h5-tools
+sudo apt install hdf5-tools
+h5dump -n generated1000.hdf5
+exit
+cd source/chills/chills/datasets/chills_lfs/
+ls
+cd Parallel_LiftLabware/
+ls
+ls -lh generated1000.hdf5 
+zip -s 80m split_generated1000.zip generated1000.hdf5
+ls
+ls -lh
+cp split_generated1000.zip  ../../..
+cd ../../..
+;s
+ls
+mv split_generated1000.zip datasets/
+ls
+cd datasets/
+ls
+mv split_generated1000.zip ParallelLiftLabware/
+git add .
+exit 
+cd source/chills/chills
+python ./scr/generate_dataset.py --task ParallelFrankaIkLiftLabwareMimic-v0 --input_file .datasets/ParallelLiftLabware/2_annotated/annotated10-0.hdf5 --output_file ./datasets/ParallelLiftLabware/generated10.hdf5 --device cuda --num_envs 200 --generation_num_trials 10 --headless
+python ./scr/generate_dataset.py --task ParallelFrankaIkLiftLabwareMimic-v0 --input_file ./datasets/ParallelLiftLabware/2_annotated/annotated10-0.hdf5 --output_file ./datasets/ParallelLiftLabware/generated10.hdf5 --device cuda --num_envs 200 --generation_num_trials 10 --headless
+git pull
+exit
+cd source/chills/chills
+ls -a
+cd datasets/
+ls
+exit
+python ./scr/generate.py --device cuda --headless --num_envs 1000 --generation_num_trials 1000 --task ParLiftMimic-v0  --input_file ./datasets/para_lift/2_annotated/annotated10-0.hdf5 --output_file ./datasets/para_lift/4_generated/1kGen.hdf5
+cd source/chills/chills
+tmux
+python scr/robomimic_train.py --task ParallelFrankaIkLiftLabware-v0 --algo bc --dataset datasets/chills_lfs/Parallel_LiftLabware/generated1000.hdf5
+h5dump
+cd source/chills/chills/datasets/para_lift/
+ls
+h5dump 10gne.hdf5 
+cat 10gne.hdf5 
+python ./scr/generate.py --device cuda --headless --num_envs 1000 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/2_annotated/1_annotated.hdf5 --output_file datasets/chills_lfs/Parallel_LiftLabware/1kGen.hdf5
+tmux
+python ./scr/generate.py --device cuda --headless --num_envs 1000 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/2_annotated/1_annotated.hdf5 --output_file datasets/chills_lfs/Parallel_LiftLabware/1kGen.hdf5
+echo $TMUX
+tmux list-keys | grep detach
+tmux show -g prefix
+tmux
+cd source/chills/chills
+tmuc
+tmux
+tmux ls
+tmux attach -t 3
+tmux kill-session -t 3
+tmux attach -t 1
+tmux attach -t 1
+tmux kill-session -t 1
+tmux attach -t 0
+tmux kill-session -t 0
+tmux rename-session -t 2 para_lift 
+git
+git pull
+git config --global --add safe.directory /workspace/isaaclab/source/chills/
+git pull
+ls
+ls -a
+rm -rf .git/
+git pull
+exit
+python ./scr/generate.py --device cuda --headless --num_envs 2000 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/2_annotated/1_annotated.hdf5 --output_file datasets/chills_lfs/Parallel_LiftLabware/1kGen.hdf5
+nvidia-smi
+top
+nvidia-smi
+exit
+nvidia-smi
+tmux ls
+tmux attach -t 1
+tmux attach -t 2
+tmux attach -t 3
+tmux attach -t 
+tmux attach -t para_lift
+nvidia-smi
+top
+ps aux | grep -E 'Xorg|Xwayland|x11|gdm|sddm|lightdm'
+lsof /dev/nvidia*
+lsof /dev/nvidia* | grep -v nvidia-smi
+apt install lsof
+lsof /dev/nvidia* | grep -v nvidia-smi
+lsof /dev/nvidia*
+exit
+sudo nvidia-smi --gpu-reset -i 0
+kill -9 2651617
+nvidia-smi
+exit
+cd source/chills/chills
+python ./scr/generate.py --device cuda --headless --num_envs 1000 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/pa
+tmux ls
+tmux 
+cd source/chills/chills/datasets/chills_lfs/
+git pull
+exit
+cd source/chills/chills/
+tmux
+nvidia-smi
+top 
+tmux ls
+tmux attach -t 0  # or 1
+tmux kill -t 0
+tmux kill-session -t 0
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+tmux attach -t 1
+nvidia-smi
+exit
+tmux 
+tmux attach -t 1
+tmux ls
+tmux attach -t 1
+exit
+cd source/chills/chills
+cd datasets/ 
+tree
+apt install tree
+tree /F
+tree
+git pull
+tmux attach -t 1
+nvidia-smi
+exit
+tmux attach -t 1
+exit
+
+tmux attach -t 1
+tmux ls
+tmux attach -t 1
+exit
+python ./scr/generate.py --device cuda --headless --num_envs 1000 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/para_lift/1kGen.hdf5
+python ./scr/generate.py --device cuda --headless --num_envs 1000 --generation_num_trials 1000 --tas500 ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/para_lift/1kGen.hdf5
+python ./scr/generate.py --device cuda --headless --num_envs 500 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/para_lift/1kGen.hdf5
+python ./scr/generate.py --device cuda --headless --num_envs 500 700 -generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/para_lift/1kGen.hdf5
+python ./scr/generate.py --device cuda --headless --num_envs 700 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/para_lift/1kGen.hdf5
+python ./scr/generate.py --device cuda --headless --num_envs 525 --generation_num_trials 1000 --task ParaLiftMimic-v0  --input_file datasets/para_lift/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/para_lift/1kGen.hdf5
+python ./scr/generate.py --device cuda --headless --num_envs 100  --generation_num_trials 1000 --task Cube-Mimic-v0  --input_file datasets/dev/3_collected/50_collected.hdf5 --output_file datasets/chills_lfs/dev/5kGen.hdf5 
+python ./scr/generate.py --device cuda --headless --num_envs 100  --generation_num_trials 1000 --task Cube-Mimic-v0  --input_file datasets/dev/3_collected/10_collected.hdf5 --output_file datasets/chills_lfs/dev/1kGen.hdf5 
+tmux capture-pane -p | less
+apt install less
+tmux capture-pane -p | less
+cd datasets/chills_lfs/dev/
+rm -rf 1kGen.hdf5 5kGen.hdf5 
+rm -rf 1kGen_failed.hdf5 5kGen_failed.hdf5 
+cd ..
+cd para_lift/
+ls
+ls -lh
+tmux pipe-pane -o "cat > output.log"
+cd chills/chills
+python ./scr/generate.py --device cuda  --headless --num_envs 250 --task Cube-Mimic-v0 --input_file datasets/dev/3_collected/30_collected.hdf5 --output_file datasets/chills_lfs/para_lift/3kGen.hdf5 --generation_num_trials 3000
+cd chills
+nano auto.sh 
+rm auto.sh 
+nano auto.sh
+chmod +x auto.sh 
+./auto.sh 
+python
+cd chills
+chmod +x auto.sh 
+./auto.sh 
+ls
+./auto.sh 
+cat ./auto.sh
+nano auto.sh 
+apt install nano 
+nano auto.sh 
+nvidia-smi
+./auto.sh
+nano auto.sh 
+python
+python3
+./auto.sh
+which python
+python
+[200~echo $PATH
+echo $PATH
+which python3
+nano auto.sh 
+./auto.sh 
+$PYTHON_PATH
+echo $PYTHON_PATH
+echo $PYTHONPATH
+cd ..
+export PYTHONPATH=/workspace/isaaclab/source/chills:$PYTHONPATH
+echo $PYTHONPATH
+python3 -c "import isaaclab"
+cd chills
+nano auto.sh 
+./auto.sh 
+nano auto.sh 
+./auto.sh 
+echo $PYTHONPATH
+python3 -c "import isaaclab"
+./auto.sh 
+export PYTHONPATH=/workspace/isaaclab/source/chills:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages
+[200~echo $PYTHONPATH
+# Should print only paths separated by colons, no python commands
+python3 -c "import isaaclab"
+# Should run silently with no error if isaaclab is found
+echo $PYTHONPATH
+nano auto.sh 
+./auto.sh 
+echo $PYTHONPATH
+python3 -c "import isaaclab"

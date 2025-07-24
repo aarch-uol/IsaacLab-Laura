@@ -166,6 +166,7 @@ def create_env(
 
     # note: pass @postprocess_visual_obs True, to make sure images are processed for network inputs
     env_class = get_env_class(env_type=env_type)
+    print("Env type is ", env_type)
     env = env_class(
         env_name=env_name, 
         render=render, 

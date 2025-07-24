@@ -31,7 +31,7 @@ parser.add_argument(
 )
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
-parser.add_argument("--horizon", type=int, default=800, help="Step horizon of each rollout.")
+parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
 parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts.")
 parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 parser.add_argument(
@@ -85,23 +85,7 @@ def rollout(policy, env, success_term, horizon, device):
 
     obs_seq = []  # list of previous obs for context window
 
-    # Initial obs_dict from env.reset()
-   # print("Initial obs_dict shapes from env.reset():")
-    # for k, v in obs_dict["policy"].items():
-    #     print(f"  policy['{k}']: shape={v.shape}, ndim={v.ndim}")
-
-    # try:
-    #     if hasattr(policy.policy, 'encoder') and hasattr(policy.policy.encoder, 'input_obs_group_shapes'):
-    #         print("Policy's internal expected input_obs_group_shapes:")
-    #         for group, keys in policy.policy.encoder.input_obs_group_shapes.items():
-    #             print(f"  Group '{group}':")
-    #             for k, shape in keys.items():
-    #                 print(f"    Key '{k}': shape={shape}, len(shape)={len(shape)}")
-    #     else:
-    #         print("Could not find policy.policy.encoder.input_obs_group_shapes.")
-    # except Exception as e:
-    #     print(f"Error accessing policy.policy.encoder.input_obs_group_shapes: {e}")
-
+    
 
     for i in range(horizon):
         # Prepare current observations from env for policy input
@@ -115,14 +99,7 @@ def rollout(policy, env, success_term, horizon, device):
             else:
                 processed_v = v.to(device) # No squeeze needed, assume (D,)
             current_policy_obs[k] = processed_v
-
-        # # AFTER processing, print the shapes in current_policy_obs
-        # if i == 0: # Only print for the first step to avoid spamming
-        #     print("current_policy_obs shapes AFTER squeezing (if applicable):")
-        #     for k, v in current_policy_obs.items():
-        #         print(f"  '{k}': shape={v.shape}, ndim={v.ndim}")
-
-
+        
         # Handle image observations specifically (if any)
         if hasattr(env.cfg, "image_obs_list"):
             for image_name in env.cfg.image_obs_list:
@@ -139,15 +116,11 @@ def rollout(policy, env, success_term, horizon, device):
                     image = image.clip(0.0, 1.0)
                     current_policy_obs[image_name] = image
 
-
-        # Add subtask terms for logging/analysis, but they are not fed to the policy
-        # as per your trace (only "policy" observations are listed in the policy's encoder).
-        # You had prints for these before, assuming they are okay.
-
         # Append to context buffer. obs_seq should hold items with shape (D,) or (C, H, W)
         traj["obs"].append(current_policy_obs) # Store the current, processed observation
-        obs_seq.append(current_policy_obs) # This is what forms the sequence input
+        obs_seq.append(current_policy_obs) # Form the sequence input
 
+        # Fix obs length errors
         if len(obs_seq) > context_length:
             obs_seq = obs_seq[-context_length:]
 
@@ -167,45 +140,31 @@ def rollout(policy, env, success_term, horizon, device):
             # torch.stack will create (context_length, D) or (context_length, C, H, W)
             # unsqueeze(0) will add the batch dimension: (1, context_length, D) or (1, context_length, C, H, W)
             seq_input[key] = torch.stack([step[key] for step in obs_seq], dim=0).to(device=device)
-            #seq_input[key] = torch.stack([step[key] for step in obs_seq], dim=0).unsqueeze(0).to(device=device)
-
-        # Print the final seq_input shapes just before policy call
-        # if i == 0: # Only print for the first step
-        #     print("seq_input shapes for policy just before call:")
-        #     for k, v in seq_input.items():
-        #         print(f"  '{k}': shape={v.shape}, ndim={v.ndim}")
-
-        # if i == 0: # Only print for the first step
-        #     print("seq_input shapes for policy just before policy(seq_input) call (LAST CHECK):")
-        #     for k, v in seq_input.items():
-        #         print(f"  '{k}': shape={v.shape}, ndim={v.ndim}")
 
         # Compute action from sequence
-        actions = policy(seq_input)
-
-        #print(f"DEBUG (Pre-Unnorm): Policy output 'actions' shape: {actions.shape}, ndim: {actions.ndim}, type: {type(actions)}")
+        actions = policy(seq_input) # Normalised actions
 
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
-        #print(f"DEBUG (Post-Unnorm): Policy output 'actions' shape: {actions.shape}, ndim: {actions.ndim}, type: {type(actions)}")
+        
         # Convert policy output (torch.Tensor) to numpy array for env.step()
-        # Assume actions comes as (1, Action_Dim) from policy, squeeze to (Action_Dim,)
+        # (1, Action_Dim) from policy, squeeze to (Action_Dim,)
         if isinstance(actions, torch.Tensor):
-            # If it's a tensor, convert it to numpy, ensuring it's 1D (7,)
-            # We already know policy returns (7,) so no squeeze is needed *here*.
+            # If tensor, convert to numpy, ensuring 1D (7,)
+            # Policy returns (7,) so no squeeze is needed *here*.
             actions = actions.cpu().numpy()
 
         actions_tensor = torch.from_numpy(actions).to(device=device).float()
-        actions_tensor = actions_tensor.unsqueeze(0) 
+        actions_tensor = actions_tensor.unsqueeze(0) # unsqueeze from earlier
         # Apply actions
-        #obs_dict, _, terminated, truncated, _ = env.step(actions)
         obs_dict, _, terminated, truncated, _ = env.step(actions_tensor)
         # Record trajectory - traj["next_obs"] should append the raw observation dictionary from env.step().
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs_dict["policy"])
+       # print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
 
 
         # Check if rollout was successful

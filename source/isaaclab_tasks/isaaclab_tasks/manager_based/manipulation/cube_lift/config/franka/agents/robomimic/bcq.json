@@ -5,12 +5,14 @@
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
-            "log_tb": true
+            "log_tb": true,
+            "log_wandb": true,
+            "wandb_proj_name": "pick-place-tabletop"
         },
         "save": {
             "enabled": true,
             "every_n_seconds": null,
-            "every_n_epochs": 50,
+            "every_n_epochs": 100,
             "epochs": [],
             "on_best_validation": true,
             "on_best_rollout_return": false,
@@ -35,12 +37,13 @@
     },
     "train": {
         "data": null,
-        "output_dir": "../bcq_trained_models",
-        "num_data_workers": 0,
-        "hdf5_cache_mode": "all",
+        "output_dir": "/training_runs/bcq",
+        "num_data_workers": 1,
+        "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
         "hdf5_normalize_obs": false,
-        "hdf5_filter_key": null,
+        "hdf5_filter_key": "train",
+        "hdf5_validation_filter_key": "valid",
         "seq_length": 1,
         "dataset_keys": [
             "actions",
@@ -50,14 +53,14 @@
         "goal_mode": null,
         "cuda": true,
         "batch_size": 100,
-        "num_epochs": 200,
+        "num_epochs": 2000,
         "seed": 1
     },
     "algo": {
         "optim_params": {
             "critic": {
                 "learning_rate": {
-                    "initial": 0.001,
+                    "initial": 0.0001,
                     "decay_factor": 0.1,
                     "epoch_schedule": []
                 },
@@ -121,11 +124,11 @@
                 1024
             ],
             "gmm": {
-                "enabled": false,
-                "num_modes": 5,
-                "min_std": 0.0001,
-                "std_activation": "softplus",
-                "low_noise_eval": true
+            "enabled": true,
+            "num_modes": 10,
+            "min_std": 0.0001,
+            "std_activation": "softplus",
+            "low_noise_eval": true
             },
             "vae": {
                 "enabled": true,
@@ -177,10 +180,16 @@
         "modalities": {
             "obs": {
                 "low_dim": [
-                    "tool_dof_pos_scaled",
-                    "tool_positions",
-                    "object_relative_tool_positions",
-                    "object_desired_positions"
+                    "eef_pos",
+                    "eef_quat",
+                    "gripper_pos",
+                    "object_position",
+                    "target_object_position",
+                    
+                    "joint_pos",
+                    "joint_vel",
+                    "actions"
+                
                 ],
                 "rgb": [],
                 "depth": [],

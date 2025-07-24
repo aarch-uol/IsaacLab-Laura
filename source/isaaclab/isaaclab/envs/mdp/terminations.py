@@ -124,6 +124,7 @@ def joint_pos_out_of_limit(
         asset_cfg.joint_ids = slice(None)
 
     limits = asset.data.soft_joint_pos_limits[:, asset_cfg.joint_ids]
+<<<<<<< HEAD
     
     out_of_upper_limits = torch.isclose(limits[..., 1], asset.data.joint_pos[:, asset_cfg.joint_ids] )
     out_of_lower_limits = torch.isclose(limits[..., 0], asset.data.joint_pos[:, asset_cfg.joint_ids])
@@ -139,6 +140,11 @@ def joint_pos_out_of_limit(
     out_of_lower_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] < limits[..., 0], dim=1)
     
     return torch.logical_or(out_of_upper_limits, out_of_lower_limits) #torch.logical_or(out_of_upper_limits[:, asset_cfg.joint_ids], out_of_lower_limits[:, asset_cfg.joint_ids])
+=======
+    out_of_upper_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] > limits[..., 1], dim=1)
+    out_of_lower_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] < limits[..., 0], dim=1)
+    return torch.logical_or(out_of_upper_limits, out_of_lower_limits)
+>>>>>>> 24a78b688e6edd1a883c8d66ffb0f189f97e458c
 
 
 def joint_pos_out_of_manual_limit(

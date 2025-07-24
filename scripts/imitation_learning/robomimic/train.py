@@ -69,12 +69,9 @@ import torch
 import traceback
 from collections import OrderedDict
 from torch.utils.data import DataLoader
-<<<<<<< HEAD
 import chills.tasks
 
-=======
 import wandb
->>>>>>> abc3c2f1676da18e4ca19bb43a6b54fc0e0a2964
 import psutil
 
 # Robomimic imports
@@ -450,9 +447,5 @@ if __name__ == "__main__":
     # run training
     main(args)
     # close sim app
-<<<<<<< HEAD
     simulation_app.close()
-=======
-    simulation_app.close()
->>>>>>> Stashed changes
 >>>>>>> harry/main

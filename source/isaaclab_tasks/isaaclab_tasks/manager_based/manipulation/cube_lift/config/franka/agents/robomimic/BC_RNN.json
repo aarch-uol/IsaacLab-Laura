@@ -1,21 +1,21 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_trans_20250721_1",
+        "name": "bd",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
             "log_tb": true,
             "log_wandb": true,
-            "wandb_proj_name": "pick-place-tabletop"
+            "wandb_proj_name": "BC_RNN"
         },
         "save": {
             "enabled": true,
             "every_n_seconds": null,
             "every_n_epochs": 100,
             "epochs": [],
-            "on_best_validation": true,
-            "on_best_rollout_return": true,
+            "on_best_validation": false,
+            "on_best_rollout_return": false,
             "on_best_rollout_success_rate": true
         },
         "epoch_every_n_steps": 100,
@@ -28,32 +28,30 @@
         "video_skip": 5,
         "rollout": {
             "enabled": false,
-            "terminate_on_success" : true,
-            "n": 50,                     
-            "horizon": 400,              
-            "rate": 50
+            "n": 50,
+            "horizon": 4000,
+            "rate": 50,
+            "warmstart": 0,
+            "terminate_on_success": true
         }
     },
     "train": {
         "data": null,
-        "output_dir": "~/workspace/isaaclab/docs/training_runs/bc_trans",
-        "num_data_workers": 1,
-        "hdf5_cache_mode": "low_dim",
+        "output_dir": "../bc_trained_models",
+        "num_data_workers": 4,
+        "hdf5_cache_mode": "all",
         "hdf5_use_swmr": true,
         "hdf5_normalize_obs": false,
         "hdf5_filter_key": "train",
         "hdf5_validation_filter_key": "val",
-        "seq_length": 10,
+        "seq_length": 25,
         "dataset_keys": [
-            "actions",
-            "rewards",
-            "dones"
+            "actions"
         ],
-        
         "goal_mode": null,
         "cuda": true,
         "batch_size": 100,
-        "num_epochs": 3000,
+        "num_epochs": 5000,
         "seed": 101
     },
     "algo": {
@@ -62,7 +60,7 @@
                 "optimizer_type": "adam",
                 "learning_rate": {
                     "initial": 0.0001,
-                    "decay_factor": 0.01,
+                    "decay_factor": 0.1,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"
                 },
@@ -79,19 +77,24 @@
         "actor_layer_dims": [],
         "gmm": {
             "enabled": true,
-            "num_modes": 10,
+            "num_modes": 5,
             "min_std": 0.0001,
             "std_activation": "softplus",
             "low_noise_eval": true
         },
-         "vae": {
-            "enabled": false
-        },
         "rnn": {
-            "enabled": false
+            "enabled": true,
+            "horizon": 10,
+            "hidden_dim": 1000,
+            "rnn_type": "LSTM",
+            "num_layers": 2,
+            "open_loop": false,
+            "kwargs": {
+                "bidirectional": false
+            }
         },
         "transformer": {
-            "enabled": true,
+            "enabled": false,
             "context_length": 10,
             "embed_dim": 512,
             "num_layers": 6,
@@ -109,16 +112,12 @@
         "modalities": {
             "obs": {
                 "low_dim": [
+                    "joint_pos",
                     "eef_pos",
                     "eef_quat",
                     "gripper_pos",
                     "object_position",
-                    "target_object_position",
-                    
-                    "joint_pos",
-                    "joint_vel",
-                    "actions"
-                
+                    "target_object_position"
                 ],
                 "rgb": [],
                 "depth": [],

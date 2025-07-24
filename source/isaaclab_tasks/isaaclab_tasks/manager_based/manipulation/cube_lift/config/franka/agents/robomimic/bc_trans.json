@@ -1,11 +1,7 @@
 {
     "algo_name": "bc",
     "experiment": {
-<<<<<<< HEAD
-        "name": "bc_trans_20250721_1",
-=======
         "name": "bc_trans_20250722_frame_20",
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
@@ -24,11 +20,7 @@
         },
         "epoch_every_n_steps": 100,
         "validation_epoch_every_n_steps": 10,
-<<<<<<< HEAD
-        "env": null,
-=======
         "env": "Dev-IK-Rel-v0",
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "additional_envs": null,
         "render": false,
         "render_video": true,
@@ -39,34 +31,21 @@
             "terminate_on_success" : true,
             "n": 50,                     
             "horizon": 400,              
-<<<<<<< HEAD
-            "rate": 50
-=======
             "rate": 50,
             "warmstart": 0
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         }
     },
     "train": {
         "data": null,
-<<<<<<< HEAD
-        "output_dir": "~/workspace/isaaclab/docs/training_runs/bc_trans",
-=======
         "output_dir": "/training_runs/bc_trans",
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "num_data_workers": 1,
         "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
         "hdf5_normalize_obs": false,
         "hdf5_filter_key": "train",
-<<<<<<< HEAD
-        "hdf5_validation_filter_key": "val",
-        "seq_length": 10,
-=======
         "hdf5_validation_filter_key": "valid",
         "seq_length": 1,
         "frame_stack" : 20,
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "dataset_keys": [
             "actions",
             "rewards",
@@ -115,12 +94,8 @@
         },
         "transformer": {
             "enabled": true,
-<<<<<<< HEAD
-            "context_length": 10,
-=======
             "context_length": 20,
             
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
             "embed_dim": 512,
             "num_layers": 6,
             "num_heads": 8,
@@ -131,10 +106,7 @@
             "activation": "gelu",
             "supervise_all_steps": false,
             "nn_parameter_for_timesteps": true
-<<<<<<< HEAD
-=======
           
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         }
     },
     "observation": {

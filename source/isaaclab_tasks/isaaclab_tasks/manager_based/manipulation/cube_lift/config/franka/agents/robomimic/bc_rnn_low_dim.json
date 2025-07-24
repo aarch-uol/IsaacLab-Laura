@@ -1,13 +1,8 @@
 {
     "algo_name": "bc",
     "experiment": {
-<<<<<<< HEAD
-        "name": "bc_rnn_low_dim_gr1t2",
-        "validate": false,
-=======
         "name": "bc_rnn_202507211230",
         "validate": true,
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "logging": {
             "terminal_output_to_txt": true,
             "log_tb": true
@@ -22,12 +17,8 @@
             "on_best_rollout_success_rate": true
         },
         "epoch_every_n_steps": 100,
-<<<<<<< HEAD
-        "env": null,
-=======
         "validation_epoch_every_n_steps": 10,
         "env": "Dev-IK-Rel-v0",
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "additional_envs": null,
         "render": false,
         "render_video": false,
@@ -37,14 +28,9 @@
     },
     "train": {
         "data": null,
-<<<<<<< HEAD
-        "num_data_workers": 4,
-        "hdf5_cache_mode": "all",
-=======
         "output_dir": "/training_runs/bc_rnn",
         "num_data_workers": 1,
         "hdf5_cache_mode": "low_dim",
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
         "hdf5_use_swmr": true,
         "hdf5_normalize_obs": false,
         "hdf5_filter_key": null,
@@ -117,14 +103,6 @@
         "modalities": {
             "obs": {
                 "low_dim": [
-<<<<<<< HEAD
-                    "left_eef_pos",
-                    "left_eef_quat",
-                    "right_eef_pos",
-                    "right_eef_quat",
-                    "hand_joint_state",
-                    "object"
-=======
                     "eef_pos",
                     "eef_quat",
                     "gripper_pos",
@@ -133,7 +111,6 @@
                     "joint_pos",
                     "joint_vel",
                     "actions"
->>>>>>> 2389403cafefda65a4d179235b5e75560433334f
                 ],
                 "rgb": [],
                 "depth": [],

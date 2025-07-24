@@ -1,46 +1,59 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_rnn_low_dim_gr1t2",
-        "validate": false,
+        "name": "bc_rnn",
+        "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
-            "log_tb": true
+            "log_tb": true,
+            "log_wandb": true,
+            "wandb_proj_name": "dev"
         },
         "save": {
             "enabled": true,
             "every_n_seconds": null,
             "every_n_epochs": 100,
             "epochs": [],
-            "on_best_validation": false,
-            "on_best_rollout_return": false,
+            "on_best_validation": true,
+            "on_best_rollout_return": true,
             "on_best_rollout_success_rate": true
         },
         "epoch_every_n_steps": 100,
+        "validation_epoch_every_n_steps": 10,
         "env": null,
         "additional_envs": null,
         "render": false,
-        "render_video": false,
+        "render_video": true,
+        "keep_all_videos": false,
+        "video_skip": 5,
         "rollout": {
-            "enabled": false
+            "enabled": false,
+            "terminate_on_success" : true,
+            "n": 50,                     
+            "horizon": 400,              
+            "rate": 50
         }
     },
     "train": {
         "data": null,
+        "output_dir": "~/workspace/isaaclab/docs/training_runs/bc_trans",
         "num_data_workers": 4,
-        "hdf5_cache_mode": "all",
+        "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
         "hdf5_normalize_obs": false,
-        "hdf5_filter_key": null,
-        "hdf5_validation_filter_key": null,
-        "seq_length": 10,
+        "hdf5_filter_key": "train",
+        "hdf5_validation_filter_key": "val",
+        "seq_length": 20,
         "dataset_keys": [
-            "actions"
+            "actions",
+            "rewards",
+            "dones"
         ],
+        
         "goal_mode": null,
         "cuda": true,
         "batch_size": 100,
-        "num_epochs": 2000,
+        "num_epochs": 3000,
         "seed": 101
     },
     "algo": {
@@ -48,8 +61,8 @@
             "policy": {
                 "optimizer_type": "adam",
                 "learning_rate": {
-                    "initial": 0.001,
-                    "decay_factor": 0.1,
+                    "initial": 0.0001,
+                    "decay_factor": 0.01,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"
                 },
@@ -63,18 +76,21 @@
             "l1_weight": 0.0,
             "cos_weight": 0.0
         },
-        "actor_layer_dims": [],
+        "actor_layer_dims": [512, 512],
         "gmm": {
-            "enabled": false,
-            "num_modes": 5,
+            "enabled": true,
+            "num_modes": 10,
             "min_std": 0.0001,
             "std_activation": "softplus",
             "low_noise_eval": true
         },
+         "vae": {
+            "enabled": false
+        },
         "rnn": {
             "enabled": true,
-            "horizon": 10,
-            "hidden_dim": 400,
+            "horizon": 20,
+            "hidden_dim": 512,
             "rnn_type": "LSTM",
             "num_layers": 2,
             "open_loop": false,
@@ -101,12 +117,16 @@
         "modalities": {
             "obs": {
                 "low_dim": [
-                    "left_eef_pos",
-                    "left_eef_quat",
-                    "right_eef_pos",
-                    "right_eef_quat",
-                    "hand_joint_state",
-                    "object"
+                    "eef_pos",
+                    "eef_quat",
+                    "gripper_pos",
+                    "object_position",
+                    "target_object_position",
+                    
+                    "joint_pos",
+                    "joint_vel",
+                    "actions"
+                
                 ],
                 "rgb": [],
                 "depth": [],

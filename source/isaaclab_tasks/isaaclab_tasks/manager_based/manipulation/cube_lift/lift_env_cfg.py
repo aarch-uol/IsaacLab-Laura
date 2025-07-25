@@ -132,12 +132,14 @@ class ObservationsCfg():
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
         target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)
-        object_to_target = ObsTerm(func=mdp.object_reached_goal)
+       # object_to_target = ObsTerm(func=mdp.object_near_goal)
         eef_pos = ObsTerm(func=mdp.ee_frame_pos)
         eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
         #robot_pose=ObsTerm(func=mdp.robot_pose)
-        
+        #object_to_target = ObsTerm(func=mdp.position_command_error)
+        #norm_error = ObsTerm(func=mdp.object_goal_norm_error)
+
         def __post_init__(self):
             self.enable_corruption = False
             self.concatenate_terms = False
@@ -241,7 +243,7 @@ class RewardsCfg:
 
     lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.14}, weight=30.0)
 
-   # reaching_target = RewTerm(func=mdp.object_goal_distance, weight = 20.0)
+    reaching_target = RewTerm(func=mdp.object_goal_norm_error, weight = 20.0)
 
     object_goal_tracking = RewTerm(
         func=mdp.object_goal_distance,
@@ -278,15 +280,15 @@ class TerminationsCfg:
 
     #joint_violation = DoneTerm(func=mdp.joint_pos_out_of_limit)
     
-   # object_orientation = DoneTerm(func=mdp.bad_orientation)
+    #object_orientation = DoneTerm(func=mdp.bad_orientation)
 
-   # joint_effort = DoneTerm(func=mdp.joint_effort_out_of_limit)
+    #joint_effort = DoneTerm(func=mdp.joint_effort_out_of_limit)
 
     object_dropping = DoneTerm(
         func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object")}
     )
     #fix object dropping
-    success = DoneTerm(func=mdp.object_reached_goal)
+    success = DoneTerm(func=mdp.object_near_goal)
 
 
 @configclass
@@ -332,8 +334,7 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
         # general settings
         
         self.decimation = 2
-        self.episode_length_s = 30
-        self.max_episode_length_s = 30 # if this breaks, yeet this line
+        self.episode_length_s = 60
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation

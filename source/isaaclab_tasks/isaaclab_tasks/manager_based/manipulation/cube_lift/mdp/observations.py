@@ -33,6 +33,7 @@ def object_position_in_robot_root_frame(
     object_pos_b, _ = subtract_frame_transforms(
         robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
     )
+   
     return object_pos_b
 
 def reach_object(
@@ -177,24 +178,75 @@ def object_near_goal(
         object_cfg: The object configuration. Defaults to SceneEntityCfg("object").
 
     """
-    # extract the used quantities (to enable type-hinting)
     robot: RigidObject = env.scene[robot_cfg.name]
     object: RigidObject = env.scene[object_cfg.name]
     command = env.command_manager.get_command(command_name)
-    # compute the desired position in the world frame
+    object_pos_w = object.data.root_pos_w[:, :3]
+    object_pos_b, _ = subtract_frame_transforms(
+        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
+    )
     des_pos_b = command[:, :3]
-    des_pos_w, _ = combine_frame_transforms(robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], des_pos_b)
-    # distance of the end-effector to the object: (num_envs,)
-    distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)
-   # if distance.item() < threshold:
-    #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
-    #     loghelper.logsubtask(LogType.GOAL)
-    return distance < threshold
+   # print(f"desired position : {des_pos_b}, actual position : {object_pos_b}")
+    error = torch.norm(des_pos_b - object_pos_b, dim=1)
+    #print("position error : ", error)
+    return error < threshold
+
+def object_goal_norm_error(
+    env: ManagerBasedRLEnv,
+    command_name: str = "object_pose",
+    threshold: float = 0.02,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    loghelper : LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
+    """Termination condition for the object reaching the goal position.
+
+    Args:
+        env: The environment.
+        command_name: The name of the command that is used to control the object.
+        threshold: The threshold for the object to reach the goal position. Defaults to 0.02.
+        robot_cfg: The robot configuration. Defaults to SceneEntityCfg("robot").
+        object_cfg: The object configuration. Defaults to SceneEntityCfg("object").
+
+    """
+    robot: RigidObject = env.scene[robot_cfg.name]
+    object: RigidObject = env.scene[object_cfg.name]
+    command = env.command_manager.get_command(command_name)
+    object_pos_w = object.data.root_pos_w[:, :3]
+    object_pos_b, _ = subtract_frame_transforms(
+        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
+    )
+    des_pos_b = command[:, :3]
+   # print(f"desired position : {des_pos_b}, actual position : {object_pos_b}")
+    error = torch.norm(des_pos_b - object_pos_b, dim=1)
+    #print("norm position error : ", error)
+    return error 
 
 def robot_pose(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ):
     robot: Articulation = env.scene[robot_cfg.name]
- #   print(robot.data.joint_pos)
+    print(robot.data.joint_pos)
     return torch.tensor([0.04])
+
+def position_command_error(
+    env: ManagerBasedRLEnv,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    command_name: str = "object_pose",
+    loghelper : LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
+    """The position of the object in the robot's root frame."""
+    robot: RigidObject = env.scene[robot_cfg.name]
+    object: RigidObject = env.scene[object_cfg.name]
+    command = env.command_manager.get_command(command_name)
+    object_pos_w = object.data.root_pos_w[:, :3]
+    object_pos_b, _ = subtract_frame_transforms(
+        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
+    )
+    des_pos_b = command[:, :3]
+   # print(f"desired position : {des_pos_b}, actual position : {object_pos_b}")
+    error = torch.sub(des_pos_b, object_pos_b)
+    #print("position error : ", error)
+    return error

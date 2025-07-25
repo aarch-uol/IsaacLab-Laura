@@ -37,7 +37,7 @@ def load_data(file):
     return rollouts, labels, all_uncertainties, all_timesteps
 
 
-def plot_rollouts(rollouts, labels, results_path):
+def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[_ for _ in range(6)]):
     num_joints = 7
     for i, rollout in enumerate(rollouts):
         rollout_timesteps = [t for t, _ in rollout]
@@ -50,12 +50,25 @@ def plot_rollouts(rollouts, labels, results_path):
         plt.ylim(bottom=0)
         plt.ylim(top=1.0)
         for joint_num in range(num_joints):
-            plotted_line = plt.plot(rollout_timesteps, rollout_uncertainties_per_joint[joint_num], label=f"Joint {joint_num}")
-            mean = np.mean(rollout_uncertainties_per_joint[joint_num])
-            mean = [mean for _ in range(len(rollout_timesteps))]
-            plt.plot(rollout_timesteps, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', color=plotted_line[0].get_color()) 
+            if joint_num in joints_to_plot:
+                rollout_timesteps_to_plot = list(rollout_timesteps[:duration])
+                rollout_uncertainties_per_joint_to_plot = list(rollout_uncertainties_per_joint[joint_num][:duration])
+                
+                # pad timesteps
+                j = len(rollout_timesteps_to_plot)
+                while len(rollout_timesteps_to_plot) < duration:
+                    rollout_timesteps_to_plot.append(j + 1)
+                    j += 1
+                # pad uncertainties
+                while len(rollout_uncertainties_per_joint_to_plot) < duration:
+                    rollout_uncertainties_per_joint_to_plot.append(0)
 
-        title = f"Uncertainty per Joint for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
+                plotted_line = plt.plot(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot, label=f"Joint {joint_num}")
+                mean = np.mean(rollout_uncertainties_per_joint_to_plot)
+                mean = [mean for _ in range(len(rollout_timesteps_to_plot))]
+                plt.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', color=plotted_line[0].get_color()) 
+
+        title = f"Uncertainty for joint 6 for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
         plt.title(title)
         plt.xlabel('Timestep')
         plt.ylabel('Uncertainty Value')
@@ -108,8 +121,8 @@ def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
 
 
 model_arch = "BC_RNN_GMM"
-task = "pick_place" # stack_cube or pick_place
-model_name = f"model_bcc_rnn_gmm"
+task = "stack_cube" # stack_cube or pick_place
+model_name = f"model2"
 
 results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/" 
 uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
@@ -117,7 +130,7 @@ uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{m
 
 rollouts, labels, all_uncertainties, all_timesteps = load_data(uncertainties_path)
 
-plot_rollouts(rollouts, labels, results_path)
+plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[6])
 
 
 # model 2
@@ -141,11 +154,6 @@ plot_rollouts(rollouts, labels, results_path)
 # Successful trials: 4, out of 10 trials
 # Success rate: 0.4
 # Trial Results: [False, True, True, False, False, False, True, False, True, False]
-
-# for each rollout:
-#     have a graph for each uncertainty (eg 1 graph for uncertainty 0, another for 1). plot:
-#         for each model:
-#             xaxis: 
 
 
 

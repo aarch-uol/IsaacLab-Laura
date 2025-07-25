@@ -181,8 +181,8 @@ def rollout(policy, env, success_term, horizon, device):
         #         print(f"  '{k}': shape={v.shape}, ndim={v.ndim}")
 
         # calculate uncertainty
-        uncertainty_dict = mc_dropout_uncertainty_eval(policy=policy, obs=seq_input, niters=15)
-        traj['uncertainties'].append(uncertainty_dict['variance'])
+        # uncertainty_dict = mc_dropout_uncertainty_eval(policy=policy, obs=seq_input, niters=15)
+        # traj['uncertainties'].append(uncertainty_dict['variance'])
 
         # Compute action from sequence
         actions = policy(seq_input)

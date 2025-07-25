@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.managers import SceneEntityCfg
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+# from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 from isaaclab.utils.math import subtract_frame_transforms, combine_frame_transforms
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -25,8 +25,8 @@ if TYPE_CHECKING:
 def objects_stacked(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    cube_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-    cube_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"), 
+    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"), 
     command_name: str = "object_pose",
     xy_threshold: float = 0.1,
     height_threshold: float = 0.006,
@@ -36,15 +36,15 @@ def objects_stacked(
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     atol=0.0001,
     rtol=0.0001,
-    loghelper : LoggingHelper = LoggingHelper(),
+    # loghelper : LoggingHelper = LoggingHelper(),
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    cube_1: RigidObject = env.scene[cube_1_cfg.name]
-    cube_2: RigidObject = env.scene[cube_2_cfg.name]
+    object_1: RigidObject = env.scene[object_1_cfg.name]
+    object_2: RigidObject = env.scene[object_2_cfg.name]
     command = env.command_manager.get_command(command_name)
 
     # Position difference between cube and hot plate 
-    pos_diff = cube_2.data.root_pos_w - cube_1.data.root_pos_w
+    pos_diff = object_2.data.root_pos_w - object_1.data.root_pos_w
 
     # # Compute cube position difference in x-y plane
     xy_dist = torch.norm(pos_diff[:, :2], dim=1)
@@ -79,7 +79,7 @@ def object_reached_goal(
     threshold: float = 0.02,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Termination condition for the object reaching the goal position.
 
@@ -105,6 +105,6 @@ def object_reached_goal(
     distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)  # shape: (num_envs,)
     # Log if any environment meets condition
     mask = distance < threshold
-    if torch.any(mask):
-        loghelper.logsubtask(LogType.FINISH)
+    # if torch.any(mask):
+    #     loghelper.logsubtask(LogType.FINISH)
     return mask  # or return distance < threshold

@@ -69,11 +69,12 @@ class PickSmState:
     APPROACH_ABOVE_OBJECT = wp.constant(1)
     APPROACH_OBJECT = wp.constant(2)
     GRASP_OBJECT = wp.constant(3)
-    LIFT_OBJECT = wp.constant(4)
-    APPROACH_ABOVE_OBJECT2 = wp.constant(5)
-    POUR = wp.constant(6)
-    REORIENT = wp.constant(7)
-    APPROACH_GOAL = wp.constant(8)
+    # LIFT_OBJECT = wp.constant(4)
+    APPROACH_ABOVE_OBJECT2 = wp.constant(4)
+    POUR = wp.constant(5)
+    REORIENT = wp.constant(6)
+    APPROACH_OBJECT2 = wp.constant(7)
+    UNGRASP_OBJECT = wp.constant(8)
 
 
 class PickSmWaitTime:
@@ -83,11 +84,12 @@ class PickSmWaitTime:
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
-    LIFT_OBJECT = wp.constant(0.5)
+    # LIFT_OBJECT = wp.constant(0.5)
     APPROACH_ABOVE_OBJECT2 = wp.constant(0.5)
     POUR = wp.constant(1.0)
     REORIENT = wp.constant(1.0)
-    APPROACH_GOAL = wp.constant(0.6)
+    APPROACH_OBJECT2 = wp.constant(0.6)
+    UNGRASP_OBJECT = wp.constant(0.3)
 
 
 @wp.func
@@ -159,12 +161,14 @@ def infer_state_machine(
     elif state == PickSmState.APPROACH_OBJECT:
         ### Getting position and rotation for the robot to go to the object at
         des_ee_pose[tid] = object_pose[tid]
-        processed = False
+        CONICAL = False
+        count = 0
         pos = wp.transform_get_translation(object_pose[tid])
-        z_val = pos.z
-        if not processed and z_val > 0.08:
-            processed = True
-            conical = True
+        if count == 0:
+            z_val = pos.z
+            count += 1
+        if  z_val > 0.07 and state == PickSmState.APPROACH_OBJECT:
+            CONICAL = True
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
@@ -183,23 +187,23 @@ def infer_state_machine(
         if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT:
             # move to next state and reset wait time
             print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
-            sm_state[tid] = PickSmState.LIFT_OBJECT
+            sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
             sm_wait_time[tid] = 0.0
-    elif state == PickSmState.LIFT_OBJECT:
-        des_ee_pose[tid] = des_object_pose[tid]
-        gripper_state[tid] = GripperState.CLOSE
-        # wait for a while
-        if distance_below_threshold(
-            wp.transform_get_translation(ee_pose[tid]),
-            wp.transform_get_translation(des_ee_pose[tid]),
-            0.03,
-        ):
-            # wait for a while
-            if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
-                # move to next state and reset wait time
-                print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
-                sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
-                sm_wait_time[tid] = 0.0
+    # elif state == PickSmState.LIFT_OBJECT:
+    #     des_ee_pose[tid] = des_object_pose[tid]
+    #     gripper_state[tid] = GripperState.CLOSE
+    #     # wait for a while
+    #     if distance_below_threshold(
+    #         wp.transform_get_translation(ee_pose[tid]),
+    #         wp.transform_get_translation(des_ee_pose[tid]),
+    #         0.03,
+    #     ):
+    #         # wait for a while
+    #         if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
+    #             # move to next state and reset wait time
+    #             print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
+    #             sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
+    #             sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_ABOVE_OBJECT2:
         # Change offset position
         offset_pos = wp.transform_get_translation(offset[tid])
@@ -224,9 +228,6 @@ def infer_state_machine(
         # Set interpolated pose
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
-        # Detect conical object via initial Z height
-        if z_val > 0.08:
-            conical = True
         # Evaluate readiness to transition
         if conical:
             dx = wp.abs(current_pos.x - target_pos.x)
@@ -281,9 +282,38 @@ def infer_state_machine(
 
         if sm_wait_time[tid] >= PickSmWaitTime.REORIENT:
             print("[SM_INFO] : Moving from REORIENT to REST")
+            sm_state[tid] = PickSmState.APPROACH_OBJECT2
+            sm_wait_time[tid] = 0.0
+        elif state == PickSmState.APPROACH_OBJECT2:
+            pose_pos = wp.transform_get_translation(final_object_pose[tid])
+            pose_rot = wp.transform_get_rotation(final_object_pose[tid])
+            if CONICAL == True:
+                offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+            else:
+                # Apply offset in x-direction (5 cm = 0.05 m)
+                offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+            des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+            gripper_state[tid] = GripperState.CLOSE
+            # wait for a while
+            if distance_below_threshold(
+                wp.transform_get_translation(ee_pose[tid]),
+                wp.transform_get_translation(des_ee_pose[tid]),
+                0.03,
+            ):
+                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
+                    # move to next state and reset wait time
+                    print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
+                    sm_state[tid] = PickSmState.UNGRASP_OBJECT
+                    sm_wait_time[tid] = 0.0
+    elif state == PickSmState.UNGRASP_OBJECT:
+        des_ee_pose[tid] = final_object_pose[tid]
+        gripper_state[tid] = GripperState.OPEN
+        # wait for a while
+        if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT:
+            # move to next state and reset wait time
+            print("[SM_INFO] : Moving from UNGRASP to REST")
             sm_state[tid] = PickSmState.REST
             sm_wait_time[tid] = 0.0
-    ### Need to add an end step
     # increment wait time
     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
 

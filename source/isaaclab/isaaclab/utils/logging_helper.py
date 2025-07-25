@@ -1,16 +1,18 @@
 from enum import Enum
 class LogType(Enum):
-    APPR =0
-    GRASP =1
+    APPR_OBJ1 = 0
+    GRASP_OBJ1 = 1
     LIFT = 2
-    GOAL = 3
-    FINISH = 4
+    MIDGOAL = 3
+    APPR_OBJ2 = 4
+    STACK = 5
+    FINISH = 6
 
 class ErrorType(Enum):
     TIMEOUT = 0
     JOINT_VIO = 1
     VEL_VIO = 2
-    EFF_VIO =3
+    EFF_VIO = 3
     DROP = 4
     RESAMPLE = 5
     CONTACT = 6

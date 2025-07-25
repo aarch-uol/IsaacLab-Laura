@@ -143,8 +143,8 @@ def infer_state_machine(
         if count == 0:
             z_val = pos.z
             count += 1
-        if  z_val > 0.07 and state == PickSmState.APPROACH_OBJECT:
-            CONICAL = True
+            if  z_val > 0.07 and state == PickSmState.APPROACH_OBJECT:
+                CONICAL = True
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
@@ -183,7 +183,7 @@ def infer_state_machine(
     elif state == PickSmState.APPROACH_ABOVE_OBJECT2:
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
-        if CONICAL: 
+        if CONICAL == True: 
             offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.15)  # raise 25 cm 
             new_offset = wp.transform(offset_pos, offset_rot)
             # Target pose: above the object using offset
@@ -209,7 +209,7 @@ def infer_state_machine(
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
         # Evaluate readiness to transition
-        if CONICAL:
+        if CONICAL == True:
             dx = wp.abs(current_pos.x - target_pos.x)
             dy = wp.abs(current_pos.y - target_pos.y)
             dz = wp.abs(current_pos.z - target_pos.z)
@@ -229,22 +229,27 @@ def infer_state_machine(
         # Get original transform from final_object_pose[tid]
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(final_object_pose[tid])
-        if CONICAL:
-            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z)
+        if CONICAL == True:
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.075)
         else:
             # Apply offset in x-direction (5 cm = 0.05 m)
-            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z)
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.075)
 
         # Reconstruct the transform with new position and same rotation
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         # des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.CLOSE
-            # wait for a while
-        if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
-            # move to next state and reset wait time
-            print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
-            sm_state[tid] = PickSmState.UNGRASP_OBJECT
-            sm_wait_time[tid] = 0.0
+        # wait for a while
+        if distance_below_threshold(
+            wp.transform_get_translation(ee_pose[tid]),
+            wp.transform_get_translation(des_ee_pose[tid]),
+            position_threshold,
+        ):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
+                # move to next state and reset wait time
+                print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
+                sm_state[tid] = PickSmState.UNGRASP_OBJECT
+                sm_wait_time[tid] = 0.0
     elif state == PickSmState.UNGRASP_OBJECT:
         des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.OPEN
@@ -365,16 +370,16 @@ def main():
     # parse configuration
     env_cfg: LiftEnvCfg = parse_env_cfg(
         #"Isaac-Lift-Cube-Franka-IK-Abs-v0",
-        "Isaac-Stack-Lab-Franka-IK-Abs-v0",
-        # "Isaac-Stack-LLM-Franka-IK-Abs-v0",
+        # "Isaac-Stack-Lab-Franka-IK-Abs-v0",
+        "Isaac-Stack-LLM-Franka-IK-Abs-v0",
         device=args_cli.device,
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
     # create environment
     #env = gym.make("Isaac-Lift-Cube-Franka-IK-Abs-v0", cfg=env_cfg)
-    env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
-    # env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
+    # env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start
     env.reset()
    # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
@@ -418,9 +423,9 @@ def main():
             # advance state machine
             actions = pick_sm.compute(
                 torch.cat([tcp_rest_position, tcp_rest_orientation], dim=-1),
-                torch.cat([object_position, desired_orientation], dim=-1),
-                torch.cat([desired_position, desired_orientation], dim=-1),
-                torch.cat([final_position, desired_orientation], dim=-1),
+                torch.cat([object_position, tcp_rest_orientation], dim=-1),
+                torch.cat([desired_position, tcp_rest_orientation], dim=-1),
+                torch.cat([final_position, tcp_rest_orientation], dim=-1),
             )
         
             

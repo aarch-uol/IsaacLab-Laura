@@ -35,9 +35,6 @@ class LLMClient:
         file_content = self.read_file(file_path)
 
         prompt = f"""
-    Here is the content of the file:
-
-    {file_content}
 
     This prompt applies to IsaacLab-based simulation code. 
     Your task is to generate a single, valid Python file with no syntax errors. 
@@ -48,81 +45,128 @@ class LLMClient:
     ### Task description
 
     User description: {user_input}
-    Think about what chemical equipment might be used to complete the task in the user description.
+    Think about what chemical equipment might be used to complete the task in the User description - use for ### Task Specific Objects.
 
     ### Imports
 
-    - Extract **only and all of the 11 lines of import statements** that are in the **given file**.
+    - Extract **only and all of the 12 lines of import statements** that are in the **given file**.
     - Add them **once at the very top** of your output script.
     - Every import must start with `isaaclab` or `glassware_files`.
     - **Do not repeat or invent any import**.
     - **Do not add extra imports**, even if they seem necessary.
+    - If `pour` in user description, then change import StackEnvCfg to PourEnvCfg.
 
-    ### EventTerm Definitions
+    ### DoneTerm Definitions
 
-    - Include exactly the **first four EventTerm()** entry from the given file.
-    - These must be written **exactly as-is**: same function, mode, and params.
-    - Do not add, remove, or alter any parameters inside `params`.
+    - Write **exactly** 5 DoneTerms for:
+        - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
+        - For object1 also include an object dropping term for onto the table rather than below the table which is at 0.005 height.
+        - A success term from mdp.objects_stacked function with no params term.
+        - A time out term, the DoneTerm includes func=mdp.time_out and time_out=True.
+    Strictly Ensure that there are 5 DoneTerms under TerminationsCfg.
 
-    ### Class Definitions
+    ### ObsGroup/ObsTerm Definitions
 
-    Use the `@configclass` decorator for both classes, as in the given file:
-    - `FrankaCubeStackEnvCfg(StackEnvCfg)`
-    - `EventsCfg(EventGroupCfg)`
+    - Create an ObservationsCfg Class.
+    - Within the ObservationsCfg Class, create two Classes: PolicyCfg and SubtasksCfg, inheriting from ObsGroup.
+    - At the end of ObservationsCfg Class create an instance for: PolicyCfg and SubtasksCfg.
+    - Inside the PolicyCfg, define ObsTerms for only the following **9** observation functions: `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs`, 
+    `object_positions_in_world_frame`, `object_orientations_in_world_frame`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`.
 
-    Change the inheritance of `FrankaCubeStackEnvCfg` if the task involves `pouring` in the task description:
-    - Change `StackEnvCfg` to `PourEnvCfg`.
-    If `pouring` is not in the task description then keep `StackEnvCfg`.
+    - In SubtasksCfg, create subtasks that logically sequence to complete the user-described task.
+    - The subtasks should link and flow together to be checkpoints to complete the task description.
+    - Use only the following func= values for the ObsTerm subtasks: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2, object_stacked,
+    pour_object, reorient_object, object_reached_goal.
+    - Use func=reach_object2 instead of func=reach_object if a second reach is needed.
+
+    - The function `object_grasped` should have three params with the names: `ee_frame_cfg`, `robot_cfg` and `object_cfg`.
+    - The function `reach_object`/`reach_object2` should have three params with the names: `ee_frame_cfg`, `object_cfg` and `threshold`.
+    - The function `object_reached_goal`/`object_reached_midgoal` should have two params with the names `threshold` and `command_name`.
+    - The function `is_object_lifted` should have two params with the names `threshold` and `object_cfg`.
+    - The functions `pour_object`/`reorient_object` should have two params with the names `angle_threshold` = 45/175 (respectively) and `ee_frame_cfg`.
+
+    Termination Function Rules:
+        - For object_stacked (used for final stacking tasks):
+            - Use object_stacked only if appropriate for the final subtask.
+            - Requires params:
+                - upper_object_cfg → SceneEntity "object1"
+                - lower_object_cfg → SceneEntity "object2"
+                - robot_cfg → SceneEntity "robot"
+        - For object_reached_goal (used for final subtask if stacking isn't applicable):
+            - Requires:
+                - threshold
+                - command_name: "object_pose"
+
+    General Parameter Mapping Rules:
+    - Use SceneEntity "object1" if the subtask name includes "object".
+    - Use SceneEntity "object2" if the subtask name includes "object2".
+    - Use SceneEntity "robot" only for object_grasped and object_stacked.
+    - Use SceneEntity "ee_frame" for any ee_frame_cfg parameter.
+    - The threshold value should be between 0.05 and 0.1.
+
+    - All of the functions for the ObsTerms and are from the folder mdp.
+    - For each of the `PolicyCfg` and `SubtasksCfg` Classes, create `post_init` with only `enable_corruption` and `concatenate_terms` which are both `False`.
+
+    ### FrankaCubeStack Class Definitions
+
+    Use the `@configclass` decorator for any Classes, as in the given file, including `FrankaCubeStackEnvCfg(StackEnvCfg)`
+
+    Change the inheritance of `FrankaCubeStackEnvCfg` only if the task involves `pour` in the task description:
+        - Change `StackEnvCfg` to `PourEnvCfg`.
+    If `pour` is not in the task description then keep `StackEnvCfg`.
 
     In `FrankaCubeStackEnvCfg`:
-    - Include a method called `__post_init__()` that contains `super().__post_init__()`.
-    - **Do not change** the semantic tags for the plane or table.
-    - **Do not modify** how robot actions or robot commands are set.
-    - All code in this class must exactly match the given file — except for object spawning.
+        - Include a method called `__post_init__()` that contains `super().__post_init__()`.
+        - Within `__post_init__` create an instance of ObservationsCfg() under # Set Observations.
+        - **Do not change** the semantic tags for the plane or table.
+        - Include **only and exactly all** of the `actions` and `commands` from the given file.
+        - Use the same robot setup code from the provided file (Franka, with the correct semantic tags).
 
     ### Task Specific Objects
 
     - Use **only** objects defined in the original file — do **not invent new ones**.
-    - Instantiate only the **Franka robot** and **objects required** to complete the user task.
+    - Instantiate **only** the **Franka robot** and **objects required** to complete the user-defined task.
     - The **hot plate** object in the USD file refers to a **magnetic stir plate**.
-    - If needed, multiple instances of the same object are allowed.
+    - The “main object” is the one moved within the task. You must decide which one that is based on the task description.
+    - This main object will be a piece of glassware.
 
     In the output file:
     - For the task's main object, use this naming style:
-    Replace (this code should not be present in output code): # Example for a <glassware>
-        ```python
-        self.scene.<glassware> = glassware.<glassware>
-        ```
-    with this:
-        ```python
-        self.scene.object1 = glassware.<glassware>
-        ```
-    - The “main object” is the one moved within the task. You must decide which one that is based on the task description.
-    - Rename the chosen main object to follow the self.scene.object1 naming convention as shown above.
-    - Rename the lab equipment that is completing the task to follow the self.scene.object2 naming convention similar to above.
-    - This main object will be a piece of glassware.
+        Replace (this code should not be present in output code): # Example for a <glassware>
+            ```python
+            self.scene.<glassware> = glassware.<glassware>
+            ```
+        with this:
+            ```python
+            self.scene.object1 = glassware.<glassware>
+            ```
+    - Rename the lab equipment that is completing the task or is the target to follow the self.scene.object2 naming convention similar to above.
     - If there are two names for an instance, keep only the name involving object1.
     - Add a side comment indicating which object was chosen as the main object for the task.
     - Include as many objects within the scene as are expected for the task.
 
     ### Robot and Frame Transformations
 
-    - Use the same robot setup code from the given file (Franka, with the correct semantic tags).
-    - Add one FrameTransformerCfg with the following three FrameCfg entries in this exact order:
+    - Write the `Frame Transformations` from the given file **exactly** at the end of the code.
+    - Do not modify any of the values or change the structure from that block of code.
+    - Do not invent, change, or omit any fields or values.
+    - From that block, one FrameTransformerCfg, with the name `self.scene.ee_frame`, should be created with FrameCfgs for:
         1. panda_hand
         2. panda_leftfinger
         3. panda_rightfinger
-    - For each FrameCfg:
-    - Use the same prim_path, name, and OffsetCfg(pos=...) values as the original file.
-    - Do not change or invent any values or fields.
+    - With the names (respectively):
+        1. end_effector
+        2. tool_leftfinger
+        3. tool_rightfinger
+    - For each FrameCfg use **the same** values from the original code for:
+        - prim_path
+        - name
+        - offset=OffsetCfg(pos=...)
+    - The `FrameTransformerCfg` uses the  same `prim_path`, `visualizer_cfg`, `debug_vis` and `target_frames` values as the given file.
+    - Keep OffsetCfg property `pos=` for the `panda_hand`, `panda_leftfinger`, and `panda_rightfinger` the same as in the given file.
 
-    Strictly ensure:
-    - I need a **single Python file** that:
-    - 1. **Imports only once** from `glassware_files` (no repeated imports).
-    - 2. **Spawn object needed for task only**
-    - 3. **Include three `FrameTransformerCfg`, each with a FrameCfg entries in the target_frames list**
-    - 4. **No syntax errors** — all functions and object definitions must be valid.
-    - 5. **No extra code** — only the minimal necessary to fulfill the above.
+    Given/Original file to reference: {file_content}
+
     """
 
     # {user_input} is a message input from the user

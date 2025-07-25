@@ -36,3 +36,100 @@
         - `gripper_joint_frame()`
     - 4. **No syntax errors** — all functions and object definitions must be valid.
     - 5. **No extra code** — only the minimal necessary to fulfill the above.
+
+### MIGHT NEED IF PROMPT DOESN'T
+
+    Strictly ensure:
+    - I need a **single Python file** that:
+    - 1. **Imports only once** from `glassware_files` (no repeated imports).
+    - 2. **Spawn object needed for task only**
+    - 3. **Include three `FrameTransformerCfg`, each with a FrameCfg entries in the target_frames list**
+    - 4. **No syntax errors** — all functions and object definitions must be valid.
+    - 5. **No extra code** — only the minimal necessary to fulfill the above.
+
+
+    In `FrankaCubeStackEnvCfg`:
+        - Include a method called `__post_init__()` that contains `super().__post_init__()`.
+        - **Do not change** the semantic tags for the plane or table.
+        - All code in this Class must exactly match the given file — except for object spawning.
+        - Include all of the actions and commands from the given file.
+
+
+    - **Do not change** any of the code for the FrameTransformerCfg from the given file.
+    - Add one FrameTransformerCfg with the following three FrameCfg entries in this exact order within target_frames:
+        1. panda_hand
+        2. panda_leftfinger
+        3. panda_rightfinger
+    - For each FrameCfg:
+        - Use the same prim_path, name, and OffsetCfg(pos=...) values as the original file.
+        - Do not change, remove or invent any values or fields.
+
+    - **Do not modify** any of the code for the `Frame Transformations` from the given file in the output file.
+    - There should be one FrameTransformerCfg with the following three FrameCfg entries in this exact order within target_frames:
+        1. panda_hand
+        2. panda_leftfinger
+        3. panda_rightfinger
+    - For each FrameCfg:
+        - Use the same `prim_path`, `name`, and `OffsetCfg(pos=...)` values as the original file.
+        - Do not change, remove or invent any values or fields.
+
+    - From that block, extract and recreate a FrameTransformerCfg which contains the following three FrameCfg entries, and in this exact order within target_frames:
+        1. panda_hand
+        2. panda_leftfinger
+        3. panda_rightfinger
+    - For each FrameCfg:
+        - Use the exact values from the original code:
+            - prim_path
+            - name
+            - offset=OffsetCfg(pos=...)
+    
+    - Locate the Frame Transformations block of code (the last 26 lines of code) in the original file.
+    - Copy these 26 lines of code **exactly** at the end of your written code.
+    - Do not modify any of the values or structure from that block.
+    - Do not invent, change, or omit any fields or values.
+    - From that block, a FrameTransformerCfg should be created for:
+        1. panda_hand
+        2. panda_leftfinger
+        3. panda_rightfinger
+    - With the names (respectively):
+        1. end_effector
+        2. tool_leftfinger
+        3. tool_rightfinger
+        - Use the same prim_path, name, and OffsetCfg(pos=...) values as the original file.
+
+
+
+    - In SubtasksCfg, create subtasks for the task in the user description.
+    - The subtasks should link and flow together to be checkpoints to complete the task description.
+    - The possible functions (func=) for the ObsTerm subtasks are: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2, object_stacked,
+    pour_object, reorient_object, object_reached_goal.
+    - Only use func=reach_object once, if a second one is needed then use func=reach_object2.
+    - The subtask ObsTerms each have `params`, decide which params are needed for each subtask. 
+
+###
+    - object_stacked and object_reached_goal are termination functions, the most appropriate to the task description should be used for the final subtask.
+    - func=object_stacked has params of "upper_object_cfg" and "lower_object_cfg" as the names for SceneEntity of "object1" and "object2" respectively as well as "robot_cfg".
+    - The **only** other names for the parameters are "robot_cfg", "ee_frame_cfg", "object_cfg", "object2_cfg", "angle_threshold" and "threshold".
+    - For subtasks of reaching, grasping and lifting an object (not including object_reached_midgoal or object_reached_goal): include the SceneEntityCfg 
+    of "object1" if an "object" is in the subtask name, "object2" if "object2" is in the subtask name, for the parameter value.
+    - The parameter value SceneEntityCfg of "robot" is only used for the object_grasped and object_stacked function.
+    - The parameter name "ee_frame" should have the value SceneEntity "ee_frame"
+    - If object_reached_midgoal or object_reached_goal is used, one of the parameters "command_name": "object_pose".
+    - For pour and reorient object functions, "angle_threshold" is a parameter of 45 and 175 respectively.
+    - For functions: the "threshold" parameter should be between 0.05 and 0.1.
+###
+
+    - The function `object_grasped` should have three params with the names: `ee_frame_cfg`, `robot_cfg` and `object_cfg`.
+    - The function `reach_object`/`reach_object2` should have three params with the names: `ee_frame_cfg`, `object_cfg` and `threshold`.
+    - The function `object_reached_goal`/`object_reached_midgoal` should have two params with the names `threshold` and `command_name`.
+    - The function `is_object_lifted` should have two params with the names `threshold` and `object_cfg`.
+    - The functions `pour_object` and `reorient_object` should have two params with the names `angle_threshold` and `ee_frame_cfg`.
+
+    Look at lines 63 to 76 of: {file_content}
+    Look at this file for reference in the rest of this prompt: {file_content}
+
+    - Rename the chosen main object to follow the self.scene.object1 naming convention as shown above.
+
+    Strictly Ensure that there are 4 DoneTerms under TerminationsCfg.
+
+    - For object1 also include an object dropping term for onto the table rather than below the table which is at 0.005 height.

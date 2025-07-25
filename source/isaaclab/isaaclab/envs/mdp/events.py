@@ -67,6 +67,7 @@ def randomize_rigid_body_scale(
         :attr:`isaaclab.scene.InteractiveSceneCfg.replicate_physics` to False. This ensures that physics
         parser will parse the individual asset properties separately.
     """
+    print("Randomizing scale...")
     # check if sim is running
     if env.sim.is_playing():
         raise RuntimeError(

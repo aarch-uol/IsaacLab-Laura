@@ -492,11 +492,12 @@ def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str]
     train_num_steps = config.experiment.epoch_every_n_steps
     valid_num_steps = config.experiment.validation_epoch_every_n_steps
 
-    config.algo.transformer.num_layers = 1
+    #config.algo.transformer.num_layers = 1
+    config.algo.transformer.num_heads = 1
     for model_num in range(ensemble_size):
         run=wandb.init(
             project=config.experiment.logging.wandb_proj_name,
-            name=f"{config.experiment.name}_num_layers_{config.algo.transformer.num_layers}"
+            name=f"{config.experiment.name}_num_heads_{config.algo.transformer.num_heads}"
         )
         run.define_metric("train reward", step_metric="episode")
         run.define_metric("episode error", step_metric="episode")
@@ -602,7 +603,8 @@ def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str]
             data_logger.record("System/RAM Usage (MB)", mem_usage, epoch)
             print(f"\nEpoch {epoch} Memory Usage: {mem_usage} MB\n")
 
-        config.algo.transformer.num_layers = config.algo.transformer.num_layers + 1
+        #config.algo.transformer.num_layers = config.algo.transformer.num_layers + 1
+        config.algo.transformer.num_heads = config.algo.transformer.num_heads + 1
         run.finish()
     # terminate logging
     data_logger.close()

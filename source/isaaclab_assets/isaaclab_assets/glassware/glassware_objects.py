@@ -54,7 +54,7 @@ class Chem_Assets:
                 prim_path="{ENV_REGEX_NS}/" + name,
                 init_state=RigidObjectCfg.InitialStateCfg(pos = pos,rot=rot ),
                 spawn=UsdFileCfg(
-                    usd_path = os.path.join(ASSETS_ROOT, "beaker.usd"),
+                    usd_path = os.path.join(ASSETS_ROOT, "beaker", "beaker.usd"),
                     scale=(0.5, 0.5, 0.5),
                     rigid_props=self.cube_properties,
                     semantic_tags=[("class", name)],

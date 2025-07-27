@@ -37,3 +37,21 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # Copy the RMW specifications for ROS2
 # https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_ros.html
 COPY docker/.ros/ ${DOCKER_USER_HOME}/.ros/
+
+
+
+# Additional tools and pip install
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y --no-install-recommends \
+        git-lfs \
+        nano \
+        tmux \
+        p7zip-full && \
+    pip install --no-cache-dir -e source/chills && \
+    pip install --no-cache-dir \
+        robomimic==0.3.0 \
+        scikit-learn && \
+    apt -y autoremove && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*

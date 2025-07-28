@@ -71,7 +71,9 @@ if args_cli.enable_pinocchio:
 
 from isaaclab_tasks.utils import parse_env_cfg
 from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers
+from isaaclab.utils.pretty_printer import print_table
 
+from isaaclab.safety.safety_logic import SafetyLogic
 
 def rollout(policy, env, success_term, horizon, device):
     """Perform a single rollout of the policy in the environment.
@@ -88,7 +90,13 @@ def rollout(policy, env, success_term, horizon, device):
     """
     policy.start_episode()
     obs_dict, _ = env.reset()
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
+    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[], obstacles =[])
+
+    safety_logic = SafetyLogic(obs_dict["policy"]["obstacle_pos"], 0.2)
+    try:
+        print("obstacle initial state: ", env.cfg.scene.obstacle.init_state)
+    except:
+        print("Env cfg not found ", )
 
     for i in range(horizon):
         # Prepare observations
@@ -123,8 +131,8 @@ def rollout(policy, env, success_term, horizon, device):
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
 
-        
-        #traj['uncertainties'].append(uncertainty_dict['variance'])
+        uncertainty_dict = safety_logic._MC_dropout_uncertainty(policy, obs)
+        traj['uncertainties'].append(uncertainty_dict['variance'])
 
         actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
 
@@ -136,12 +144,9 @@ def rollout(policy, env, success_term, horizon, device):
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)
 
-       # print("Action : " ,actions.tolist())
-       # print("Next obs : ", obs)
-
-       # print("Current EE position : ", obs["eef_pos"])
-        # this is where the intervention class will be 
-
+        ######## EVAL #######
+        collision_exp, dist = safety_logic.exp_static_coll(obs["eef_pos"])
+        print_table(["Step", "Variance", "Collision dist", "Safety violation"], [i, uncertainty_dict['variance'].data[-1], dist, collision_exp])
 
 
         # Check if rollout was successful
@@ -160,7 +165,7 @@ def main():
 
     # Set observations to dictionary mode for Robomimic
     env_cfg.observations.policy.concatenate_terms = False
-
+   
     # Set termination conditions
     env_cfg.terminations.time_out = None
 
@@ -173,7 +178,8 @@ def main():
 
     # Create environment
     env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
-
+   
+   # print("scene : ", env.cfg.scene.obstacle)
     # Set seed
     torch.manual_seed(args_cli.seed)
     env.seed(args_cli.seed)
@@ -183,7 +189,7 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-
+    print("policy : ", type(policy), " value : " ,  policy)
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):

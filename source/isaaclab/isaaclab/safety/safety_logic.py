@@ -9,21 +9,22 @@ import torch
 class SafetyLogic:
     def __init__(self, obst : torch.tensor, obst_rad : float = 0.1, obst_uncert : float = 0.5, var_thresh : float = 0.6):
         self.obst = obst.to('cpu').numpy()
-        self.obst_uncert = obst_uncert
-        self.obst_rad = obst_rad 
-        self.var_thresh = var_thresh
+        self.obst_uncert: float = obst_uncert
+        self.obst_rad: float = obst_rad 
+        self.var_thresh : float = var_thresh
     
     # check for expected collision
-    def exp_coll (self, eef_pos : torch.tensor)-> bool:
+    def exp_static_coll (self, eef_pos : torch.tensor)-> tuple:
         # returns true if the end effector is in a danger zone
         # (x−cx)2+(y−cy)2+(z−cz)2<r2.
-        eef  = eef_pos.to('cpu').numpy()
+        eef  = eef_pos.to('cpu').numpy()[0]
+        obs  = self.obst[0]
         test = 0
         for i in range(len(eef)):
-            test += (eef[1] - self.obst[i])^2
+            test += (eef[i] - obs[i])**2
          # account for uncertainty 
-        print("Safety logic : ", (test > (self.obst_rad * (1+self.obst_uncert))^2))
-        return  (test > (self.obst_rad * (1+self.obst_uncert))^2)
+        print("Safety logic : ", (test < (self.obst_rad * (1+self.obst_uncert))**2))
+        return  test < (self.obst_rad**2), test
     
     def exp_variance(self, pol, obs) -> bool:
         var_dict = self._MC_dropout_uncertainty(pol, obs)
@@ -31,7 +32,7 @@ class SafetyLogic:
             print("Uncertainty too high : ", var_dict['variance'])
         return var_dict['variance'] > 0.6 
     
-    def _MC_dropout_uncertainty(policy, obs, niters=50):
+    def _MC_dropout_uncertainty(self,policy, obs, niters=50):
         actions = [torch.from_numpy(policy(obs)) for i in range(niters)]
         actions = torch.stack(actions)
         

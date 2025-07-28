@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+import copy
 
 
 
@@ -37,7 +37,9 @@ def load_data(file):
     return rollouts, labels, all_uncertainties, all_timesteps
 
 
-def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[_ for _ in range(6)]):
+def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[_ for _ in range(7)]):
+    successful_rollout_means, failed_rollout_means = [], []
+    
     num_joints = 7
     for i, rollout in enumerate(rollouts):
         rollout_timesteps = [t for t, _ in rollout]
@@ -68,7 +70,13 @@ def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[
                 mean = [mean for _ in range(len(rollout_timesteps_to_plot))]
                 plt.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', color=plotted_line[0].get_color()) 
 
-        title = f"Uncertainty for joint 6 for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
+                if labels[i] == True:
+                    successful_rollout_means.append(mean)
+                else:
+                    failed_rollout_means.append(mean)
+
+
+        title = f"Uncertainty for joint {joint_num} for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
         plt.title(title)
         plt.xlabel('Timestep')
         plt.ylabel('Uncertainty Value')
@@ -77,6 +85,36 @@ def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[
         plt.tight_layout()
         plt.savefig(f"{results_path}{title}.png")
         plt.close()
+
+    for joint_num in range(num_joints):
+
+        if joint_num in joints_to_plot:
+            success_current_joint_means = [mean[joint_num] for mean in successful_rollout_means]
+            failed_current_joint_means = [mean[joint_num] for mean in failed_rollout_means]
+            
+            current_joint_successful_mean = sum(success_current_joint_means) / len(success_current_joint_means)
+            current_joint_failed_mean = sum(failed_current_joint_means) / len(failed_current_joint_means)
+
+            print("======================")
+            print(f"Average mean over all successful rollouts for joint {joint_num}: {current_joint_successful_mean}")
+            print(f"Average mean over all failed rollouts for joint {joint_num}: {current_joint_failed_mean}")
+            print("======================")
+            
+            plt.figure(figsize=(10, 6))
+            plt.ylim(bottom=0)
+            plt.ylim(top=0.5)
+
+            plt.bar(['Success', 'Failure'], [current_joint_successful_mean, current_joint_failed_mean], 
+                    label=["{:.4f}".format(current_joint_successful_mean), "{:.4f}".format(current_joint_failed_mean)], color=['green', 'red'])
+            title = f"Average Mean Over All Successful Rollouts for Joint {joint_num}"
+            plt.title(title)
+            plt.xlabel('Task Result')
+            plt.ylabel('Average Uncertainty Value')
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            plt.savefig(f"{results_path}{title}.png")
+            plt.close()
 
 
 
@@ -120,40 +158,24 @@ def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
         plt.close()
 
 
+# model_arch = "BC_RNN_GMM"
+# task = "stack_cube" # stack_cube or pick_place
+# model_name = f"model2"
+
+# uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
+
 model_arch = "BC_RNN_GMM"
 task = "stack_cube" # stack_cube or pick_place
-model_name = f"model2"
-
+model_name = f"ensemble"
+#uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
+uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties.txt"
 results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/" 
-uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
-
 
 rollouts, labels, all_uncertainties, all_timesteps = load_data(uncertainties_path)
 
-plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[6])
+plot_rollouts(rollouts, labels, results_path, duration=800, joints_to_plot=[6])
 
 
-# model 2
-# Successful trials: 1, out of 10 trials
-# Success rate: 0.1
-# Trial Results: [False, False, False, False, True, False, False, False, False, False]
-
-
-# best 20% model: model_epoch_2290_best_validation_1421192.9875.pth
-# Successful trials: 2, out of 10 trials
-# Success rate: 0.2
-# Trial Results: [False, False, False, False, False, False, True, False, False, True]
-
-# best 50% model: model_epoch_898_best_validation_1302229.0125.pth
-# Successful trials: 0, out of 10 trials
-# Success rate: 0.0
-# Trial Results: [False, False, False, False, False, False, False, False, False, False]
-
-
-# best 100% model: model_epoch_1012_best_validation_1162128.08125.pth
-# Successful trials: 4, out of 10 trials
-# Success rate: 0.4
-# Trial Results: [False, True, True, False, False, False, True, False, True, False]
 
 
 

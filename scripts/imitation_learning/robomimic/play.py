@@ -75,11 +75,11 @@ if args_cli.enable_pinocchio:
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
-from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers
+from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers, ensemble_uncertainty
 
 
 
-def rollout(policy, env, success_term, horizon, device, ensemble):
+def rollout(policy, env, success_term, horizon, device):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -152,6 +152,89 @@ def rollout(policy, env, success_term, horizon, device, ensemble):
         # Record trajectory
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)
+
+
+        # Check if rollout was successful
+        if bool(success_term.func(env, **success_term.params)[0]):
+            return True, traj
+        elif terminated or truncated:
+            return False, traj
+
+    return False, traj
+
+
+def rollout_ensemble(ensemble, env, success_term, horizon, device):
+    """Perform a single rollout of the policy in the environment.
+
+    Args:
+        policy: The robomimicpolicy to play.
+        env: The environment to play in.
+        horizon: The step horizon of each rollout.
+        device: The device to run the policy on.
+
+    Returns:
+        terminated: Whether the rollout terminated.
+        traj: The trajectory of the rollout.
+    """
+
+    for policy in ensemble:
+        policy.start_episode()
+    obs_dict, _ = env.reset()
+    
+    #print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
+
+    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
+
+    for i in range(horizon):
+        # Prepare observations
+        obs = copy.deepcopy(obs_dict["policy"])
+        sub_obs = copy.deepcopy(obs_dict["subtask_terms"])
+       
+        for ob in obs:
+            obs[ob] = torch.squeeze(obs[ob])
+            #print(f"found observation : {obs[ob]}")
+        
+        for subob in sub_obs:
+            sub_obs[subob] = torch.squeeze(sub_obs[subob])
+
+        # Check if environment image observations
+        if hasattr(env.cfg, "image_obs_list"):
+            # Process image observations for robomimic inference
+            for image_name in env.cfg.image_obs_list:
+                if image_name in obs_dict["policy"].keys():
+                    # Convert from chw uint8 to hwc normalized float
+                    image = torch.squeeze(obs_dict["policy"][image_name])
+                    image = image.permute(2, 0, 1).clone().float()
+                    image = image / 255.0
+                    image = image.clip(0.0, 1.0)
+                    obs[image_name] = image
+
+        traj["obs"].append(obs)
+        traj["sub_obs"].append(sub_obs)
+        
+        # Calculate uncertainty using the ensemble
+        metrics = ensemble_uncertainty(ensemble, obs)
+        # Get the variance and mean action
+        uncertainty = metrics['variance']
+        actions = metrics['mean']
+      
+        # Unnormalize actions
+        if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
+            actions = (
+                (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
+            ) / 2 + args_cli.norm_factor_min
+
+        actions = actions.to(device=device).view(1, env.action_space.shape[1])
+
+        # Apply actions
+        obs_dict, _, terminated, truncated, _ = env.step(actions)
+        obs = obs_dict["policy"]
+        sub_obs = obs_dict["subtask_terms"]
+
+        # Record trajectory
+        traj["actions"].append(actions.tolist())
+        traj["next_obs"].append(obs)
+        traj['uncertainties'].append(uncertainty)
 
 
         # Check if rollout was successful
@@ -374,13 +457,30 @@ def main():
     device = TorchUtils.get_torch_device(try_to_use_cuda=True)
 
     # Load policy
-    policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
+    #policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
     
+    ensemble = load_ensemble(device, ensemble_paths=[
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model0/bc_rnn_low_dim_franka_stack/20250722162848/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model1/bc_rnn_low_dim_franka_stack/20250722162851/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model2/bc_rnn_low_dim_franka_stack/20250722162852/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model3/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model4/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model5/bc_rnn_low_dim_franka_stack/20250722162854/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model6/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model7/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model8/bc_rnn_low_dim_franka_stack/20250722162856/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model9/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model10/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model11/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model12/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model13/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model14/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth'
+    ])
 
-    task = "pick_place" # stack_cube or pick_place
+    task = "stack_cube" # stack_cube or pick_place
     model_name = f"model0"
-    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/Dev-IK-Rel-v0/{model_name}/uncertainties.txt"
-
+    #uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
+    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties.txt"
     success_rate_path = f"docs/training_data/pick_place/uncertainty_rollout_pick_place/Dev-IK-Rel-v0-{args_cli.model_name}-success-rate.txt"
     
     # Run policy
@@ -388,12 +488,13 @@ def main():
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
         loghelper.startEpoch(trial)
-        # terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device, ensemble)
-        terminated, traj = rollout_transformer(policy, env, success_term, args_cli.horizon, device)
-        # with open(uncertainties_path, 'a') as file:
-        #     for i, var in enumerate(traj['uncertainties']):
-        #         line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"
-        #         file.write(f"{str(i)} {line}")
+        #terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
+        #terminated, traj = rollout_transformer(policy, env, success_term, args_cli.horizon, device)
+        terminated, traj = rollout_ensemble(ensemble, env, success_term, args_cli.horizon, device)
+        with open(uncertainties_path, 'a') as file:
+            for i, var in enumerate(traj['uncertainties']):
+                line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"
+                file.write(f"{str(i)} {line}")
                 
             
         results.append(terminated)
@@ -404,8 +505,8 @@ def main():
     print(f"Success rate: {results.count(True) / len(results)}")
     print(f"Trial Results: {results}\n")
 
-    with open(success_rate_path, 'a') as file:
-        file.write(f"{results.count(True) / len(results)}\n")
+    # with open(success_rate_path, 'a') as file:
+    #     file.write(f"{results.count(True) / len(results)}\n")
 
     env.close()
 

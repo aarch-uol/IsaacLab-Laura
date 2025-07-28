@@ -493,11 +493,13 @@ def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str]
     valid_num_steps = config.experiment.validation_epoch_every_n_steps
 
     #config.algo.transformer.num_layers = 1
-    config.algo.transformer.num_heads = 1
+    #config.algo.transformer.num_heads = 1
     for model_num in range(ensemble_size):
+        # setup a wand run
+        wand_experiment_name = f"{config.experiment.name}-model{model_num}"
         run=wandb.init(
             project=config.experiment.logging.wandb_proj_name,
-            name=f"{config.experiment.name}_num_heads_{config.algo.transformer.num_heads}"
+            name=wand_experiment_name
         )
         run.define_metric("train reward", step_metric="episode")
         run.define_metric("episode error", step_metric="episode")
@@ -604,7 +606,7 @@ def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str]
             print(f"\nEpoch {epoch} Memory Usage: {mem_usage} MB\n")
 
         #config.algo.transformer.num_layers = config.algo.transformer.num_layers + 1
-        config.algo.transformer.num_heads = config.algo.transformer.num_heads + 1
+        #config.algo.transformer.num_heads = config.algo.transformer.num_heads + 1
         run.finish()
     # terminate logging
     data_logger.close()
@@ -700,7 +702,7 @@ def main(args: argparse.Namespace):
     # get torch device
     device = TorchUtils.get_torch_device(try_to_use_cuda=config.train.cuda)
 
-    #config.lock()
+    config.lock()
 
     # catch error during training and print it
     res_str = "finished run successfully!"

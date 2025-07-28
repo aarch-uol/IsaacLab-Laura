@@ -1,13 +1,13 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_transformer_blocks_experiment",
+        "name": "BC-RNN-GMM-Ensemble",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
             "log_tb": true,
             "log_wandb": true,
-            "wandb_proj_name": "pick-place-optimisation"
+            "wandb_proj_name": "Pick-Place-Ensemble-Uncertainty-Estimation"
         },
         "save": {
             "enabled": true,
@@ -90,10 +90,10 @@
             "enabled": false
         },
         "rnn": {
-            "enabled": false
+            "enabled": true
         },
         "transformer": {
-            "enabled": true,
+            "enabled": false,
             "context_length": 20,
             "embed_dim": 512,
             "num_layers": 6,

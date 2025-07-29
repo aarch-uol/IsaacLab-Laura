@@ -23,7 +23,7 @@ class SafetyLogic:
         for i in range(len(eef)):
             test += (eef[i] - obs[i])**2
          # account for uncertainty 
-        print("Safety logic : ", (test < (self.obst_rad * (1+self.obst_uncert))**2))
+     #   print("Safety logic : ", (test < (self.obst_rad * (1+self.obst_uncert))**2))
         return  test < (self.obst_rad**2), test
     
     def exp_variance(self, pol, obs) -> bool:

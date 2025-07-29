@@ -1,4 +1,4 @@
-
+import torch
 
 def print_table(headers, data, title=None, column_alignments=None):
 
@@ -64,3 +64,38 @@ def print_table(headers, data, title=None, column_alignments=None):
 
     # Bottom border
     print(header_separator)
+
+class LogRollout:
+    def __init__(self, name, headings):
+        self.filename = "docs/logs/" + name + ".txt"
+        self.headings = headings
+        self._setup()
+    
+    def _setup(self):
+        with open(self.filename, "a") as f:
+            for heading in self.headings:
+                f.write(heading)
+                f.write(' : ')
+            f.write(',\n')
+    
+    def write_to_log(self,data):
+        with open(self.filename, "a") as f:
+            for log in data:
+                if torch.is_tensor(log):
+                    log = log.item()
+                f.write(str(log))
+                f.write(' : ')
+            f.write(',\n')
+
+    def new_trial(self, trial):
+        with open(self.filename, "a") as f:
+            f.write("Trial : ")
+            f.write(str(trial))
+            f.write(',\n')
+    
+    def trial_outcome(self, result):
+        with open(self.filename, "a") as f:
+            f.write("Result : ")
+            f.write(str(result))
+            f.write(',\n')
+    

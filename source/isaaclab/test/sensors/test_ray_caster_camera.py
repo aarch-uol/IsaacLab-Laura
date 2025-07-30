@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -130,6 +134,7 @@ def test_camera_init(setup_sim):
             assert im_data.shape == (1, camera_cfg.pattern_cfg.height, camera_cfg.pattern_cfg.width, 1)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # check the camera reset
     camera.reset()
     assert torch.all(camera.frame == 0)
@@ -142,6 +147,8 @@ def test_camera_init(setup_sim):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 def test_camera_resolution(setup_sim):
     """Test camera resolution is correctly set."""

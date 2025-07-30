@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -13,9 +17,12 @@ from typing import Any
 
 import carb
 <<<<<<< HEAD
+<<<<<<< HEAD
 import omni.log
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 import omni.usd
 from isaacsim.core.cloner import GridCloner
 from isaacsim.core.prims import XFormPrim
@@ -137,11 +144,15 @@ class InteractiveScene:
         # create source prim
         self.stage.DefinePrim(self.env_prim_paths[0], "Xform")
 <<<<<<< HEAD
+<<<<<<< HEAD
         # allocate env indices
         self._ALL_INDICES = torch.arange(self.cfg.num_envs, dtype=torch.long, device=self.device)
 =======
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # when replicate_physics=False, we assume heterogeneous environments and clone the xforms first.
         # this triggers per-object level cloning in the spawner.
         if not self.cfg.replicate_physics:
@@ -179,11 +190,15 @@ class InteractiveScene:
             # since env_ids is only applicable when replicating physics, we have to fallback to the previous method
             # to filter collisions if replicate_physics is not enabled
 <<<<<<< HEAD
+<<<<<<< HEAD
             # additionally, env_ids is only supported in GPU simulation
             if (not self.cfg.replicate_physics and self.cfg.filter_collisions) or self.device == "cpu":
 =======
             if not self.cfg.replicate_physics and self.cfg.filter_collisions:
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            if not self.cfg.replicate_physics and self.cfg.filter_collisions:
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 self.filter_collisions(self._global_prim_paths)
 
     def clone_environments(self, copy_from_source: bool = False):
@@ -217,6 +232,7 @@ class InteractiveScene:
         # since env_ids is only applicable when replicating physics, we have to fallback to the previous method
         # to filter collisions if replicate_physics is not enabled
 <<<<<<< HEAD
+<<<<<<< HEAD
         # additionally, env_ids is only supported in GPU simulation
         if (not self.cfg.replicate_physics and self.cfg.filter_collisions) or self.device == "cpu":
             omni.log.warn(
@@ -226,6 +242,11 @@ class InteractiveScene:
             omni.log.warn(
                 "Collision filtering can only be automatically enabled when replicate_physics=True."
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        if not self.cfg.replicate_physics and self.cfg.filter_collisions:
+            omni.log.warn(
+                "Collision filtering can only be automatically enabled when replicate_physics=True."
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 " Please call scene.filter_collisions(global_prim_paths) to filter collisions across environments."
             )
 
@@ -465,10 +486,14 @@ class InteractiveScene:
         # resolve env_ids
         if env_ids is None:
 <<<<<<< HEAD
+<<<<<<< HEAD
             env_ids = self._ALL_INDICES
 =======
             env_ids = slice(None)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            env_ids = slice(None)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # articulations
         for asset_name, articulation in self._articulations.items():
             asset_state = state["articulation"][asset_name]
@@ -567,10 +592,14 @@ class InteractiveScene:
         for asset_name, articulation in self._articulations.items():
             asset_state = dict()
 <<<<<<< HEAD
+<<<<<<< HEAD
             asset_state["root_pose"] = articulation.data.root_pose_w.clone()
 =======
             asset_state["root_pose"] = articulation.data.root_state_w[:, :7].clone()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            asset_state["root_pose"] = articulation.data.root_state_w[:, :7].clone()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             if is_relative:
                 asset_state["root_pose"][:, :3] -= self.env_origins
             asset_state["root_velocity"] = articulation.data.root_vel_w.clone()
@@ -591,10 +620,14 @@ class InteractiveScene:
         for asset_name, rigid_object in self._rigid_objects.items():
             asset_state = dict()
 <<<<<<< HEAD
+<<<<<<< HEAD
             asset_state["root_pose"] = rigid_object.data.root_pose_w.clone()
 =======
             asset_state["root_pose"] = rigid_object.data.root_state_w[:, :7].clone()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            asset_state["root_pose"] = rigid_object.data.root_state_w[:, :7].clone()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             if is_relative:
                 asset_state["root_pose"][:, :3] -= self.env_origins
             asset_state["root_velocity"] = rigid_object.data.root_vel_w.clone()
@@ -659,6 +692,7 @@ class InteractiveScene:
     """
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def _is_scene_setup_from_cfg(self) -> bool:
         """Check if scene entities are setup from the config or not.
 
@@ -668,6 +702,9 @@ class InteractiveScene:
 =======
     def _is_scene_setup_from_cfg(self):
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    def _is_scene_setup_from_cfg(self):
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         return any(
             not (asset_name in InteractiveSceneCfg.__dataclass_fields__ or asset_cfg is None)
             for asset_name, asset_cfg in self.cfg.__dict__.items()

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -154,17 +158,23 @@ class ContactSensor(SensorBase):
         self._data.net_forces_w[env_ids] = 0.0
         self._data.net_forces_w_history[env_ids] = 0.0
 <<<<<<< HEAD
+<<<<<<< HEAD
         # reset force matrix
         if len(self.cfg.filter_prim_paths_expr) != 0:
             self._data.force_matrix_w[env_ids] = 0.0
             self._data.force_matrix_w_history[env_ids] = 0.0
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if self.cfg.history_length > 0:
             self._data.net_forces_w_history[env_ids] = 0.0
         # reset force matrix
         if len(self.cfg.filter_prim_paths_expr) != 0:
             self._data.force_matrix_w[env_ids] = 0.0
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # reset the current air time
         if self.cfg.track_air_time:
             self._data.current_air_time[env_ids] = 0.0
@@ -323,14 +333,18 @@ class ContactSensor(SensorBase):
             self._data.current_contact_time = torch.zeros(self._num_envs, self._num_bodies, device=self._device)
         # force matrix: (num_envs, num_bodies, num_filter_shapes, 3)
 <<<<<<< HEAD
+<<<<<<< HEAD
         # force matrix history: (num_envs, history_length, num_bodies, num_filter_shapes, 3)
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if len(self.cfg.filter_prim_paths_expr) != 0:
             num_filters = self.contact_physx_view.filter_count
             self._data.force_matrix_w = torch.zeros(
                 self._num_envs, self._num_bodies, num_filters, 3, device=self._device
             )
+<<<<<<< HEAD
 <<<<<<< HEAD
             if self.cfg.history_length > 0:
                 self._data.force_matrix_w_history = torch.zeros(
@@ -340,6 +354,8 @@ class ContactSensor(SensorBase):
                 self._data.force_matrix_w_history = self._data.force_matrix_w.unsqueeze(1)
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def _update_buffers_impl(self, env_ids: Sequence[int]):
         """Fills the buffers of the sensor data."""
@@ -355,10 +371,14 @@ class ContactSensor(SensorBase):
         # update contact force history
         if self.cfg.history_length > 0:
 <<<<<<< HEAD
+<<<<<<< HEAD
             self._data.net_forces_w_history[env_ids] = self._data.net_forces_w_history[env_ids].roll(1, dims=1)
 =======
             self._data.net_forces_w_history[env_ids, 1:] = self._data.net_forces_w_history[env_ids, :-1].clone()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            self._data.net_forces_w_history[env_ids, 1:] = self._data.net_forces_w_history[env_ids, :-1].clone()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             self._data.net_forces_w_history[env_ids, 0] = self._data.net_forces_w[env_ids]
 
         # obtain the contact force matrix
@@ -370,11 +390,14 @@ class ContactSensor(SensorBase):
             force_matrix_w = force_matrix_w.view(-1, self._num_bodies, num_filters, 3)
             self._data.force_matrix_w[env_ids] = force_matrix_w[env_ids]
 <<<<<<< HEAD
+<<<<<<< HEAD
             if self.cfg.history_length > 0:
                 self._data.force_matrix_w_history[env_ids] = self._data.force_matrix_w_history[env_ids].roll(1, dims=1)
                 self._data.force_matrix_w_history[env_ids, 0] = self._data.force_matrix_w[env_ids]
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # obtain the pose of the sensor origin
         if self.cfg.track_pose:
@@ -417,10 +440,14 @@ class ContactSensor(SensorBase):
         # note: parent only deals with callbacks. not their visibility
         if debug_vis:
 <<<<<<< HEAD
+<<<<<<< HEAD
             # create markers if necessary for the first time
 =======
             # create markers if necessary for the first tome
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            # create markers if necessary for the first tome
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             if not hasattr(self, "contact_visualizer"):
                 self.contact_visualizer = VisualizationMarkers(self.cfg.visualizer_cfg)
             # set their visibility to true

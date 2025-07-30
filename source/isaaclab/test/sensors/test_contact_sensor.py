@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -49,10 +53,14 @@ class ContactTestMode(Enum):
 
 @configclass
 <<<<<<< HEAD
+<<<<<<< HEAD
 class ContactSensorRigidObjectCfg(RigidObjectCfg):
 =======
 class TestContactSensorRigidObjectCfg(RigidObjectCfg):
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+class TestContactSensorRigidObjectCfg(RigidObjectCfg):
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """Configuration for rigid objects used for the contact sensor test.
 
     This contains the expected values in the configuration to simplify test fixtures.
@@ -72,20 +80,28 @@ class ContactSensorSceneCfg(InteractiveSceneCfg):
     """Terrain configuration within the scene."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     shape: ContactSensorRigidObjectCfg = MISSING
 =======
     shape: TestContactSensorRigidObjectCfg = MISSING
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    shape: TestContactSensorRigidObjectCfg = MISSING
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """RigidObject contact prim configuration."""
 
     contact_sensor: ContactSensorCfg = MISSING
     """Contact sensor configuration."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     shape_2: ContactSensorRigidObjectCfg = None
 =======
     shape_2: TestContactSensorRigidObjectCfg = None
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    shape_2: TestContactSensorRigidObjectCfg = None
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """RigidObject contact prim configuration. Defaults to None, i.e. not included in the scene.
 
     This is a second prim used for testing contact filtering.
@@ -104,10 +120,14 @@ class ContactSensorSceneCfg(InteractiveSceneCfg):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CUBE_CFG = ContactSensorRigidObjectCfg(
 =======
 CUBE_CFG = TestContactSensorRigidObjectCfg(
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+CUBE_CFG = TestContactSensorRigidObjectCfg(
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     prim_path="/World/Objects/Cube",
     spawn=sim_utils.CuboidCfg(
         size=(0.5, 0.5, 0.5),
@@ -127,10 +147,14 @@ CUBE_CFG = TestContactSensorRigidObjectCfg(
 """Configuration of the cube prim."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 SPHERE_CFG = ContactSensorRigidObjectCfg(
 =======
 SPHERE_CFG = TestContactSensorRigidObjectCfg(
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+SPHERE_CFG = TestContactSensorRigidObjectCfg(
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     prim_path="/World/Objects/Sphere",
     spawn=sim_utils.SphereCfg(
         radius=0.25,
@@ -150,10 +174,14 @@ SPHERE_CFG = TestContactSensorRigidObjectCfg(
 """Configuration of the sphere prim."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CYLINDER_CFG = ContactSensorRigidObjectCfg(
 =======
 CYLINDER_CFG = TestContactSensorRigidObjectCfg(
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+CYLINDER_CFG = TestContactSensorRigidObjectCfg(
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     prim_path="/World/Objects/Cylinder",
     spawn=sim_utils.CylinderCfg(
         radius=0.5,
@@ -175,10 +203,14 @@ CYLINDER_CFG = TestContactSensorRigidObjectCfg(
 """Configuration of the cylinder prim."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CAPSULE_CFG = ContactSensorRigidObjectCfg(
 =======
 CAPSULE_CFG = TestContactSensorRigidObjectCfg(
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+CAPSULE_CFG = TestContactSensorRigidObjectCfg(
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     prim_path="/World/Objects/Capsule",
     spawn=sim_utils.CapsuleCfg(
         radius=0.25,
@@ -200,10 +232,14 @@ CAPSULE_CFG = TestContactSensorRigidObjectCfg(
 """Configuration of the capsule prim."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CONE_CFG = ContactSensorRigidObjectCfg(
 =======
 CONE_CFG = TestContactSensorRigidObjectCfg(
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+CONE_CFG = TestContactSensorRigidObjectCfg(
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     prim_path="/World/Objects/Cone",
     spawn=sim_utils.ConeCfg(
         radius=0.5,
@@ -434,10 +470,14 @@ Internal helpers.
 
 def _run_contact_sensor_test(
 <<<<<<< HEAD
+<<<<<<< HEAD
     shape_cfg: ContactSensorRigidObjectCfg,
 =======
     shape_cfg: TestContactSensorRigidObjectCfg,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    shape_cfg: TestContactSensorRigidObjectCfg,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     sim_dt: float,
     devices: list[str],
     terrains: list[TerrainImporterCfg],

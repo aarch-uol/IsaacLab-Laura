@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -36,10 +40,14 @@ parser.add_argument(
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
 <<<<<<< HEAD
+<<<<<<< HEAD
 parser.add_argument("--horizon", type=int, default=800, help="Step horizon of each rollout.")
 =======
 parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts.")
 parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 parser.add_argument(
@@ -78,6 +86,7 @@ if args_cli.enable_pinocchio:
     import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
 from isaaclab_tasks.utils import parse_env_cfg
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 
@@ -121,6 +130,8 @@ def rollout(policy, env, success_term, horizon, device):
         # Compute actions
         actions = policy(obs)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 import chills.tasks
 
@@ -194,13 +205,17 @@ def rollout(policy, env, success_term, horizon, device):
 
         # Compute action from sequence
         actions = policy(seq_input) # Normalised actions
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
@@ -213,6 +228,8 @@ def rollout(policy, env, success_term, horizon, device):
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         
         # Convert policy output (torch.Tensor) to numpy array for env.step()
         # (1, Action_Dim) from policy, squeeze to (Action_Dim,)
@@ -230,7 +247,10 @@ def rollout(policy, env, success_term, horizon, device):
         traj["next_obs"].append(obs_dict["policy"])
        # print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -242,10 +262,15 @@ def rollout(policy, env, success_term, horizon, device):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 def main():
     """Run a trained policy from robomimic with Isaac Lab environment."""
     # parse configuration
@@ -255,11 +280,17 @@ def main():
     env_cfg.observations.policy.concatenate_terms = False
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     #create a log handler 
     loghelper = LoggingHelper()
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    #create a log handler 
+    loghelper = LoggingHelper()
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     # Set termination conditions
     env_cfg.terminations.time_out = None
 
@@ -270,11 +301,16 @@ def main():
     success_term = env_cfg.terminations.success
     env_cfg.terminations.success = None
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
        
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    
+       
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     # Create environment
     env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
 
@@ -288,6 +324,7 @@ def main():
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     # Run policy
     results = []
@@ -297,6 +334,8 @@ def main():
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     #print(policy.policy.obs_shapes)
     # Run policy
     results = []
@@ -308,7 +347,10 @@ def main():
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
         loghelper.stopEpoch(trial)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     print(f"\nSuccessful trials: {results.count(True)}, out of {len(results)} trials")
     print(f"Success rate: {results.count(True) / len(results)}")

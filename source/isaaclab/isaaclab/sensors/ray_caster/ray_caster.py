@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -24,9 +28,12 @@ from pxr import UsdGeom, UsdPhysics
 
 import isaaclab.sim as sim_utils
 <<<<<<< HEAD
+<<<<<<< HEAD
 import isaaclab.utils.math as math_utils
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from isaaclab.markers import VisualizationMarkers
 from isaaclab.terrains.trimesh.utils import make_plane
 from isaaclab.utils.math import convert_quat, quat_apply, quat_apply_yaw
@@ -119,6 +126,7 @@ class RayCaster(SensorBase):
         if env_ids is None:
             env_ids = slice(None)
 <<<<<<< HEAD
+<<<<<<< HEAD
             num_envs_ids = self._view.count
         else:
             num_envs_ids = len(env_ids)
@@ -135,6 +143,10 @@ class RayCaster(SensorBase):
         # resample the drift
         self.drift[env_ids] = self.drift[env_ids].uniform_(*self.cfg.drift_range)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        # resample the drift
+        self.drift[env_ids] = self.drift[env_ids].uniform_(*self.cfg.drift_range)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     """
     Implementation.
@@ -236,9 +248,12 @@ class RayCaster(SensorBase):
         # prepare drift
         self.drift = torch.zeros(self._view.count, 3, device=self.device)
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.ray_cast_drift = torch.zeros(self._view.count, 3, device=self.device)
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # fill the data buffer
         self._data.pos_w = torch.zeros(self._view.count, 3, device=self._device)
         self._data.quat_w = torch.zeros(self._view.count, 4, device=self._device)
@@ -261,15 +276,20 @@ class RayCaster(SensorBase):
         pos_w = pos_w.clone()
         quat_w = quat_w.clone()
 <<<<<<< HEAD
+<<<<<<< HEAD
         # apply drift to ray starting position in world frame
 =======
         # apply drift
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        # apply drift
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         pos_w += self.drift[env_ids]
         # store the poses
         self._data.pos_w[env_ids] = pos_w
         self._data.quat_w[env_ids] = quat_w
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         # check if user provided attach_yaw_only flag
         if self.cfg.attach_yaw_only is not None:
@@ -301,10 +321,15 @@ class RayCaster(SensorBase):
         # ray cast based on the sensor poses
         if self.cfg.attach_yaw_only:
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        # ray cast based on the sensor poses
+        if self.cfg.attach_yaw_only:
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             # only yaw orientation is considered and directions are not rotated
             ray_starts_w = quat_apply_yaw(quat_w.repeat(1, self.num_rays), self.ray_starts[env_ids])
             ray_starts_w += pos_w.unsqueeze(1)
             ray_directions_w = self.ray_directions[env_ids]
+<<<<<<< HEAD
 <<<<<<< HEAD
         elif self.cfg.ray_alignment == "base":
             # apply horizontal drift to ray starting position in ray caster frame
@@ -312,16 +337,22 @@ class RayCaster(SensorBase):
 =======
         else:
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        else:
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             # full orientation is considered
             ray_starts_w = quat_apply(quat_w.repeat(1, self.num_rays), self.ray_starts[env_ids])
             ray_starts_w += pos_w.unsqueeze(1)
             ray_directions_w = quat_apply(quat_w.repeat(1, self.num_rays), self.ray_directions[env_ids])
+<<<<<<< HEAD
 <<<<<<< HEAD
         else:
             raise RuntimeError(f"Unsupported ray_alignment type: {self.cfg.ray_alignment}.")
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # ray cast and store the hits
         # TODO: Make this work for multiple meshes?
         self._data.ray_hits_w[env_ids] = raycast_mesh(
@@ -332,11 +363,14 @@ class RayCaster(SensorBase):
         )[0]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         # apply vertical drift to ray starting position in ray caster frame
         self._data.ray_hits_w[env_ids, :, 2] += self.ray_cast_drift[env_ids, 2].unsqueeze(-1)
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     def _set_debug_vis_impl(self, debug_vis: bool):
         # set visibility of markers
         # note: parent only deals with callbacks. not their visibility

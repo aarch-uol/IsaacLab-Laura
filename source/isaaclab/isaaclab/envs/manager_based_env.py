@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -310,10 +314,14 @@ class ManagerBasedEnv:
 
         # compute observations
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
 =======
         self.obs_buf = self.observation_manager.compute()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        self.obs_buf = self.observation_manager.compute()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         if self.cfg.wait_for_textures and self.sim.has_rtx_sensors():
             while SimulationManager.assets_loading():
@@ -374,10 +382,14 @@ class ManagerBasedEnv:
 
         # compute observations
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
 =======
         self.obs_buf = self.observation_manager.compute()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        self.obs_buf = self.observation_manager.compute()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # return observations
         return self.obs_buf, self.extras
@@ -429,10 +441,14 @@ class ManagerBasedEnv:
 
         # -- compute observations
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
 =======
         self.obs_buf = self.observation_manager.compute()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        self.obs_buf = self.observation_manager.compute()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self.recorder_manager.record_post_step()
 
         # return observations and extras

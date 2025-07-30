@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -56,11 +60,16 @@ KINOVA_JACO2_N7S300_CFG = ArticulationCfg(
         "arm": ImplicitActuatorCfg(
             joint_names_expr=[".*_joint_[1-7]"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim={
 =======
             velocity_limit=100.0,
             effort_limit={
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+            effort_limit={
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 ".*_joint_[1-2]": 80.0,
                 ".*_joint_[3-4]": 40.0,
                 ".*_joint_[5-7]": 20.0,
@@ -77,11 +86,16 @@ KINOVA_JACO2_N7S300_CFG = ArticulationCfg(
         "gripper": ImplicitActuatorCfg(
             joint_names_expr=[".*_finger_[1-3]", ".*_finger_tip_[1-3]"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=2.0,
 =======
             velocity_limit=100.0,
             effort_limit=2.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+            effort_limit=2.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness=1.2,
             damping=0.01,
         ),
@@ -118,11 +132,16 @@ KINOVA_JACO2_N6S300_CFG = ArticulationCfg(
         "arm": ImplicitActuatorCfg(
             joint_names_expr=[".*_joint_[1-6]"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim={
 =======
             velocity_limit=100.0,
             effort_limit={
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+            effort_limit={
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 ".*_joint_[1-2]": 80.0,
                 ".*_joint_3": 40.0,
                 ".*_joint_[4-6]": 20.0,
@@ -139,11 +158,16 @@ KINOVA_JACO2_N6S300_CFG = ArticulationCfg(
         "gripper": ImplicitActuatorCfg(
             joint_names_expr=[".*_finger_[1-3]", ".*_finger_tip_[1-3]"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=2.0,
 =======
             velocity_limit=100.0,
             effort_limit=2.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+            effort_limit=2.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness=1.2,
             damping=0.01,
         ),
@@ -179,9 +203,13 @@ KINOVA_GEN3_N7_CFG = ArticulationCfg(
         "arm": ImplicitActuatorCfg(
             joint_names_expr=["joint_[1-7]"],
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
             velocity_limit=100.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             effort_limit={
                 "joint_[1-4]": 39.0,
                 "joint_[5-7]": 9.0,

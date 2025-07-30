@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -53,22 +57,32 @@ SAWYER_CFG = ArticulationCfg(
         "head": ImplicitActuatorCfg(
             joint_names_expr=["head_pan"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=8.0,
 =======
             velocity_limit=100.0,
             effort_limit=8.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+            effort_limit=8.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness=800.0,
             damping=40.0,
         ),
         "arm": ImplicitActuatorCfg(
             joint_names_expr=["right_j[0-6]"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim={
 =======
             velocity_limit=100.0,
             effort_limit={
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            velocity_limit=100.0,
+            effort_limit={
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 "right_j[0-1]": 80.0,
                 "right_j[2-3]": 40.0,
                 "right_j[4-6]": 9.0,

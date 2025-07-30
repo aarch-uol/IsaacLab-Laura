@@ -97,13 +97,17 @@ class SensorsSceneCfg(InteractiveSceneCfg):
 def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     """Run the simulator."""
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Define simulation stepping
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     sim_dt = sim.get_physics_dt()
     sim_time = 0.0
     count = 0
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     # Simulate physics
     while simulation_app.is_running():
@@ -120,20 +124,29 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
         if count % 500 == 0:
             count = 0
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    while simulation_app.is_running():
+        if count % 500 == 0:
+            count = 0
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             root_state = scene["robot"].data.default_root_state.clone()
             root_state[:, :3] += scene.env_origins
             scene["robot"].write_root_pose_to_sim(root_state[:, :7])
             scene["robot"].write_root_velocity_to_sim(root_state[:, 7:])
 <<<<<<< HEAD
+<<<<<<< HEAD
             # set joint positions with some noise
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             joint_pos, joint_vel = (
                 scene["robot"].data.default_joint_pos.clone(),
                 scene["robot"].data.default_joint_vel.clone(),
             )
             joint_pos += torch.rand_like(joint_pos) * 0.1
             scene["robot"].write_joint_state_to_sim(joint_pos, joint_vel)
+<<<<<<< HEAD
 <<<<<<< HEAD
             # clear internal buffers
             scene.reset()
@@ -155,6 +168,8 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
 
         # print information from the sensors
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             scene.reset()
             print("[INFO]: Resetting robot state...")
         targets = scene["robot"].data.default_joint_pos
@@ -165,7 +180,10 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
         count += 1
         scene.update(sim_dt)
 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         print("-------------------------------")
         print(scene["camera"])
         print("Received shape of rgb   image: ", scene["camera"].data.output["rgb"].shape)
@@ -182,6 +200,7 @@ def main():
     """Main function."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Initialize the simulation context
     sim_cfg = sim_utils.SimulationCfg(dt=0.005, device=args_cli.device)
     sim = sim_utils.SimulationContext(sim_cfg)
@@ -196,6 +215,8 @@ def main():
     print("[INFO]: Setup complete...")
     # Run the simulator
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     sim_cfg = sim_utils.SimulationCfg(dt=0.005, device=args_cli.device)
     sim = sim_utils.SimulationContext(sim_cfg)
     sim.set_camera_view(eye=[3.5, 3.5, 3.5], target=[0.0, 0.0, 0.0])
@@ -203,11 +224,15 @@ def main():
     scene = InteractiveScene(scene_cfg)
     sim.reset()
     print("[INFO]: Setup complete...")
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     run_simulator(sim, scene)
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
 <<<<<<< HEAD
     # run the main function
     main()
@@ -215,4 +240,7 @@ if __name__ == "__main__":
 =======
     main()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    main()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     simulation_app.close()

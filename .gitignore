@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # C++
 **/cmake-build*/
 **/build*/
@@ -17,6 +18,8 @@
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # Python
 .DS_Store
 **/*.egg-info/
@@ -25,6 +28,7 @@
 **/*.pyc
 **/*.pb
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 # Docker/Singularity
 **/*.sif
@@ -74,11 +78,17 @@ tests/
 # Docker history
 .isaac-lab-docker-history
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # Isaac-Sim packman
 _isaac_sim*
 
 .ChillsEnv
 .Trash-1000
 
+<<<<<<< HEAD
 chills/
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+chills/
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

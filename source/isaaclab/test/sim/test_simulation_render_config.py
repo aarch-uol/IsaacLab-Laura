@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -94,6 +98,7 @@ def test_render_cfg():
     assert carb_settings_iface.get("/rtx/post/aa/op") == 4  # dlss = 3, dlaa=4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 def test_render_cfg_presets():
     """Test that the simulation context is created with the correct render cfg preset with overrides."""
@@ -140,6 +145,8 @@ def test_render_cfg_presets():
 
             assert setting_gt == setting_val
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     def test_render_cfg_presets(self):
         """Test that the simulation context is created with the correct render cfg preset with overrides."""
 
@@ -184,7 +191,10 @@ def test_render_cfg_presets():
                 setting_val = get_carb_setting(carb_settings_iface, setting_name)
 
                 self.assertEqual(setting_gt, setting_val)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 
 @pytest.mark.skip(reason="Timeline not stopped")

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,10 +49,14 @@ class PhysxCfg:
 
     * :obj:`0`: PGS (Projective Gauss-Seidel)
 <<<<<<< HEAD
+<<<<<<< HEAD
     * :obj:`1`: TGS (Temporal Gauss-Seidel)
 =======
     * :obj:`1`: TGS (Truncated Gauss-Seidel)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    * :obj:`1`: TGS (Truncated Gauss-Seidel)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """
 
     min_position_iteration_count: int = 1
@@ -96,6 +104,7 @@ class PhysxCfg:
     Default is False."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     enable_stabilization: bool = False
     """Enable/disable additional stabilization pass in solver. Default is False.
 
@@ -111,6 +120,10 @@ class PhysxCfg:
     enable_stabilization: bool = True
     """Enable/disable additional stabilization pass in solver. Default is True."""
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    enable_stabilization: bool = True
+    """Enable/disable additional stabilization pass in solver. Default is True."""
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     enable_enhanced_determinism: bool = False
     """Enable/disable improved determinism at the expense of performance. Defaults to False.
@@ -332,6 +345,7 @@ class SimulationCfg:
         When enabled, the GUI will not update the physics parameters in real-time. To enable real-time
         updates, please set this flag to :obj:`False`.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         When using GPU simulation, it is required to enable Fabric to visualize updates in the renderer.
         Transform updates are propagated to the renderer through Fabric. If Fabric is disabled with GPU simulation,
@@ -339,6 +353,8 @@ class SimulationCfg:
         running under the hood.
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """
 
     physx: PhysxCfg = PhysxCfg()

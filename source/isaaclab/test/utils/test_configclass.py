@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -648,6 +652,7 @@ def test_config_update_nested_dict():
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def test_config_update_different_iterable_lengths():
     """Iterables are whole replaced, even if their lengths are different."""
 
@@ -672,6 +677,8 @@ def test_config_update_different_iterable_lengths():
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 def test_config_update_dict_using_internal():
     """Test updating configclass from a dictionary using configclass method."""
     cfg = BasicDemoCfg()

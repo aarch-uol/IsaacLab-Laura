@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Everything past this stage is to install
 # ROS2 Humble
 
@@ -7,11 +8,16 @@ ARG DOCKER_NAME_SUFFIX=""
 
 FROM isaac-lab-base${DOCKER_NAME_SUFFIX} AS ros2
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 # Everything past this stage is to install
 # ROS2 Humble
 FROM isaac-lab-base AS ros2
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 # Which ROS2 apt package to install
 ARG ROS2_APT_PACKAGE
@@ -21,6 +27,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y --no-install-recommends \
     curl \
     # Install ROS2 Humble \
+<<<<<<< HEAD
 <<<<<<< HEAD
     software-properties-common && \
     add-apt-repository universe && \
@@ -46,6 +53,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_ros.html
 COPY docker/.ros/ ${DOCKER_USER_HOME}/.ros/
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     # software-properties-common && \
     # add-apt-repository universe && \
     # curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
@@ -84,5 +93,9 @@ RUN apt update && \
         scikit-learn && \
     apt -y autoremove && \
     apt clean && \
+<<<<<<< HEAD
     rm -rf /var/lib/apt/lists/*
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    rm -rf /var/lib/apt/lists/*
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

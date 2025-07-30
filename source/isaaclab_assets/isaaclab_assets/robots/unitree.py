@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -221,11 +225,16 @@ H1_CFG = ArticulationCfg(
         "legs": ImplicitActuatorCfg(
             joint_names_expr=[".*_hip_yaw", ".*_hip_roll", ".*_hip_pitch", ".*_knee", "torso"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=300,
 =======
             effort_limit=300,
             velocity_limit=100.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            effort_limit=300,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness={
                 ".*_hip_yaw": 150.0,
                 ".*_hip_roll": 150.0,
@@ -244,22 +253,32 @@ H1_CFG = ArticulationCfg(
         "feet": ImplicitActuatorCfg(
             joint_names_expr=[".*_ankle"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=100,
 =======
             effort_limit=100,
             velocity_limit=100.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            effort_limit=100,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness={".*_ankle": 20.0},
             damping={".*_ankle": 4.0},
         ),
         "arms": ImplicitActuatorCfg(
             joint_names_expr=[".*_shoulder_pitch", ".*_shoulder_roll", ".*_shoulder_yaw", ".*_elbow"],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=300,
 =======
             effort_limit=300,
             velocity_limit=100.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            effort_limit=300,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness={
                 ".*_shoulder_pitch": 40.0,
                 ".*_shoulder_roll": 40.0,
@@ -332,11 +351,16 @@ G1_CFG = ArticulationCfg(
                 "torso_joint",
             ],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=300,
 =======
             effort_limit=300,
             velocity_limit=100.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            effort_limit=300,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness={
                 ".*_hip_yaw_joint": 150.0,
                 ".*_hip_roll_joint": 150.0,
@@ -359,10 +383,14 @@ G1_CFG = ArticulationCfg(
         ),
         "feet": ImplicitActuatorCfg(
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=20,
 =======
             effort_limit=20,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            effort_limit=20,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             joint_names_expr=[".*_ankle_pitch_joint", ".*_ankle_roll_joint"],
             stiffness=20.0,
             damping=2.0,
@@ -384,11 +412,16 @@ G1_CFG = ArticulationCfg(
                 ".*_two_joint",
             ],
 <<<<<<< HEAD
+<<<<<<< HEAD
             effort_limit_sim=300,
 =======
             effort_limit=300,
             velocity_limit=100.0,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            effort_limit=300,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness=40.0,
             damping=10.0,
             armature={

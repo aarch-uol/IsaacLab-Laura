@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -167,11 +171,16 @@ class FactoryEnvCfg(DirectRLEnvCfg):
                 friction=0.0,
                 armature=0.0,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 effort_limit_sim=87,
 =======
                 effort_limit=87,
                 velocity_limit=124.6,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+                effort_limit=87,
+                velocity_limit=124.6,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             ),
             "panda_arm2": ImplicitActuatorCfg(
                 joint_names_expr=["panda_joint[5-7]"],
@@ -180,12 +189,15 @@ class FactoryEnvCfg(DirectRLEnvCfg):
                 friction=0.0,
                 armature=0.0,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 effort_limit_sim=12,
             ),
             "panda_hand": ImplicitActuatorCfg(
                 joint_names_expr=["panda_finger_joint[1-2]"],
                 effort_limit_sim=40.0,
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 effort_limit=12,
                 velocity_limit=149.5,
             ),
@@ -193,7 +205,10 @@ class FactoryEnvCfg(DirectRLEnvCfg):
                 joint_names_expr=["panda_finger_joint[1-2]"],
                 effort_limit=40.0,
                 velocity_limit=0.04,
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 stiffness=7500.0,
                 damping=173.0,
                 friction=0.1,

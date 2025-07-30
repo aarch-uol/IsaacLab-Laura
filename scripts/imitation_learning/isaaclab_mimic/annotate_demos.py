@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -77,10 +81,15 @@ from isaaclab.utils.datasets import EpisodeData, HDF5DatasetFileHandler
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chills.tasks
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+import chills.tasks
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 is_paused = False
 current_action_index = 0
@@ -179,20 +188,28 @@ def main():
 
     if args_cli.task is not None:
 <<<<<<< HEAD
+<<<<<<< HEAD
         env_name = args_cli.task.split(":")[-1]
 =======
         env_name = args_cli.task
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        env_name = args_cli.task
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     if env_name is None:
         raise ValueError("Task/env name was not specified nor found in the dataset.")
 
     env_cfg = parse_env_cfg(env_name, device=args_cli.device, num_envs=1)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     env_cfg.env_name = env_name
 =======
     env_cfg.env_name = args_cli.task
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    env_cfg.env_name = args_cli.task
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     # extract success checking function to invoke manually
     success_term = None

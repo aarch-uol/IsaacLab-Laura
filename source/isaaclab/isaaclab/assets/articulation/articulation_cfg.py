@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,6 +48,7 @@ class ArticulationCfg(AssetBaseCfg):
 
     articulation_root_prim_path: str | None = None
 <<<<<<< HEAD
+<<<<<<< HEAD
     """Path to the articulation root prim under the :attr:`prim_path`. Defaults to None, in which case the class
     will search for a prim with the USD ArticulationRootAPI on it.
 
@@ -54,6 +59,8 @@ class ArticulationCfg(AssetBaseCfg):
 
     The path must start with a slash (`/`).
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """Path to the articulation root prim in the USD file.
 
     If not provided will search for a prim with the ArticulationRootAPI. Should start with a slash.
@@ -64,7 +71,10 @@ class ArticulationCfg(AssetBaseCfg):
 
     If "local", the external wrenches are applied in the local frame of the articulation root.
     If "world", the external wrenches are applied in the world frame.
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """
 
     init_state: InitialStateCfg = InitialStateCfg()
@@ -83,9 +93,12 @@ class ArticulationCfg(AssetBaseCfg):
     actuators: dict[str, ActuatorBaseCfg] = MISSING
     """Actuators for the robot with corresponding joint names."""
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     actuator_value_resolution_debug_print = False
     """Print the resolution of actuator final value when input cfg is different from USD value, Defaults to False
     """
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -19,20 +23,29 @@ inherit from ``isaaclab.terrains.terrains_cfg.TerrainConfig`` and define the fol
 from __future__ import annotations
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import numpy as np
 import trimesh
 from collections.abc import Callable
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+import numpy as np
+import trimesh
+from collections.abc import Callable
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from dataclasses import MISSING
 from typing import Literal
 
 from isaaclab.utils import configclass
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .sub_terrain_cfg import SubTerrainBaseCfg
 from .terrain_generator import TerrainGenerator
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 @configclass
 class FlatPatchSamplingCfg:
@@ -113,13 +126,17 @@ class SubTerrainBaseCfg:
     The keys correspond to the name of the flat patch sampling configuration and the values are the
     corresponding configurations.
     """
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 
 @configclass
 class TerrainGeneratorCfg:
     """Configuration for the terrain generator."""
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     class_type: type = TerrainGenerator
     """The class to use for the terrain generator.
@@ -129,6 +146,8 @@ class TerrainGeneratorCfg:
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     seed: int | None = None
     """The seed for the random number generator. Defaults to None, in which case the seed from the
     current NumPy's random state is used.

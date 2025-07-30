@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -168,10 +172,14 @@ class UniformVelocityCommand(CommandTerm):
         # note: parent only deals with callbacks. not their visibility
         if debug_vis:
 <<<<<<< HEAD
+<<<<<<< HEAD
             # create markers if necessary for the first time
 =======
             # create markers if necessary for the first tome
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            # create markers if necessary for the first tome
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             if not hasattr(self, "goal_vel_visualizer"):
                 # -- goal
                 self.goal_vel_visualizer = VisualizationMarkers(self.cfg.goal_vel_visualizer_cfg)

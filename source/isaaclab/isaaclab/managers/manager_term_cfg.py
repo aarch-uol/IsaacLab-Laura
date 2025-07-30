@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -19,10 +23,14 @@ from typing import TYPE_CHECKING, Any
 from isaaclab.utils import configclass
 from isaaclab.utils.modifiers import ModifierCfg
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.utils.noise import NoiseCfg, NoiseModelCfg
 =======
 from isaaclab.utils.noise import NoiseCfg
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+from isaaclab.utils.noise import NoiseCfg
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 from .scene_entity_cfg import SceneEntityCfg
 
@@ -174,10 +182,14 @@ class ObservationTermCfg(ManagerTermBaseCfg):
     """
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     noise: NoiseCfg | NoiseModelCfg | None = None
 =======
     noise: NoiseCfg | None = None
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    noise: NoiseCfg | None = None
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     """The noise to add to the observation. Defaults to None, in which case no noise is added."""
 
     clip: tuple[float, float] | None = None

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -16,6 +20,7 @@ import isaacsim.core.utils.stage as stage_utils
 import omni.kit.commands
 import omni.log
 <<<<<<< HEAD
+<<<<<<< HEAD
 from pxr import Gf, Sdf, Usd
 
 # from Isaac Sim 4.2 onwards, pxr.Semantics is deprecated
@@ -26,6 +31,9 @@ except ModuleNotFoundError:
 =======
 from pxr import Gf, Sdf, Semantics, Usd
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+from pxr import Gf, Sdf, Semantics, Usd
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 from isaaclab.sim import converters, schemas
 from isaaclab.sim.utils import bind_physics_material, bind_visual_material, clone, select_usd_variants

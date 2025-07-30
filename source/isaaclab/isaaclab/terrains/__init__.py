@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -24,16 +28,22 @@ There are two main components in this package:
 
 """
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .height_field import *  # noqa: F401, F403
 from .sub_terrain_cfg import FlatPatchSamplingCfg, SubTerrainBaseCfg
 from .terrain_generator import TerrainGenerator
 from .terrain_generator_cfg import TerrainGeneratorCfg
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 from .height_field import *  # noqa: F401, F403
 from .terrain_generator import TerrainGenerator
 from .terrain_generator_cfg import FlatPatchSamplingCfg, SubTerrainBaseCfg, TerrainGeneratorCfg
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from .terrain_importer import TerrainImporter
 from .terrain_importer_cfg import TerrainImporterCfg
 from .trimesh import *  # noqa: F401, F403

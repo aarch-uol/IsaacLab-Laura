@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,6 +43,7 @@ https://github.com/pytorch/pytorch/issues/17678
 """
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 @pytest.mark.parametrize("device", ("cpu", "cuda:0"))
 @pytest.mark.parametrize("size", ((5, 4, 3), (10, 2)))
@@ -141,6 +146,8 @@ def test_copysign(device):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 def test_is_identity_pose(device):
     """Test is_identity_pose method."""
@@ -364,6 +371,7 @@ def test_convention_converter(device):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @pytest.mark.parametrize("device", ("cpu", "cuda:0"))
 @pytest.mark.parametrize("size", ((10, 4), (5, 3, 4)))
 def test_convert_quat(device, size):
@@ -442,6 +450,8 @@ def test_quat_from_euler_xyz(device, num_envs, euler_angles):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 def test_wrap_to_pi(device):
     """Test wrap_to_pi method."""
@@ -479,6 +489,7 @@ def test_wrap_to_pi(device):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @pytest.mark.parametrize("device", ("cpu", "cuda:0"))
 @pytest.mark.parametrize("shape", ((3,), (1024, 3)))
 def test_skew_symmetric_matrix(device, shape):
@@ -511,6 +522,8 @@ def test_skew_symmetric_matrix(device, shape):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 def test_orthogonalize_perspective_depth(device):
     """Test for converting perspective depth to orthogonal depth."""
@@ -622,6 +635,7 @@ def test_pose_inv():
 
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 <<<<<<< HEAD
+<<<<<<< HEAD
 def test_quat_to_and_from_angle_axis(device):
     """Test that axis_angle_from_quat against scipy and that quat_from_angle_axis are the inverse of each other."""
     n = 1024
@@ -644,6 +658,8 @@ def test_quat_to_and_from_angle_axis(device):
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 def test_quat_box_minus(device):
     """Test quat_box_minus method.
 
@@ -704,6 +720,7 @@ def test_quat_box_minus_and_quat_box_plus(device):
 
 
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
+<<<<<<< HEAD
 <<<<<<< HEAD
 @pytest.mark.parametrize("t12_inputs", ["True", "False"])
 @pytest.mark.parametrize("q12_inputs", ["True", "False"])
@@ -808,6 +825,8 @@ def test_compute_pose_error(device, rot_error_type):
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 def test_rigid_body_twist_transform(device):
     """Test rigid_body_twist_transform method.
 
@@ -893,17 +912,22 @@ def test_matrix_from_quat(device):
     # prepare random quaternions and vectors
     n = 1024
 <<<<<<< HEAD
+<<<<<<< HEAD
     # prepare random quaternions and vectors
     q_rand = math_utils.quat_unique(math_utils.random_orientation(num=n, device=device))
 =======
     q_rand = math_utils.random_orientation(num=n, device=device)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    q_rand = math_utils.random_orientation(num=n, device=device)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     rot_mat = math_utils.matrix_from_quat(quaternions=q_rand)
     rot_mat_scipy = torch.tensor(
         scipy_tf.Rotation.from_quat(math_utils.convert_quat(quat=q_rand.to(device="cpu"), to="xyzw")).as_matrix(),
         device=device,
         dtype=torch.float32,
     )
+<<<<<<< HEAD
 <<<<<<< HEAD
     torch.testing.assert_close(rot_mat_scipy.to(device=device), rot_mat)
     q_value = math_utils.quat_unique(math_utils.quat_from_matrix(rot_mat))
@@ -945,6 +969,10 @@ def test_matrix_from_euler(device, euler_angles, convention):
     print()
     torch.testing.assert_close(rot_mat_scipy.to(device=device), rot_mat)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    print()
+    torch.testing.assert_close(rot_mat_scipy.to(device=device), rot_mat)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
@@ -983,6 +1011,7 @@ def test_quat_apply_inverse(device):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 def test_quat_inv(device):
     """Test for quat_inv method.
@@ -1014,6 +1043,8 @@ def test_quat_inv(device):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 def test_quat_apply_benchmarks():
     """Test for quat_apply and quat_apply_inverse methods compared to old methods using torch.bmm and torch.einsum.
     The new implementation uses :meth:`torch.einsum` instead of `torch.bmm` which allows
@@ -1269,6 +1300,7 @@ def test_interpolate_rotations():
         # Assert that the result is almost equal to the expected quaternion
         np.testing.assert_array_almost_equal(result_axis_angle.cpu(), expected, decimal=DECIMAL_PRECISION)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 def test_euler_xyz_from_quat():
@@ -1325,3 +1357,5 @@ def test_euler_xyz_from_quat():
         torch.testing.assert_close(output, wrapped)
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

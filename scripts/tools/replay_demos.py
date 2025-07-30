@@ -1,15 +1,21 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 """Script to replay demonstrations with Isaac Lab environments."""
 
 """Launch Isaac Sim Simulator first."""
@@ -78,10 +84,15 @@ if args_cli.enable_pinocchio:
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chills.tasks
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+import chills.tasks
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 is_paused = False
 
@@ -148,10 +159,14 @@ def main():
 
     if args_cli.task is not None:
 <<<<<<< HEAD
+<<<<<<< HEAD
         env_name = args_cli.task.split(":")[-1]
 =======
         env_name = args_cli.task
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        env_name = args_cli.task
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     if env_name is None:
         raise ValueError("Task/env name was not specified nor found in the dataset.")
 
@@ -165,10 +180,14 @@ def main():
 
     # create environment from loaded config
 <<<<<<< HEAD
+<<<<<<< HEAD
     env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
 =======
     env = gym.make(env_name, cfg=env_cfg).unwrapped
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    env = gym.make(env_name, cfg=env_cfg).unwrapped
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     teleop_interface = Se3Keyboard(pos_sensitivity=0.1, rot_sensitivity=0.1)
     teleop_interface.add_callback("N", play_cb)

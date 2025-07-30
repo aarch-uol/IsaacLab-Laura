@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -83,6 +87,7 @@ class NoiseModelCfg:
     """The noise configuration to use."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     func: Callable[[torch.Tensor], torch.Tensor] | None = None
     """Function or callable class used by this noise model.
 
@@ -98,6 +103,8 @@ class NoiseModelCfg:
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 @configclass
 class NoiseModelWithAdditiveBiasCfg(NoiseModelCfg):
@@ -111,6 +118,7 @@ class NoiseModelWithAdditiveBiasCfg(NoiseModelCfg):
     Based on this configuration, the bias is sampled at every reset of the noise model.
     """
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     sample_bias_per_component: bool = True
     """Whether to sample a separate bias for each data component.
@@ -119,3 +127,5 @@ class NoiseModelWithAdditiveBiasCfg(NoiseModelCfg):
     """
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

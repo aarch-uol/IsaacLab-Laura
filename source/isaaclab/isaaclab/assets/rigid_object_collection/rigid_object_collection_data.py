@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -73,6 +77,7 @@ class RigidObjectCollectionData:
 
         # Initialize the lazy buffers.
 <<<<<<< HEAD
+<<<<<<< HEAD
         # -- link frame w.r.t. world frame
         self._object_link_pose_w = TimestampedBuffer()
         self._object_link_vel_w = TimestampedBuffer()
@@ -87,11 +92,16 @@ class RigidObjectCollectionData:
         self._object_link_state_w = TimestampedBuffer()
         self._object_com_state_w = TimestampedBuffer()
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self._object_state_w = TimestampedBuffer()
         self._object_link_state_w = TimestampedBuffer()
         self._object_com_state_w = TimestampedBuffer()
         self._object_acc_w = TimestampedBuffer()
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def update(self, dt: float):
         """Updates the data for the rigid object collection.
@@ -132,6 +142,7 @@ class RigidObjectCollectionData:
     """
 
     ##
+<<<<<<< HEAD
 <<<<<<< HEAD
     # Root state properties.
     ##
@@ -205,11 +216,16 @@ class RigidObjectCollectionData:
 
     @property
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     # Properties.
     ##
 
     @property
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     def object_state_w(self):
         """Object state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame.
         Shape is (num_instances, num_objects, 13).
@@ -218,11 +234,14 @@ class RigidObjectCollectionData:
         velocities are of the rigid body's center of mass frame.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         if self._object_state_w.timestamp < self._sim_timestamp:
             self._object_state_w.data = torch.cat((self.object_link_pose_w, self.object_com_vel_w), dim=-1)
             self._object_state_w.timestamp = self._sim_timestamp
 
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         if self._object_state_w.timestamp < self._sim_timestamp:
             # read data from simulation
@@ -232,7 +251,10 @@ class RigidObjectCollectionData:
             # set the buffer data and timestamp
             self._object_state_w.data = torch.cat((pose, velocity), dim=-1)
             self._object_state_w.timestamp = self._sim_timestamp
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         return self._object_state_w.data
 
     @property
@@ -245,10 +267,13 @@ class RigidObjectCollectionData:
         """
         if self._object_link_state_w.timestamp < self._sim_timestamp:
 <<<<<<< HEAD
+<<<<<<< HEAD
             self._object_link_state_w.data = torch.cat((self.object_link_pose_w, self.object_link_vel_w), dim=-1)
             self._object_link_state_w.timestamp = self._sim_timestamp
 
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             # read data from simulation
             pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
             pose[..., 3:7] = math_utils.convert_quat(pose[..., 3:7], to="wxyz")
@@ -262,7 +287,10 @@ class RigidObjectCollectionData:
             # set the buffer data and timestamp
             self._object_link_state_w.data = torch.cat((pose, velocity), dim=-1)
             self._object_link_state_w.timestamp = self._sim_timestamp
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         return self._object_link_state_w.data
 
     @property
@@ -271,6 +299,7 @@ class RigidObjectCollectionData:
         Shape is (num_instances, num_objects, 13).
 
         The position, quaternion, and linear/angular velocity are of the rigid body's center of mass frame
+<<<<<<< HEAD
 <<<<<<< HEAD
         relative to the world. Center of mass frame has the orientation along the principle axes of inertia.
         """
@@ -283,6 +312,8 @@ class RigidObjectCollectionData:
     @property
     def object_com_acc_w(self):
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         relative to the world. Center of mass frame is the orientation principle axes of inertia.
         """
 
@@ -304,11 +335,15 @@ class RigidObjectCollectionData:
 
     @property
     def object_acc_w(self):
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         """Acceleration of all objects. Shape is (num_instances, num_objects, 6).
 
         This quantity is the acceleration of the rigid bodies' center of mass frame.
         """
+<<<<<<< HEAD
 <<<<<<< HEAD
         if self._object_com_acc_w.timestamp < self._sim_timestamp:
             self._object_com_acc_w.data = self._reshape_view_to_data(self._root_physx_view.get_accelerations())
@@ -337,12 +372,17 @@ class RigidObjectCollectionData:
     # Derived properties.
     ##
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if self._object_acc_w.timestamp < self._sim_timestamp:
             # note: we use finite differencing to compute acceleration
             self._object_acc_w.data = self._reshape_view_to_data(self._root_physx_view.get_accelerations().clone())
             self._object_acc_w.timestamp = self._sim_timestamp
         return self._object_acc_w.data
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def projected_gravity_b(self):
@@ -360,6 +400,7 @@ class RigidObjectCollectionData:
         forward_w = math_utils.quat_apply(self.object_link_quat_w, self.FORWARD_VEC_B)
         return torch.atan2(forward_w[..., 1], forward_w[..., 0])
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     @property
     def object_link_lin_vel_b(self) -> torch.Tensor:
@@ -403,6 +444,8 @@ class RigidObjectCollectionData:
 
     @property
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     ##
     # Derived properties.
     ##
@@ -482,21 +525,30 @@ class RigidObjectCollectionData:
         return self.object_acc_w[..., 3:6]
 
     @property
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     def object_link_pos_w(self) -> torch.Tensor:
         """Object link position in simulation world frame. Shape is (num_instances, num_objects, 3).
 
         This quantity is the position of the actor frame of the rigid bodies.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.object_link_pose_w[..., :3]
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if self._object_state_w.timestamp < self._sim_timestamp:
             # read data from simulation
             pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
             return pose[..., :3]
         return self.object_link_state_w[..., :3]
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def object_link_quat_w(self) -> torch.Tensor:
@@ -505,8 +557,11 @@ class RigidObjectCollectionData:
         This quantity is the orientation of the actor frame of the rigid bodies.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.object_link_pose_w[..., 3:7]
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if self._object_state_w.timestamp < self._sim_timestamp:
             # read data from simulation
             pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
@@ -521,7 +576,10 @@ class RigidObjectCollectionData:
         This quantity contains the linear and angular velocities of the rigid bodies' actor frame.
         """
         return self.object_link_state_w[..., 7:13]
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def object_link_lin_vel_w(self) -> torch.Tensor:
@@ -530,10 +588,14 @@ class RigidObjectCollectionData:
         This quantity is the linear velocity of the rigid bodies' actor frame.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.object_link_vel_w[..., :3]
 =======
         return self.object_link_state_w[..., 7:10]
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        return self.object_link_state_w[..., 7:10]
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def object_link_ang_vel_w(self) -> torch.Tensor:
@@ -542,8 +604,11 @@ class RigidObjectCollectionData:
         This quantity is the angular velocity of the rigid bodies' actor frame.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.object_link_vel_w[..., 3:6]
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         return self.object_link_state_w[..., 10:13]
 
     @property
@@ -563,7 +628,10 @@ class RigidObjectCollectionData:
         rigid body's actor frame.
         """
         return math_utils.quat_apply_inverse(self.object_link_quat_w, self.object_link_ang_vel_w)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def object_com_pos_w(self) -> torch.Tensor:
@@ -571,6 +639,7 @@ class RigidObjectCollectionData:
 
         This quantity is the position of the center of mass frame of the rigid bodies.
         """
+<<<<<<< HEAD
 <<<<<<< HEAD
         return self.object_com_pose_w[..., :3]
 
@@ -583,6 +652,8 @@ class RigidObjectCollectionData:
         """
         return self.object_com_pose_w[..., 3:7]
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         return self.object_com_state_w[..., :3]
 
     @property
@@ -604,7 +675,10 @@ class RigidObjectCollectionData:
             velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
             return velocity
         return self.object_com_state_w[..., 7:13]
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def object_com_lin_vel_w(self) -> torch.Tensor:
@@ -613,14 +687,20 @@ class RigidObjectCollectionData:
         This quantity is the linear velocity of the rigid bodies' center of mass frame.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.object_com_vel_w[..., :3]
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if self._object_state_w.timestamp < self._sim_timestamp:
             # read data from simulation
             velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
             return velocity[..., 0:3]
         return self.object_com_state_w[..., 7:10]
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     @property
     def object_com_ang_vel_w(self) -> torch.Tensor:
@@ -628,6 +708,7 @@ class RigidObjectCollectionData:
 
         This quantity is the angular velocity of the rigid bodies' center of mass frame.
         """
+<<<<<<< HEAD
 <<<<<<< HEAD
         return self.object_com_vel_w[..., 3:6]
 
@@ -737,6 +818,8 @@ class RigidObjectCollectionData:
         """Same as :attr:`object_com_quat_b`."""
         return self.object_com_quat_b
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if self._object_state_w.timestamp < self._sim_timestamp:
             # read data from simulation
             velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
@@ -779,7 +862,10 @@ class RigidObjectCollectionData:
         quat = self._root_physx_view.get_coms().to(self.device)[..., 3:7].view(self.num_instances, self.num_objects, 4)
         quat_wxyz = math_utils.convert_quat(quat, to="wxyz")
         return self._reshape_view_to_data(quat_wxyz)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     ##
     # Helpers.

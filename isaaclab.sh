@@ -219,12 +219,17 @@ setup_conda_env() {
     echo -e "\t\t1. To activate the environment, run:                conda activate ${env_name}"
     echo -e "\t\t2. To install Isaac Lab extensions, run:            isaaclab -i"
 <<<<<<< HEAD
+<<<<<<< HEAD
     echo -e "\t\t3. To perform formatting, run:                      isaaclab -f"
     echo -e "\t\t4. To deactivate the environment, run:              conda deactivate"
 =======
     echo -e "\t\t4. To perform formatting, run:                      isaaclab -f"
     echo -e "\t\t5. To deactivate the environment, run:              conda deactivate"
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    echo -e "\t\t4. To perform formatting, run:                      isaaclab -f"
+    echo -e "\t\t5. To deactivate the environment, run:              conda deactivate"
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     echo -e "\n"
 }
 

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -57,6 +61,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": stack_ik_rel_env_cfg.FrankaCubeStackEnvCfg,
 <<<<<<< HEAD
+<<<<<<< HEAD
         "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_low_dim.json"),
     },
     disable_env_checker=True,
@@ -65,6 +70,11 @@ gym.register(
     },
     disable_env_checker=False,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_transformer.json"),
+    },
+    disable_env_checker=False,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 )
 
 gym.register(
@@ -105,7 +115,10 @@ gym.register(
     disable_env_checker=True,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # from .franka_stack_ik_abs_mimic_env import FrankaCubeStackIKAbsMimicEnv
 # from .franka_stack_ik_abs_mimic_env_cfg import FrankaCubeStackIKAbsMimicEnvCfg
 # from .franka_stack_ik_rel_blueprint_mimic_env_cfg import FrankaCubeStackIKRelBlueprintMimicEnvCfg
@@ -119,5 +132,9 @@ gym.register(
 #         "env_cfg_entry_point": franka_stack_ik_rel_mimic_env_cfg.FrankaCubeStackIKRelMimicEnvCfg,
 #     },
 #     disable_env_checker=True,
+<<<<<<< HEAD
 # )
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# )
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

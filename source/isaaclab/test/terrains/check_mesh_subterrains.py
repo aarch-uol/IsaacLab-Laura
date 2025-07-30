@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -345,10 +349,14 @@ def test_repeated_objects_terrain(
             size=(8.0, 8.0),
             platform_width=1.5,
 <<<<<<< HEAD
+<<<<<<< HEAD
             abs_height_noise=(-0.5, 0.5),
 =======
             max_height_noise=0.5,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            max_height_noise=0.5,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             object_params_start=mesh_gen.MeshRepeatedPyramidsTerrainCfg.ObjectCfg(
                 num_objects=40, height=0.05, radius=0.6, max_yx_angle=0.0, degrees=True
             ),
@@ -361,10 +369,14 @@ def test_repeated_objects_terrain(
             size=(8.0, 8.0),
             platform_width=1.5,
 <<<<<<< HEAD
+<<<<<<< HEAD
             abs_height_noise=(-0.5, 0.5),
 =======
             max_height_noise=0.5,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            max_height_noise=0.5,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             object_params_start=mesh_gen.MeshRepeatedBoxesTerrainCfg.ObjectCfg(
                 num_objects=40, height=0.05, size=(0.6, 0.6), max_yx_angle=0.0, degrees=True
             ),
@@ -377,10 +389,14 @@ def test_repeated_objects_terrain(
             size=(8.0, 8.0),
             platform_width=1.5,
 <<<<<<< HEAD
+<<<<<<< HEAD
             abs_height_noise=(-0.5, 0.5),
 =======
             max_height_noise=0.5,
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            max_height_noise=0.5,
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             object_params_start=mesh_gen.MeshRepeatedCylindersTerrainCfg.ObjectCfg(
                 num_objects=40, height=0.05, radius=0.6, max_yx_angle=0.0, degrees=True
             ),

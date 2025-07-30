@@ -2,10 +2,14 @@
 
 # Note: Semantic Versioning is used: https://semver.org/
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.10.36"
 =======
 version = "0.10.33"
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+version = "0.10.33"
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 # Description
 title = "Isaac Lab Environments"

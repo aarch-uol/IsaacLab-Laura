@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -12,10 +16,14 @@ from dataclasses import MISSING
 from isaaclab.utils import configclass
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from ..sub_terrain_cfg import SubTerrainBaseCfg
 =======
 from ..terrain_generator_cfg import SubTerrainBaseCfg
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+from ..terrain_generator_cfg import SubTerrainBaseCfg
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from . import hf_terrains
 
 

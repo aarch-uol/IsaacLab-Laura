@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -33,12 +37,17 @@ def position_command_error(env: ManagerBasedRLEnv, command_name: str, asset_cfg:
     # obtain the desired and current positions
     des_pos_b = command[:, :3]
 <<<<<<< HEAD
+<<<<<<< HEAD
     des_pos_w, _ = combine_frame_transforms(asset.data.root_pos_w, asset.data.root_quat_w, des_pos_b)
     curr_pos_w = asset.data.body_pos_w[:, asset_cfg.body_ids[0]]  # type: ignore
 =======
     des_pos_w, _ = combine_frame_transforms(asset.data.root_state_w[:, :3], asset.data.root_state_w[:, 3:7], des_pos_b)
     curr_pos_w = asset.data.body_state_w[:, asset_cfg.body_ids[0], :3]  # type: ignore
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    des_pos_w, _ = combine_frame_transforms(asset.data.root_state_w[:, :3], asset.data.root_state_w[:, 3:7], des_pos_b)
+    curr_pos_w = asset.data.body_state_w[:, asset_cfg.body_ids[0], :3]  # type: ignore
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     return torch.norm(curr_pos_w - des_pos_w, dim=1)
 
 
@@ -56,12 +65,17 @@ def position_command_error_tanh(
     # obtain the desired and current positions
     des_pos_b = command[:, :3]
 <<<<<<< HEAD
+<<<<<<< HEAD
     des_pos_w, _ = combine_frame_transforms(asset.data.root_pos_w, asset.data.root_quat_w, des_pos_b)
     curr_pos_w = asset.data.body_pos_w[:, asset_cfg.body_ids[0]]  # type: ignore
 =======
     des_pos_w, _ = combine_frame_transforms(asset.data.root_state_w[:, :3], asset.data.root_state_w[:, 3:7], des_pos_b)
     curr_pos_w = asset.data.body_state_w[:, asset_cfg.body_ids[0], :3]  # type: ignore
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    des_pos_w, _ = combine_frame_transforms(asset.data.root_state_w[:, :3], asset.data.root_state_w[:, 3:7], des_pos_b)
+    curr_pos_w = asset.data.body_state_w[:, asset_cfg.body_ids[0], :3]  # type: ignore
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     distance = torch.norm(curr_pos_w - des_pos_w, dim=1)
     return 1 - torch.tanh(distance / std)
 
@@ -79,10 +93,15 @@ def orientation_command_error(env: ManagerBasedRLEnv, command_name: str, asset_c
     # obtain the desired and current orientations
     des_quat_b = command[:, 3:7]
 <<<<<<< HEAD
+<<<<<<< HEAD
     des_quat_w = quat_mul(asset.data.root_quat_w, des_quat_b)
     curr_quat_w = asset.data.body_quat_w[:, asset_cfg.body_ids[0]]  # type: ignore
 =======
     des_quat_w = quat_mul(asset.data.root_state_w[:, 3:7], des_quat_b)
     curr_quat_w = asset.data.body_state_w[:, asset_cfg.body_ids[0], 3:7]  # type: ignore
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    des_quat_w = quat_mul(asset.data.root_state_w[:, 3:7], des_quat_b)
+    curr_quat_w = asset.data.body_state_w[:, asset_cfg.body_ids[0], 3:7]  # type: ignore
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     return quat_error_magnitude(curr_quat_w, des_quat_w)

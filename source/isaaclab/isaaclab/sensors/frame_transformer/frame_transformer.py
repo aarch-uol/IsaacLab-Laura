@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -22,6 +26,7 @@ import isaaclab.sim as sim_utils
 import isaaclab.utils.string as string_utils
 from isaaclab.markers import VisualizationMarkers
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.utils.math import (
     combine_frame_transforms,
     convert_quat,
@@ -33,6 +38,9 @@ from isaaclab.utils.math import (
 =======
 from isaaclab.utils.math import combine_frame_transforms, convert_quat, is_identity_pose, subtract_frame_transforms
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+from isaaclab.utils.math import combine_frame_transforms, convert_quat, is_identity_pose, subtract_frame_transforms
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 from ..sensor_base import SensorBase
 from .frame_transformer_data import FrameTransformerData
@@ -439,7 +447,10 @@ class FrameTransformer(SensorBase):
                 self.frame_visualizer = VisualizationMarkers(self.cfg.visualizer_cfg)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 try:
                     # isaacsim.util is not available in headless mode
                     import isaacsim.util.debug_draw._debug_draw as isaac_debug_draw
@@ -448,12 +459,16 @@ class FrameTransformer(SensorBase):
                 except ImportError:
                     omni.log.info("isaacsim.util.debug_draw module not found. Debug visualization will be limited.")
 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             # set their visibility to true
             self.frame_visualizer.set_visibility(True)
         else:
             if hasattr(self, "frame_visualizer"):
                 self.frame_visualizer.set_visibility(False)
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     def _debug_vis_callback(self, event):
@@ -485,6 +500,8 @@ class FrameTransformer(SensorBase):
             marker_indices=marker_indices,
         )
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 # clear the lines
                 if hasattr(self, "debug_draw"):
                     self.debug_draw.clear_lines()
@@ -504,7 +521,10 @@ class FrameTransformer(SensorBase):
             for frame_index in range(len(self._target_frame_names)):
                 target_pos = self._data.target_pos_w[:, frame_index].cpu().tolist()
                 self.debug_draw.draw_lines(source_pos, target_pos, colors, [1.5] * self._num_envs)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     """
     Internal simulation callbacks.
@@ -516,6 +536,7 @@ class FrameTransformer(SensorBase):
         super()._invalidate_initialize_callback(event)
         # set all existing views to None to invalidate them
         self._frame_physx_view = None
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     """
@@ -568,3 +589,5 @@ class FrameTransformer(SensorBase):
         return positions, orientations, lengths
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

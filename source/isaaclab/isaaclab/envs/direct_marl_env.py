@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -361,10 +365,14 @@ class DirectMARLEnv(gym.Env):
             for agent, action in actions.items():
                 if agent in self._action_noise_model:
 <<<<<<< HEAD
+<<<<<<< HEAD
                     actions[agent] = self._action_noise_model[agent](action)
 =======
                     actions[agent] = self._action_noise_model[agent].apply(action)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+                    actions[agent] = self._action_noise_model[agent].apply(action)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # process actions
         self._pre_physics_step(actions)
 
@@ -418,10 +426,14 @@ class DirectMARLEnv(gym.Env):
             for agent, obs in self.obs_dict.items():
                 if agent in self._observation_noise_model:
 <<<<<<< HEAD
+<<<<<<< HEAD
                     self.obs_dict[agent] = self._observation_noise_model[agent](obs)
 =======
                     self.obs_dict[agent] = self._observation_noise_model[agent].apply(obs)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+                    self.obs_dict[agent] = self._observation_noise_model[agent].apply(obs)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # return observations, rewards, resets and extras
         return self.obs_dict, self.reward_dict, self.terminated_dict, self.time_out_dict, self.extras
@@ -475,10 +487,14 @@ class DirectMARLEnv(gym.Env):
 
         - **human**: Render to the current display and return nothing. Usually for human consumption.
 <<<<<<< HEAD
+<<<<<<< HEAD
         - **rgb_array**: Return a numpy.ndarray with shape (x, y, 3), representing RGB values for an
 =======
         - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
           x-by-y pixel image, suitable for turning into a video.
 
         Args:

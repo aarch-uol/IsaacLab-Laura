@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -239,6 +243,7 @@ class SimulationContext(_SimulationContext):
                 sim_params.update(physx_params)
         # create a simulation context to control the simulator
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         if not self.cfg.physx.enable_stabilization and (self.cfg.dt > 0.0333):
             omni.log.warn(
@@ -249,6 +254,8 @@ class SimulationContext(_SimulationContext):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         super().__init__(
             stage_units_in_meters=1.0,
             physics_dt=self.cfg.dt,

@@ -1,16 +1,23 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import warnings
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from dataclasses import MISSING
 from typing import Literal
 
@@ -19,10 +26,14 @@ import isaaclab.terrains.trimesh.utils as mesh_utils_terrains
 from isaaclab.utils import configclass
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from ..sub_terrain_cfg import SubTerrainBaseCfg
 =======
 from ..terrain_generator_cfg import SubTerrainBaseCfg
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+from ..terrain_generator_cfg import SubTerrainBaseCfg
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 """
 Different trimesh terrain configurations.
@@ -54,12 +65,15 @@ class MeshPyramidStairsTerrainCfg(SubTerrainBaseCfg):
     platform_width: float = 1.0
     """The width of the square platform at the center of the terrain. Defaults to 1.0."""
 <<<<<<< HEAD
+<<<<<<< HEAD
     platform_height: float = -1.0
     """The height of the platform.  Defaults to -1.0.
 
     If the value is negative, the height is the same as the object height."""
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     holes: bool = False
     """If True, the terrain will have holes in the steps. Defaults to False.
 
@@ -211,6 +225,7 @@ class MeshRepeatedObjectsTerrainCfg(SubTerrainBaseCfg):
     object_params_start: ObjectCfg = MISSING
     """The object curriculum parameters at the start of the curriculum."""
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     object_params_end: ObjectCfg = MISSING
     """The object curriculum parameters at the end of the curriculum."""
@@ -236,6 +251,8 @@ class MeshRepeatedObjectsTerrainCfg(SubTerrainBaseCfg):
             self.abs_height_noise = (-self.max_height_noise, self.max_height_noise)
 
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     object_params_end: ObjectCfg = MISSING
     """The object curriculum parameters at the end of the curriculum."""
 
@@ -244,7 +261,10 @@ class MeshRepeatedObjectsTerrainCfg(SubTerrainBaseCfg):
     platform_width: float = 1.0
     """The width of the cylindrical platform at the center of the terrain. Defaults to 1.0."""
 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 @configclass
 class MeshRepeatedPyramidsTerrainCfg(MeshRepeatedObjectsTerrainCfg):

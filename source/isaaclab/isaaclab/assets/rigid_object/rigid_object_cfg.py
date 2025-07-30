@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -35,7 +39,10 @@ class RigidObjectCfg(AssetBaseCfg):
     init_state: InitialStateCfg = InitialStateCfg()
     """Initial state of the rigid object. Defaults to identity pose with zero velocity."""
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     object_external_wrench_frame: str = "local"
     """Frame in which external wrenches are applied. Defaults to "local".
@@ -43,4 +50,7 @@ class RigidObjectCfg(AssetBaseCfg):
     If "local", the external wrenches are applied in the local frame of the articulation root.
     If "world", the external wrenches are applied in the world frame.
     """
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

@@ -94,9 +94,13 @@ from isaaclab_mimic.datagen.datagen_info_pool import DataGenInfoPool
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chills.tasks
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+import chills.tasks
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 # global variable to keep track of the data generation statistics
 num_recorded = 0

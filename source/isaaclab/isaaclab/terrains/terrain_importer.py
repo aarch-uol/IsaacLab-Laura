@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -21,9 +25,13 @@ from isaaclab.markers import VisualizationMarkers
 from isaaclab.markers.config import FRAME_MARKER_CFG
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from .terrain_generator import TerrainGenerator
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+from .terrain_generator import TerrainGenerator
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from .utils import create_prim_from_mesh
 
 if TYPE_CHECKING:
@@ -92,12 +100,16 @@ class TerrainImporter:
                 raise ValueError("Input terrain type is 'generator' but no value provided for 'terrain_generator'.")
             # generate the terrain
 <<<<<<< HEAD
+<<<<<<< HEAD
             terrain_generator = self.cfg.terrain_generator.class_type(
                 cfg=self.cfg.terrain_generator, device=self.device
             )
 =======
             terrain_generator = TerrainGenerator(cfg=self.cfg.terrain_generator, device=self.device)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            terrain_generator = TerrainGenerator(cfg=self.cfg.terrain_generator, device=self.device)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             self.import_mesh("terrain", terrain_generator.terrain_mesh)
             # configure the terrain origins based on the terrain generator
             self.configure_env_origins(terrain_generator.terrain_origins)

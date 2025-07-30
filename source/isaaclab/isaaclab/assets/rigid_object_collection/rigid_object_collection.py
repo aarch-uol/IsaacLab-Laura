@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -243,14 +247,20 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices. If None, then all indices are used.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.write_object_link_pose_to_sim(object_state[..., :7], env_ids=env_ids, object_ids=object_ids)
         self.write_object_com_velocity_to_sim(object_state[..., 7:], env_ids=env_ids, object_ids=object_ids)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # set into simulation
         self.write_object_pose_to_sim(object_state[..., :7], env_ids=env_ids, object_ids=object_ids)
         self.write_object_velocity_to_sim(object_state[..., 7:], env_ids=env_ids, object_ids=object_ids)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def write_object_com_state_to_sim(
         self,
@@ -260,9 +270,12 @@ class RigidObjectCollection(AssetBase):
     ):
         """Set the object center of mass state over selected environment indices into the simulation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         The object state comprises of the cartesian position, quaternion orientation in (w, x, y, z), and linear
         and angular velocity. All the quantities are in the simulation frame.
 
@@ -272,9 +285,13 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices. If None, then all indices are used.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         # set into simulation
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        # set into simulation
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self.write_object_com_pose_to_sim(object_state[..., :7], env_ids=env_ids, object_ids=object_ids)
         self.write_object_com_velocity_to_sim(object_state[..., 7:], env_ids=env_ids, object_ids=object_ids)
 
@@ -286,9 +303,12 @@ class RigidObjectCollection(AssetBase):
     ):
         """Set the object link state over selected environment indices into the simulation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         The object state comprises of the cartesian position, quaternion orientation in (w, x, y, z), and linear
         and angular velocity. All the quantities are in the simulation frame.
 
@@ -298,9 +318,13 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices. If None, then all indices are used.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         # set into simulation
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        # set into simulation
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self.write_object_link_pose_to_sim(object_state[..., :7], env_ids=env_ids, object_ids=object_ids)
         self.write_object_link_velocity_to_sim(object_state[..., 7:], env_ids=env_ids, object_ids=object_ids)
 
@@ -320,8 +344,11 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices. If None, then all indices are used.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.write_object_link_pose_to_sim(object_pose, env_ids=env_ids, object_ids=object_ids)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # resolve all indices
         # -- env_ids
         if env_ids is None:
@@ -338,7 +365,10 @@ class RigidObjectCollection(AssetBase):
         # set into simulation
         view_ids = self._env_obj_ids_to_view_ids(env_ids, object_ids)
         self.root_physx_view.set_transforms(self.reshape_data_to_view(poses_xyzw), indices=view_ids)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def write_object_link_pose_to_sim(
         self,
@@ -356,9 +386,13 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices. If None, then all indices are used.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # resolve all indices
         # -- env_ids
         if env_ids is None:
@@ -366,6 +400,7 @@ class RigidObjectCollection(AssetBase):
         # -- object_ids
         if object_ids is None:
             object_ids = self._ALL_OBJ_INDICES
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         # note: we need to do this here since tensors are not set into simulation until step.
@@ -394,6 +429,8 @@ class RigidObjectCollection(AssetBase):
         poses_xyzw[..., 3:] = math_utils.convert_quat(poses_xyzw[..., 3:], to="xyzw")
 
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # note: we need to do this here since tensors are not set into simulation until step.
         # set into internal buffers
         self._data.object_link_state_w[env_ids[:, None], object_ids, :7] = object_pose.clone()
@@ -401,7 +438,10 @@ class RigidObjectCollection(AssetBase):
         # convert the quaternion from wxyz to xyzw
         poses_xyzw = self._data.object_link_state_w[..., :7].clone()
         poses_xyzw[..., 3:] = math_utils.convert_quat(poses_xyzw[..., 3:], to="xyzw")
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # set into simulation
         view_ids = self._env_obj_ids_to_view_ids(env_ids, object_ids)
         self.root_physx_view.set_transforms(self.reshape_data_to_view(poses_xyzw), indices=view_ids)
@@ -414,6 +454,7 @@ class RigidObjectCollection(AssetBase):
     ):
         """Set the object center of mass pose over selected environment indices into the simulation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         The object pose comprises of the cartesian position and quaternion orientation in (w, x, y, z).
         The orientation is the orientation of the principle axes of inertia.
@@ -422,11 +463,16 @@ class RigidObjectCollection(AssetBase):
         The object pose comprises of the cartesian position and quaternion orientation in (w, x, y, z).
         The orientation is the orientation of the principle axes of inertia.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        The object pose comprises of the cartesian position and quaternion orientation in (w, x, y, z).
+        The orientation is the orientation of the principle axes of inertia.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         Args:
             object_pose: Object poses in simulation frame. Shape is (len(env_ids), len(object_ids), 7).
             env_ids: Environment indices. If None, then all indices are used.
             object_ids: Object indices. If None, then all indices are used.
         """
+<<<<<<< HEAD
 <<<<<<< HEAD
         # resolve all indices
         # -- env_ids
@@ -457,6 +503,8 @@ class RigidObjectCollection(AssetBase):
         object_link_pose = torch.cat((object_link_pos, object_link_quat), dim=-1)
         self.write_object_link_pose_to_sim(object_link_pose, env_ids=env_ids, object_ids=object_ids)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # resolve all indices
         if env_ids is None:
@@ -480,7 +528,10 @@ class RigidObjectCollection(AssetBase):
 
         object_link_pose = torch.cat((object_link_pos, object_link_quat), dim=-1)
         self.write_object_link_pose_to_sim(object_pose=object_link_pose, env_ids=env_ids, object_ids=object_ids)
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def write_object_velocity_to_sim(
         self,
@@ -496,8 +547,11 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices. If None, then all indices are used.
         """
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.write_object_com_velocity_to_sim(object_velocity, env_ids=env_ids, object_ids=object_ids)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # resolve all indices
         # -- env_ids
         if env_ids is None:
@@ -514,7 +568,10 @@ class RigidObjectCollection(AssetBase):
         self.root_physx_view.set_velocities(
             self.reshape_data_to_view(self._data.object_state_w[..., 7:]), indices=view_ids
         )
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def write_object_com_velocity_to_sim(
         self,
@@ -538,6 +595,7 @@ class RigidObjectCollection(AssetBase):
             object_ids = self._ALL_OBJ_INDICES
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         # note: we need to do this here since tensors are not set into simulation until step.
         # set into internal buffers
         self._data.object_com_vel_w[env_ids[:, None], object_ids] = object_velocity.clone()
@@ -555,6 +613,8 @@ class RigidObjectCollection(AssetBase):
         view_ids = self._env_obj_ids_to_view_ids(env_ids, object_ids)
         self.root_physx_view.set_velocities(self.reshape_data_to_view(self._data.object_com_vel_w), indices=view_ids)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self._data.object_com_state_w[env_ids[:, None], object_ids, 7:] = object_velocity.clone()
         self._data.object_state_w[env_ids[:, None], object_ids, 7:] = object_velocity.clone()
         self._data.object_acc_w[env_ids[:, None], object_ids] = 0.0
@@ -564,7 +624,10 @@ class RigidObjectCollection(AssetBase):
         self.root_physx_view.set_velocities(
             self.reshape_data_to_view(self._data.object_com_state_w[..., 7:]), indices=view_ids
         )
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     def write_object_link_velocity_to_sim(
         self,
@@ -574,6 +637,7 @@ class RigidObjectCollection(AssetBase):
     ):
         """Set the object link velocity over selected environment indices into the simulation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         The velocity comprises linear velocity (x, y, z) and angular velocity (x, y, z) in that order.
         NOTE: This sets the velocity of the object's frame rather than the objects center of mass.
@@ -582,12 +646,17 @@ class RigidObjectCollection(AssetBase):
         The velocity comprises linear velocity (x, y, z) and angular velocity (x, y, z) in that order.
         NOTE: This sets the velocity of the object's frame rather than the objects center of mass.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        The velocity comprises linear velocity (x, y, z) and angular velocity (x, y, z) in that order.
+        NOTE: This sets the velocity of the object's frame rather than the objects center of mass.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         Args:
             object_velocity: Object velocities in simulation frame. Shape is (len(env_ids), len(object_ids), 6).
             env_ids: Environment indices. If None, then all indices are used.
             object_ids: Object indices. If None, then all indices are used.
         """
         # resolve all indices
+<<<<<<< HEAD
 <<<<<<< HEAD
         # -- env_ids
         if env_ids is None:
@@ -614,6 +683,8 @@ class RigidObjectCollection(AssetBase):
         # write center of mass velocity to sim
         self.write_object_com_velocity_to_sim(object_com_velocity, env_ids=env_ids, object_ids=object_ids)
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if env_ids is None:
             local_env_ids = slice(env_ids)
         else:
@@ -634,7 +705,10 @@ class RigidObjectCollection(AssetBase):
         self.write_object_com_velocity_to_sim(
             object_velocity=object_com_velocity, env_ids=env_ids, object_ids=object_ids
         )
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     """
     Operations - Setters.
@@ -648,9 +722,12 @@ class RigidObjectCollection(AssetBase):
         object_ids: slice | torch.Tensor | None = None,
         env_ids: torch.Tensor | None = None,
 <<<<<<< HEAD
+<<<<<<< HEAD
         is_global: bool = False,
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     ):
         """Set external force and torque to apply on the objects' bodies in their local frame.
 
@@ -668,6 +745,7 @@ class RigidObjectCollection(AssetBase):
                 asset.set_external_force_and_torque(forces=torch.zeros(0, 0, 3), torques=torch.zeros(0, 0, 3))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         .. caution::
             If the function is called consecutively with and with different values for ``is_global``, then the
             all the external wrenches will be applied in the frame specified by the last call.
@@ -681,6 +759,8 @@ class RigidObjectCollection(AssetBase):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         .. note::
             This function does not apply the external wrench to the simulation. It only fills the buffers with
             the desired values. To apply the external wrench, call the :meth:`write_data_to_sim` function
@@ -693,10 +773,13 @@ class RigidObjectCollection(AssetBase):
             object_ids: Object indices to apply external wrench to. Defaults to None (all objects).
             env_ids: Environment indices to apply external wrench to. Defaults to None (all instances).
 <<<<<<< HEAD
+<<<<<<< HEAD
             is_global: Whether to apply the external wrench in the global frame. Defaults to False. If set to False,
                 the external wrench is applied in the link frame of the bodies.
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         """
         if forces.any() or torques.any():
             self.has_external_wrench = True
@@ -716,6 +799,7 @@ class RigidObjectCollection(AssetBase):
         self._external_force_b[env_ids[:, None], object_ids] = forces
         self._external_torque_b[env_ids[:, None], object_ids] = torques
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         if is_global != self._use_global_wrench_frame:
             omni.log.warn(
@@ -726,6 +810,8 @@ class RigidObjectCollection(AssetBase):
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if positions is not None:
             self.uses_external_wrench_positions = True
             self._external_wrench_positions_b[env_ids[:, None], object_ids] = positions
@@ -734,6 +820,7 @@ class RigidObjectCollection(AssetBase):
                 self._external_wrench_positions_b[env_ids[:, None], object_ids] = 0.0
 
     """
+<<<<<<< HEAD
 <<<<<<< HEAD
     Helper functions.
     """
@@ -764,6 +851,8 @@ class RigidObjectCollection(AssetBase):
     """
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     Internal helper.
     """
 
@@ -849,9 +938,12 @@ class RigidObjectCollection(AssetBase):
         self._external_wrench_positions_b = torch.zeros_like(self._external_force_b)
         self.uses_external_wrench_positions = False
 <<<<<<< HEAD
+<<<<<<< HEAD
         self._use_global_wrench_frame = False
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # set information about rigid body into data
         self._data.object_names = self.object_names
@@ -881,7 +973,10 @@ class RigidObjectCollection(AssetBase):
         self._data.default_object_state = default_object_states
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # -- external wrench
         external_wrench_frame = self.cfg.objects_external_wrench_frame
         if external_wrench_frame == "local":
@@ -891,7 +986,10 @@ class RigidObjectCollection(AssetBase):
         else:
             raise ValueError(f"Invalid external wrench frame: {external_wrench_frame}. Must be 'local' or 'world'.")
 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     def _env_obj_ids_to_view_ids(
         self, env_ids: torch.Tensor, object_ids: Sequence[int] | slice | torch.Tensor
     ) -> torch.Tensor:

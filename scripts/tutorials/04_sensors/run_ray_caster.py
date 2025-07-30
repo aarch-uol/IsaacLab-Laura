@@ -17,9 +17,12 @@ This script demonstrates how to use the ray-caster sensor.
 
 import argparse
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 from isaaclab.app import AppLauncher
 
 # add argparse arguments
@@ -36,12 +39,16 @@ simulation_app = app_launcher.app
 
 import torch
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import isaacsim.core.utils.prims as prim_utils
 
 =======
 import isaacsim.core.utils.prims as prim_utils
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+import isaacsim.core.utils.prims as prim_utils
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 import isaaclab.sim as sim_utils
 from isaaclab.assets import RigidObject, RigidObjectCfg
 from isaaclab.sensors.ray_caster import RayCaster, RayCasterCfg, patterns
@@ -52,15 +59,19 @@ from isaaclab.utils.timer import Timer
 def define_sensor() -> RayCaster:
     """Defines the ray-caster sensor to add to the scene."""
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Create a ray-caster sensor
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     ray_caster_cfg = RayCasterCfg(
         prim_path="/World/Origin.*/ball",
         mesh_prim_paths=["/World/ground"],
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=(2.0, 2.0)),
         ray_alignment="yaw",
         debug_vis=not args_cli.headless,
+<<<<<<< HEAD
 <<<<<<< HEAD
     )
     ray_caster = RayCaster(cfg=ray_caster_cfg)
@@ -70,6 +81,11 @@ def define_sensor() -> RayCaster:
     )
     ray_caster = RayCaster(cfg=ray_caster_cfg)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        attach_yaw_only=True,
+    )
+    ray_caster = RayCaster(cfg=ray_caster_cfg)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     return ray_caster
 
 
@@ -84,11 +100,15 @@ def design_scene() -> dict:
     cfg.func("/World/light", cfg)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Create separate groups called "Origin1", "Origin2", "Origin3"
     # Each group will have a robot in it
 =======
     # Create separate groups called "Origin0", "Origin1", etc.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    # Create separate groups called "Origin0", "Origin1", etc.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     origins = [[0.25, 0.25, 0.0], [-0.25, 0.25, 0.0], [0.25, -0.25, 0.0], [-0.25, -0.25, 0.0]]
     for i, origin in enumerate(origins):
         prim_utils.create_prim(f"/World/Origin{i}", "Xform", translation=origin)
@@ -108,16 +128,21 @@ def design_scene() -> dict:
     ray_caster = define_sensor()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # return the scene information
     scene_entities = {"balls": balls, "ray_caster": ray_caster}
     return scene_entities
 =======
     return {"balls": balls, "ray_caster": ray_caster}
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    return {"balls": balls, "ray_caster": ray_caster}
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
 
 def run_simulator(sim: sim_utils.SimulationContext, scene_entities: dict):
     """Run the simulator."""
+<<<<<<< HEAD
 <<<<<<< HEAD
     # Extract scene_entities for simplified notation
     ray_caster: RayCaster = scene_entities["ray_caster"]
@@ -144,6 +169,8 @@ def run_simulator(sim: sim_utils.SimulationContext, scene_entities: dict):
         sim.step()
         # Update the ray-caster
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     ray_caster: RayCaster = scene_entities["ray_caster"]
     balls: RigidObject = scene_entities["balls"]
 
@@ -158,20 +185,27 @@ def run_simulator(sim: sim_utils.SimulationContext, scene_entities: dict):
             ray_caster.reset()
             step_count = 0
         sim.step()
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         with Timer(
             f"Ray-caster update with {4} x {ray_caster.num_rays} rays with max height of"
             f" {torch.max(ray_caster.data.pos_w).item():.2f}"
         ):
             ray_caster.update(dt=sim.get_physics_dt(), force_recompute=True)
 <<<<<<< HEAD
+<<<<<<< HEAD
         # Update counter
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         step_count += 1
 
 
 def main():
+<<<<<<< HEAD
 <<<<<<< HEAD
     """Main function."""
     # Load simulation context
@@ -187,17 +221,23 @@ def main():
     print("[INFO]: Setup complete...")
     # Run simulator
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     sim_cfg = sim_utils.SimulationCfg(device=args_cli.device)
     sim = sim_utils.SimulationContext(sim_cfg)
     sim.set_camera_view([0.0, 15.0, 15.0], [0.0, 0.0, -2.5])
     scene_entities = design_scene()
     sim.reset()
     print("[INFO]: Setup complete...")
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     run_simulator(sim=sim, scene_entities=scene_entities)
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
 <<<<<<< HEAD
     # run the main function
     main()
@@ -205,4 +245,7 @@ if __name__ == "__main__":
 =======
     main()
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    main()
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     simulation_app.close()

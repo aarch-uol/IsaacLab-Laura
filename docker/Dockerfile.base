@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -21,10 +25,14 @@ SHELL ["/bin/bash", "-c"]
 
 # Adds labels to the Dockerfile
 <<<<<<< HEAD
+<<<<<<< HEAD
 LABEL version="2.1.1"
 =======
 LABEL version="1.1"
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+LABEL version="1.1"
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 LABEL description="Dockerfile for building and running the Isaac Lab framework inside Isaac Sim container image."
 
 # Arguments
@@ -42,10 +50,14 @@ ENV DOCKER_USER_HOME=${DOCKER_USER_HOME_ARG}
 ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 ENV NVIDIA_DRIVER_CAPABILITIES=all
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 USER root
 
 # Install dependencies and remove cache
@@ -101,11 +113,14 @@ RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
     ${ISAACLAB_PATH}/isaaclab.sh --install
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # HACK: Remove install of quadprog dependency
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip uninstall -y quadprog
 
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # aliasing isaaclab.sh and python for convenience
 RUN echo "export ISAACLAB_PATH=${ISAACLAB_PATH}" >> ${HOME}/.bashrc && \
     echo "alias isaaclab=${ISAACLAB_PATH}/isaaclab.sh" >> ${HOME}/.bashrc && \
@@ -115,6 +130,7 @@ RUN echo "export ISAACLAB_PATH=${ISAACLAB_PATH}" >> ${HOME}/.bashrc && \
     echo "alias pip3='${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip'" >> ${HOME}/.bashrc && \
     echo "alias tensorboard='${ISAACLAB_PATH}/_isaac_sim/python.sh ${ISAACLAB_PATH}/_isaac_sim/tensorboard'" >> ${HOME}/.bashrc && \
 <<<<<<< HEAD
+<<<<<<< HEAD
     echo "export TZ=$(date +%Z)" >> ${HOME}/.bashrc && \
     echo "shopt -s histappend" >> /root/.bashrc && \
     echo "PROMPT_COMMAND='history -a'" >> /root/.bashrc
@@ -123,6 +139,8 @@ RUN echo "export ISAACLAB_PATH=${ISAACLAB_PATH}" >> ${HOME}/.bashrc && \
 # this is the default directory when the container is run
 WORKDIR ${ISAACLAB_PATH}
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     echo "export TZ=$(date +%Z)" >> ${HOME}/.bashrc
     
  # installing nightly torch 
@@ -138,5 +156,9 @@ RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
 
 # make working directory as the Isaac Lab directory
 # this is the default directory when the container is run
+<<<<<<< HEAD
 WORKDIR ${ISAACLAB_PATH}
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+WORKDIR ${ISAACLAB_PATH}
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -334,10 +338,14 @@ class DirectRLEnv(gym.Env):
         # add action noise
         if self.cfg.action_noise_model:
 <<<<<<< HEAD
+<<<<<<< HEAD
             action = self._action_noise_model(action)
 =======
             action = self._action_noise_model.apply(action)
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            action = self._action_noise_model.apply(action)
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # process actions
         self._pre_physics_step(action)
@@ -395,10 +403,14 @@ class DirectRLEnv(gym.Env):
         # note: we apply no noise to the state space (since it is used for critic networks)
         if self.cfg.observation_noise_model:
 <<<<<<< HEAD
+<<<<<<< HEAD
             self.obs_buf["policy"] = self._observation_noise_model(self.obs_buf["policy"])
 =======
             self.obs_buf["policy"] = self._observation_noise_model.apply(self.obs_buf["policy"])
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            self.obs_buf["policy"] = self._observation_noise_model.apply(self.obs_buf["policy"])
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
         # return observations, rewards, resets and extras
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras
@@ -430,10 +442,14 @@ class DirectRLEnv(gym.Env):
 
         - **human**: Render to the current display and return nothing. Usually for human consumption.
 <<<<<<< HEAD
+<<<<<<< HEAD
         - **rgb_array**: Return a numpy.ndarray with shape (x, y, 3), representing RGB values for an
 =======
         - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
           x-by-y pixel image, suitable for turning into a video.
 
         Args:

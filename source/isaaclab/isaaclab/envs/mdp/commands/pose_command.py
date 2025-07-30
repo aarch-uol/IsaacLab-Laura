@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -106,12 +110,17 @@ class UniformPoseCommand(CommandTerm):
             self.pose_command_w[:, :3],
             self.pose_command_w[:, 3:],
 <<<<<<< HEAD
+<<<<<<< HEAD
             self.robot.data.body_pos_w[:, self.body_idx],
             self.robot.data.body_quat_w[:, self.body_idx],
 =======
             self.robot.data.body_state_w[:, self.body_idx, :3],
             self.robot.data.body_state_w[:, self.body_idx, 3:7],
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+            self.robot.data.body_state_w[:, self.body_idx, :3],
+            self.robot.data.body_state_w[:, self.body_idx, 3:7],
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         )
         self.metrics["position_error"] = torch.norm(pos_error, dim=-1)
         self.metrics["orientation_error"] = torch.norm(rot_error, dim=-1)
@@ -137,10 +146,14 @@ class UniformPoseCommand(CommandTerm):
 
     def _set_debug_vis_impl(self, debug_vis: bool):
 <<<<<<< HEAD
+<<<<<<< HEAD
         # create markers if necessary for the first time
 =======
         # create markers if necessary for the first tome
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        # create markers if necessary for the first tome
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         if debug_vis:
             if not hasattr(self, "goal_pose_visualizer"):
                 # -- goal pose
@@ -165,9 +178,14 @@ class UniformPoseCommand(CommandTerm):
         self.goal_pose_visualizer.visualize(self.pose_command_w[:, :3], self.pose_command_w[:, 3:])
         # -- current body pose
 <<<<<<< HEAD
+<<<<<<< HEAD
         body_link_pose_w = self.robot.data.body_link_pose_w[:, self.body_idx]
         self.current_pose_visualizer.visualize(body_link_pose_w[:, :3], body_link_pose_w[:, 3:7])
 =======
         body_link_state_w = self.robot.data.body_state_w[:, self.body_idx]
         self.current_pose_visualizer.visualize(body_link_state_w[:, :3], body_link_state_w[:, 3:7])
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+        body_link_state_w = self.robot.data.body_state_w[:, self.body_idx]
+        self.current_pose_visualizer.visualize(body_link_state_w[:, :3], body_link_state_w[:, 3:7])
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5

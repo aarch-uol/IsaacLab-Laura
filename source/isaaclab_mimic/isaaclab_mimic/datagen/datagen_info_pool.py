@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -135,6 +139,7 @@ class DataGenInfoPool:
                     end_ind = int(diffs.nonzero()[0][0]) + 1
                     subtask_term_ind = end_ind + 1  # increment to support indexing like demo[start:end]
 <<<<<<< HEAD
+<<<<<<< HEAD
 
                 if subtask_term_ind <= prev_subtask_term_ind:
                     raise ValueError(
@@ -142,6 +147,8 @@ class DataGenInfoPool:
                         f" {prev_subtask_term_ind}"
                     )
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 
                 try:
                     if subtask_term_ind <= prev_subtask_term_ind:
@@ -154,7 +161,10 @@ class DataGenInfoPool:
                     return
 
                 
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 eef_subtask_boundaries.append((prev_subtask_term_ind, subtask_term_ind))
                 prev_subtask_term_ind = subtask_term_ind
 
@@ -165,6 +175,7 @@ class DataGenInfoPool:
             #
             for i in range(1, len(eef_subtask_boundaries)):
                 prev_max_offset_range = self.subtask_term_offset_ranges[eef_name][i - 1][1]
+<<<<<<< HEAD
 <<<<<<< HEAD
                 assert (
                     eef_subtask_boundaries[i - 1][1] + prev_max_offset_range
@@ -184,6 +195,8 @@ class DataGenInfoPool:
                 )
 
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 prev_end = eef_subtask_boundaries[i - 1][1]
                 curr_end = eef_subtask_boundaries[i][1]
                 curr_min_offset = self.subtask_term_offset_ranges[eef_name][i][0]
@@ -198,7 +211,10 @@ class DataGenInfoPool:
                 except AssertionError as e:
                     print(f"[WARN] Skipping episode due to datagen parsing error: {e}")
                     return
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             self._subtask_boundaries[eef_name].append(eef_subtask_boundaries)
 
     def load_from_dataset_file(self, file_path, select_demo_keys: str | None = None):

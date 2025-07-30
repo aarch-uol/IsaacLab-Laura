@@ -24,9 +24,12 @@ parser.add_argument("--num_envs", type=int, default=None, help="Number of enviro
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Path to model checkpoint.")
 <<<<<<< HEAD
+<<<<<<< HEAD
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 parser.add_argument(
     "--use_pretrained_checkpoint",
     action="store_true",
@@ -64,9 +67,12 @@ simulation_app = app_launcher.app
 import gymnasium as gym
 import os
 <<<<<<< HEAD
+<<<<<<< HEAD
 import random
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 import time
 import torch
 
@@ -96,6 +102,7 @@ from isaaclab_tasks.utils.parse_cfg import get_checkpoint_path
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: dict):
     """Play with stable-baselines agent."""
 <<<<<<< HEAD
+<<<<<<< HEAD
     # randomly sample a seed if seed = -1
     if args_cli.seed == -1:
         args_cli.seed = random.randint(0, 10000)
@@ -110,6 +117,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # override configurations with non-hydra CLI arguments
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    # override configurations with non-hydra CLI arguments
+    env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
 
     task_name = args_cli.task.split(":")[-1]

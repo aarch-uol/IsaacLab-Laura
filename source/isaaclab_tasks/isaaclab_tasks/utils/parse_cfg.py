@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -10,10 +14,14 @@
 """Sub-module with utilities for parsing and loading configurations."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import collections
 =======
 
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 import gymnasium as gym
 import importlib
 import inspect
@@ -61,6 +69,7 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
     """
     # obtain the configuration entry point
 <<<<<<< HEAD
+<<<<<<< HEAD
     cfg_entry_point = gym.spec(task_name.split(":")[-1]).kwargs.get(entry_point_key)
     # check if entry point exists
     if cfg_entry_point is None:
@@ -86,13 +95,18 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
             f"\nPlease check that the gym registry has the entry point: '{entry_point_key}'."
             f"{msg if agents else ''}"
 =======
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     cfg_entry_point = gym.spec(task_name).kwargs.get(entry_point_key)
     # check if entry point exists
     if cfg_entry_point is None:
         raise ValueError(
             f"Could not find configuration for the environment: '{task_name}'."
             f" Please check that the gym registry has the entry point: '{entry_point_key}'."
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         )
     # parse the default config file
     if isinstance(cfg_entry_point, str) and cfg_entry_point.endswith(".yaml"):
@@ -153,10 +167,14 @@ def parse_env_cfg(
     """
     # load the default configuration
 <<<<<<< HEAD
+<<<<<<< HEAD
     cfg = load_cfg_from_registry(task_name.split(":")[-1], "env_cfg_entry_point")
 =======
     cfg = load_cfg_from_registry(task_name, "env_cfg_entry_point")
 >>>>>>> abfba5273e (Fresh start, no history)
+=======
+    cfg = load_cfg_from_registry(task_name, "env_cfg_entry_point")
+>>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
     # check that it is not a dict
     # we assume users always use a class for the configuration

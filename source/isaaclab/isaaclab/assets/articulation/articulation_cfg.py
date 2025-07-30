@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,6 +43,7 @@ class ArticulationCfg(AssetBaseCfg):
     class_type: type = Articulation
 
     articulation_root_prim_path: str | None = None
+<<<<<<< HEAD
     """Path to the articulation root prim under the :attr:`prim_path`. Defaults to None, in which case the class
     will search for a prim with the USD ArticulationRootAPI on it.
 
@@ -48,6 +53,18 @@ class ArticulationCfg(AssetBaseCfg):
     then you should set this to `/robot2`.
 
     The path must start with a slash (`/`).
+=======
+    """Path to the articulation root prim in the USD file.
+
+    If not provided will search for a prim with the ArticulationRootAPI. Should start with a slash.
+    """
+
+    articulation_external_wrench_frame: str = "local"
+    """Frame in which external wrenches are applied. Defaults to "local".
+
+    If "local", the external wrenches are applied in the local frame of the articulation root.
+    If "world", the external wrenches are applied in the world frame.
+>>>>>>> abfba5273e (Fresh start, no history)
     """
 
     init_state: InitialStateCfg = InitialStateCfg()
@@ -65,7 +82,10 @@ class ArticulationCfg(AssetBaseCfg):
 
     actuators: dict[str, ActuatorBaseCfg] = MISSING
     """Actuators for the robot with corresponding joint names."""
+<<<<<<< HEAD
 
     actuator_value_resolution_debug_print = False
     """Print the resolution of actuator final value when input cfg is different from USD value, Defaults to False
     """
+=======
+>>>>>>> abfba5273e (Fresh start, no history)

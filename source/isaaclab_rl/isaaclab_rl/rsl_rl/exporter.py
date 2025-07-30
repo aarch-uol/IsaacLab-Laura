@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -64,6 +68,7 @@ class _TorchPolicyExporter(torch.nn.Module):
         # set up recurrent network
         if self.is_recurrent:
             self.rnn.cpu()
+<<<<<<< HEAD
             self.rnn_type = type(self.rnn).__name__.lower()  # 'lstm' or 'gru'
             self.register_buffer("hidden_state", torch.zeros(self.rnn.num_layers, 1, self.rnn.hidden_size))
             if self.rnn_type == "lstm":
@@ -75,6 +80,12 @@ class _TorchPolicyExporter(torch.nn.Module):
                 self.reset = self.reset_memory
             else:
                 raise NotImplementedError(f"Unsupported RNN type: {self.rnn_type}")
+=======
+            self.register_buffer("hidden_state", torch.zeros(self.rnn.num_layers, 1, self.rnn.hidden_size))
+            self.register_buffer("cell_state", torch.zeros(self.rnn.num_layers, 1, self.rnn.hidden_size))
+            self.forward = self.forward_lstm
+            self.reset = self.reset_memory
+>>>>>>> abfba5273e (Fresh start, no history)
         # copy normalizer if exists
         if normalizer:
             self.normalizer = copy.deepcopy(normalizer)
@@ -89,6 +100,7 @@ class _TorchPolicyExporter(torch.nn.Module):
         x = x.squeeze(0)
         return self.actor(x)
 
+<<<<<<< HEAD
     def forward_gru(self, x):
         x = self.normalizer(x)
         x, h = self.rnn(x.unsqueeze(0), self.hidden_state)
@@ -96,6 +108,8 @@ class _TorchPolicyExporter(torch.nn.Module):
         x = x.squeeze(0)
         return self.actor(x)
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     def forward(self, x):
         return self.actor(self.normalizer(x))
 
@@ -105,8 +119,12 @@ class _TorchPolicyExporter(torch.nn.Module):
 
     def reset_memory(self):
         self.hidden_state[:] = 0.0
+<<<<<<< HEAD
         if hasattr(self, "cell_state"):
             self.cell_state[:] = 0.0
+=======
+        self.cell_state[:] = 0.0
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def export(self, path, filename):
         os.makedirs(path, exist_ok=True)
@@ -137,6 +155,7 @@ class _OnnxPolicyExporter(torch.nn.Module):
         # set up recurrent network
         if self.is_recurrent:
             self.rnn.cpu()
+<<<<<<< HEAD
             self.rnn_type = type(self.rnn).__name__.lower()  # 'lstm' or 'gru'
             if self.rnn_type == "lstm":
                 self.forward = self.forward_lstm
@@ -144,6 +163,9 @@ class _OnnxPolicyExporter(torch.nn.Module):
                 self.forward = self.forward_gru
             else:
                 raise NotImplementedError(f"Unsupported RNN type: {self.rnn_type}")
+=======
+            self.forward = self.forward_lstm
+>>>>>>> abfba5273e (Fresh start, no history)
         # copy normalizer if exists
         if normalizer:
             self.normalizer = copy.deepcopy(normalizer)
@@ -156,17 +178,21 @@ class _OnnxPolicyExporter(torch.nn.Module):
         x = x.squeeze(0)
         return self.actor(x), h, c
 
+<<<<<<< HEAD
     def forward_gru(self, x_in, h_in):
         x_in = self.normalizer(x_in)
         x, h = self.rnn(x_in.unsqueeze(0), h_in)
         x = x.squeeze(0)
         return self.actor(x), h
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     def forward(self, x):
         return self.actor(self.normalizer(x))
 
     def export(self, path, filename):
         self.to("cpu")
+<<<<<<< HEAD
         self.eval()
         if self.is_recurrent:
             obs = torch.zeros(1, self.rnn.input_size)
@@ -199,6 +225,24 @@ class _OnnxPolicyExporter(torch.nn.Module):
                 )
             else:
                 raise NotImplementedError(f"Unsupported RNN type: {self.rnn_type}")
+=======
+        if self.is_recurrent:
+            obs = torch.zeros(1, self.rnn.input_size)
+            h_in = torch.zeros(self.rnn.num_layers, 1, self.rnn.hidden_size)
+            c_in = torch.zeros(self.rnn.num_layers, 1, self.rnn.hidden_size)
+            actions, h_out, c_out = self(obs, h_in, c_in)
+            torch.onnx.export(
+                self,
+                (obs, h_in, c_in),
+                os.path.join(path, filename),
+                export_params=True,
+                opset_version=11,
+                verbose=self.verbose,
+                input_names=["obs", "h_in", "c_in"],
+                output_names=["actions", "h_out", "c_out"],
+                dynamic_axes={},
+            )
+>>>>>>> abfba5273e (Fresh start, no history)
         else:
             obs = torch.zeros(1, self.actor[0].in_features)
             torch.onnx.export(

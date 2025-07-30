@@ -1,7 +1,11 @@
 [package]
 
 # Note: Semantic Versioning is used: https://semver.org/
+<<<<<<< HEAD
 version = "0.1.8"
+=======
+version = "0.1.4"
+>>>>>>> abfba5273e (Fresh start, no history)
 
 # Description
 title = "Isaac Lab RL"

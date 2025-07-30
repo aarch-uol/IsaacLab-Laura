@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,7 +50,10 @@ class UnitreeGo1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
                 "yaw": (0.0, 0.0),
             },
         }
+<<<<<<< HEAD
         self.events.base_com = None
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # rewards
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"

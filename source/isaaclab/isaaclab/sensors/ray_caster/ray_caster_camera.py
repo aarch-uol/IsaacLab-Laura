@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -345,7 +349,10 @@ class RayCasterCamera(RayCaster):
         """Create buffers for storing data."""
         # prepare drift
         self.drift = torch.zeros(self._view.count, 3, device=self.device)
+<<<<<<< HEAD
         self.ray_cast_drift = torch.zeros(self._view.count, 3, device=self.device)
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # create the data object
         # -- pose of the cameras
         self._data.pos_w = torch.zeros((self._view.count, 3), device=self._device)
@@ -401,8 +408,11 @@ class RayCasterCamera(RayCaster):
         # obtain the poses of the sensors
         # note: clone arg doesn't exist for xform prim view so we need to do this manually
         if isinstance(self._view, XFormPrim):
+<<<<<<< HEAD
             if isinstance(env_ids, slice):  # catch the case where env_ids is a slice
                 env_ids = self._ALL_INDICES
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
             pos_w, quat_w = self._view.get_world_poses(env_ids)
         elif isinstance(self._view, physx.ArticulationView):
             pos_w, quat_w = self._view.get_root_transforms()[env_ids].split([3, 4], dim=-1)

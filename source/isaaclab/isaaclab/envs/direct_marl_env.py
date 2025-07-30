@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -356,7 +360,11 @@ class DirectMARLEnv(gym.Env):
         if self.cfg.action_noise_model:
             for agent, action in actions.items():
                 if agent in self._action_noise_model:
+<<<<<<< HEAD
                     actions[agent] = self._action_noise_model[agent](action)
+=======
+                    actions[agent] = self._action_noise_model[agent].apply(action)
+>>>>>>> abfba5273e (Fresh start, no history)
         # process actions
         self._pre_physics_step(actions)
 
@@ -409,7 +417,11 @@ class DirectMARLEnv(gym.Env):
         if self.cfg.observation_noise_model:
             for agent, obs in self.obs_dict.items():
                 if agent in self._observation_noise_model:
+<<<<<<< HEAD
                     self.obs_dict[agent] = self._observation_noise_model[agent](obs)
+=======
+                    self.obs_dict[agent] = self._observation_noise_model[agent].apply(obs)
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # return observations, rewards, resets and extras
         return self.obs_dict, self.reward_dict, self.terminated_dict, self.time_out_dict, self.extras
@@ -462,7 +474,11 @@ class DirectMARLEnv(gym.Env):
         By convention, if mode is:
 
         - **human**: Render to the current display and return nothing. Usually for human consumption.
+<<<<<<< HEAD
         - **rgb_array**: Return a numpy.ndarray with shape (x, y, 3), representing RGB values for an
+=======
+        - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
+>>>>>>> abfba5273e (Fresh start, no history)
           x-by-y pixel image, suitable for turning into a video.
 
         Args:

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Adapted from rsl_rl config
 seed: 42
 policy: "MlpPolicy"
@@ -20,3 +21,27 @@ policy_kwargs: "dict(
   optimizer_kwargs=dict(eps=1e-8),
   ortho_init=False,
   )"
+=======
+# Reference: https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml#L245
+seed: 42
+
+policy: 'MlpPolicy'
+n_timesteps: !!float 5e7
+batch_size: 256
+n_steps: 512
+gamma: 0.99
+learning_rate: !!float 2.5e-4
+ent_coef: 0.0
+clip_range: 0.2
+n_epochs: 10
+gae_lambda: 0.95
+max_grad_norm: 1.0
+vf_coef: 0.5
+device: "cuda:0"
+policy_kwargs: "dict(
+                  log_std_init=-1,
+                  ortho_init=False,
+                  activation_fn=nn.ReLU,
+                  net_arch=dict(pi=[256, 256], vf=[256, 256])
+                )"
+>>>>>>> abfba5273e (Fresh start, no history)

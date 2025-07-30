@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -114,6 +118,7 @@ def body_pose_w(
         asset_cfg: The SceneEntity associated with this observation.
 
     Returns:
+<<<<<<< HEAD
         The poses of bodies in articulation [num_env, 7 * num_bodies]. Pose order is [x,y,z,qw,qx,qy,qz].
         Output is stacked horizontally per body.
     """
@@ -122,6 +127,14 @@ def body_pose_w(
 
     # access the body poses in world frame
     pose = asset.data.body_pose_w[:, asset_cfg.body_ids, :7]
+=======
+        The poses of bodies in articulation [num_env, 7*num_bodies]. Pose order is [x,y,z,qw,qx,qy,qz]. Output is
+            stacked horizontally per body.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+    pose = asset.data.body_state_w[:, asset_cfg.body_ids, :7]
+>>>>>>> abfba5273e (Fresh start, no history)
     pose[..., :3] = pose[..., :3] - env.scene.env_origins.unsqueeze(1)
     return pose.reshape(env.num_envs, -1)
 
@@ -140,14 +153,22 @@ def body_projected_gravity_b(
 
     Returns:
         The unit vector direction of gravity projected onto body_name's frame. Gravity projection vector order is
+<<<<<<< HEAD
         [x,y,z]. Output is stacked horizontally per body.
+=======
+            [x,y,z]. Output is stacked horizontally per body.
+>>>>>>> abfba5273e (Fresh start, no history)
     """
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
 
     body_quat = asset.data.body_quat_w[:, asset_cfg.body_ids]
     gravity_dir = asset.data.GRAVITY_VEC_W.unsqueeze(1)
+<<<<<<< HEAD
     return math_utils.quat_apply_inverse(body_quat, gravity_dir).view(env.num_envs, -1)
+=======
+    return math_utils.quat_rotate_inverse(body_quat, gravity_dir).view(env.num_envs, -1)
+>>>>>>> abfba5273e (Fresh start, no history)
 
 
 """
@@ -272,6 +293,7 @@ def imu_orientation(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntit
     return asset.data.quat_w
 
 
+<<<<<<< HEAD
 def imu_projected_gravity(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("imu")) -> torch.Tensor:
     """Imu sensor orientation w.r.t the env.scene.origin.
 
@@ -287,6 +309,8 @@ def imu_projected_gravity(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = Scen
     return asset.data.projected_gravity_b
 
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 def imu_ang_vel(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("imu")) -> torch.Tensor:
     """Imu sensor angular velocity w.r.t. environment origin expressed in the sensor frame.
 
@@ -615,6 +639,7 @@ Commands.
 def generated_commands(env: ManagerBasedRLEnv, command_name: str) -> torch.Tensor:
     """The generated command from command term in the command manager with the given name."""
     return env.command_manager.get_command(command_name)
+<<<<<<< HEAD
 
 
 """
@@ -630,3 +655,5 @@ def current_time_s(env: ManagerBasedRLEnv) -> torch.Tensor:
 def remaining_time_s(env: ManagerBasedRLEnv) -> torch.Tensor:
     """The maximum time remaining in the episode (in seconds)."""
     return env.max_episode_length_s - env.episode_length_buf.unsqueeze(1) * env.step_dt
+=======
+>>>>>>> abfba5273e (Fresh start, no history)

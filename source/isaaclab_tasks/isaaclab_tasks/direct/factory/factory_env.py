@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -173,9 +177,12 @@ class FactoryEnv(DirectRLEnv):
             self._large_gear_asset = Articulation(self.cfg_task.large_gear_cfg)
 
         self.scene.clone_environments(copy_from_source=False)
+<<<<<<< HEAD
         if self.device == "cpu":
             # we need to explicitly filter collisions for CPU simulation
             self.scene.filter_collisions()
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
         self.scene.articulations["robot"] = self._robot
         self.scene.articulations["fixed_asset"] = self._fixed_asset

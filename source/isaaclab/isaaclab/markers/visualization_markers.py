@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -63,9 +67,15 @@ class VisualizationMarkers:
 
     The class parses the configuration to create different the marker prototypes into the stage. Each marker
     prototype prim is created as a child of the :class:`UsdGeom.PointInstancer` prim. The prim path for the
+<<<<<<< HEAD
     marker prim is resolved using the key of the marker in the :attr:`VisualizationMarkersCfg.markers`
     dictionary. The marker prototypes are created using the :meth:`isaacsim.core.utils.create_prim`
     function, and then instanced using :class:`UsdGeom.PointInstancer` prim to allow creating multiple
+=======
+    the marker prim is resolved using the key of the marker in the :attr:`VisualizationMarkersCfg.markers`
+    dictionary. The marker prototypes are created using the :meth:`isaacsim.core.utils.create_prim`
+    function, and then then instanced using :class:`UsdGeom.PointInstancer` prim to allow creating multiple
+>>>>>>> abfba5273e (Fresh start, no history)
     instances of the marker prims.
 
     Switching between different marker prototypes is possible by calling the :meth:`visualize` method with
@@ -369,7 +379,13 @@ class VisualizationMarkers:
         to see the marker prims on camera images.
 
         Args:
+<<<<<<< HEAD
             prim: The prim to check.
+=======
+            prim_path: The prim path to check.
+            stage: The stage where the prim exists.
+                Defaults to None, in which case the current stage is used.
+>>>>>>> abfba5273e (Fresh start, no history)
         """
         # check if prim is valid
         if not prim.IsValid():

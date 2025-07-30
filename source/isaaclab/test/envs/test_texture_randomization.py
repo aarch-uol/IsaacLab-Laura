@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -20,7 +24,10 @@ simulation_app = app_launcher.app
 import math
 import torch
 import unittest
+<<<<<<< HEAD
 from unittest.mock import patch
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
 import omni.usd
 
@@ -129,6 +136,7 @@ class EventCfg:
 
 
 @configclass
+<<<<<<< HEAD
 class EventCfgFallback:
     """Configuration for events that tests the fallback mechanism."""
 
@@ -159,6 +167,8 @@ class EventCfgFallback:
 
 
 @configclass
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 class CartpoleEnvCfg(ManagerBasedEnvCfg):
     """Configuration for the cartpole environment."""
 
@@ -181,6 +191,7 @@ class CartpoleEnvCfg(ManagerBasedEnvCfg):
         self.sim.dt = 0.005  # sim step every 5ms: 200Hz
 
 
+<<<<<<< HEAD
 @configclass
 class CartpoleEnvCfgFallback(ManagerBasedEnvCfg):
     """Configuration for the cartpole environment that tests fallback mechanism."""
@@ -204,6 +215,8 @@ class CartpoleEnvCfgFallback(ManagerBasedEnvCfg):
         self.sim.dt = 0.005  # sim step every 5ms: 200Hz
 
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 class TestTextureRandomization(unittest.TestCase):
     """Test for texture randomization"""
 
@@ -240,6 +253,7 @@ class TestTextureRandomization(unittest.TestCase):
 
                 env.close()
 
+<<<<<<< HEAD
     def test_texture_randomization_fallback(self):
         """Test texture randomization fallback mechanism when /visuals pattern doesn't match."""
 
@@ -280,6 +294,8 @@ class TestTextureRandomization(unittest.TestCase):
 
                     env.close()
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     def test_texture_randomization_failure_replicate_physics(self):
         """Test texture randomization failure when replicate physics is set to True."""
         # create a new stage

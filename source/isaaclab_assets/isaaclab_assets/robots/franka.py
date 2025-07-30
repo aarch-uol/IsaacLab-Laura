@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -51,18 +55,30 @@ FRANKA_PANDA_CFG = ArticulationCfg(
         "panda_shoulder": ImplicitActuatorCfg(
             joint_names_expr=["panda_joint[1-4]"],
             effort_limit_sim=87.0,
+<<<<<<< HEAD
+=======
+            velocity_limit_sim=2.175,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=80.0,
             damping=4.0,
         ),
         "panda_forearm": ImplicitActuatorCfg(
             joint_names_expr=["panda_joint[5-7]"],
             effort_limit_sim=12.0,
+<<<<<<< HEAD
+=======
+            velocity_limit_sim=2.61,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=80.0,
             damping=4.0,
         ),
         "panda_hand": ImplicitActuatorCfg(
             joint_names_expr=["panda_finger_joint.*"],
             effort_limit_sim=200.0,
+<<<<<<< HEAD
+=======
+            velocity_limit_sim=0.2,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=2e3,
             damping=1e2,
         ),

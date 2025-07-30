@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -145,10 +149,13 @@ class ManagerBase(ABC):
         self.cfg = copy.deepcopy(cfg)
         self._env = env
 
+<<<<<<< HEAD
         # flag for whether the scene entities have been resolved
         # if sim is playing, we resolve the scene entities directly while preparing the terms
         self._is_scene_entities_resolved = self._env.sim.is_playing()
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # if the simulation is not playing, we use callbacks to trigger the resolution of the scene
         # entities configuration. this is needed for cases where the manager is created after the
         # simulation, but before the simulation is playing.
@@ -269,9 +276,12 @@ class ManagerBase(ABC):
 
         Please check the :meth:`_process_term_cfg_at_play` method for more information.
         """
+<<<<<<< HEAD
         # check if scene entities have been resolved
         if self._is_scene_entities_resolved:
             return
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # check if config is dict already
         if isinstance(self.cfg, dict):
             cfg_items = self.cfg.items()
@@ -287,9 +297,12 @@ class ManagerBase(ABC):
             # these properties are only resolvable once the simulation starts playing
             self._process_term_cfg_at_play(term_name, term_cfg)
 
+<<<<<<< HEAD
         # set the flag
         self._is_scene_entities_resolved = True
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     """
     Internal functions.
     """

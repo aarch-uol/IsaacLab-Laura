@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # C++
 **/cmake-build*/
 **/build*/
@@ -14,6 +15,8 @@
 **/*.usdc
 **/*.usdz
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 # Python
 .DS_Store
 **/*.egg-info/
@@ -22,6 +25,7 @@
 **/*.pyc
 **/*.pb
 
+<<<<<<< HEAD
 # Docker/Singularity
 **/*.sif
 docker/cluster/exports/
@@ -69,3 +73,12 @@ tests/
 
 # Docker history
 .isaac-lab-docker-history
+=======
+# Isaac-Sim packman
+_isaac_sim*
+
+.ChillsEnv
+.Trash-1000
+
+chills/
+>>>>>>> abfba5273e (Fresh start, no history)

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -26,6 +30,7 @@ import isaaclab.sim as sim_utils
 from isaaclab.assets import RigidObjectCfg, RigidObjectCollection, RigidObjectCollectionCfg
 from isaaclab.sim import build_simulation_context
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+<<<<<<< HEAD
 from isaaclab.utils.math import (
     combine_frame_transforms,
     default_orientation,
@@ -36,6 +41,9 @@ from isaaclab.utils.math import (
     random_orientation,
     subtract_frame_transforms,
 )
+=======
+from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mul, random_orientation
+>>>>>>> abfba5273e (Fresh start, no history)
 
 
 def generate_cubes_scene(
@@ -241,11 +249,17 @@ def test_external_force_buffer(sim, device):
         if step == 0 or step == 3:
             force = 1.0
             position = 1.0
+<<<<<<< HEAD
             is_global = True
         else:
             force = 0.0
             position = 0.0
             is_global = False
+=======
+        else:
+            force = 0.0
+            position = 0.0
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # apply force to the object
         external_wrench_b[:, :, 0] = force
@@ -257,7 +271,10 @@ def test_external_force_buffer(sim, device):
             external_wrench_b[..., 3:],
             object_ids=object_ids,
             positions=external_wrench_positions_b,
+<<<<<<< HEAD
             is_global=is_global,
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         )
 
         # check if the object collection's force and torque buffers are correctly updated
@@ -265,7 +282,10 @@ def test_external_force_buffer(sim, device):
             assert object_collection._external_force_b[i, 0, 0].item() == force
             assert object_collection._external_torque_b[i, 0, 0].item() == force
             assert object_collection._external_wrench_positions_b[i, 0, 0].item() == position
+<<<<<<< HEAD
             assert object_collection._use_global_wrench_frame == (step == 0 or step == 3)
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # apply action to the object collection
         object_collection.write_data_to_sim()
@@ -477,7 +497,11 @@ def test_object_state_properties(sim, num_envs, num_cubes, device, with_offset, 
 
     for i in range(10):
         # spin the object around Z axis (com)
+<<<<<<< HEAD
         cube_object.write_object_velocity_to_sim(spin_twist.repeat(num_envs, num_cubes, 1))
+=======
+        cube_object.write_object_com_velocity_to_sim(spin_twist.repeat(num_envs, num_cubes, 1))
+>>>>>>> abfba5273e (Fresh start, no history)
         sim.step()
         cube_object.update(sim.cfg.dt)
 
@@ -505,7 +529,11 @@ def test_object_state_properties(sim, num_envs, num_cubes, device, with_offset, 
             torch.testing.assert_close(-offset, object_link_state_pos_rel_com)
 
             # orientation of com will be a constant rotation from link orientation
+<<<<<<< HEAD
             com_quat_b = cube_object.data.object_com_quat_b
+=======
+            com_quat_b = cube_object.data.com_quat_b
+>>>>>>> abfba5273e (Fresh start, no history)
             com_quat_w = quat_mul(object_link_state_w[..., 3:7], com_quat_b)
             torch.testing.assert_close(com_quat_w, object_com_state_w[..., 3:7])
 
@@ -681,6 +709,7 @@ def test_gravity_vec_w(sim, num_envs, num_cubes, device, gravity_enabled):
 
         # Check the body accelerations are correct
         torch.testing.assert_close(object_collection.data.object_acc_w, gravity)
+<<<<<<< HEAD
 
 
 @pytest.mark.parametrize("num_envs", [1, 3])
@@ -806,3 +835,5 @@ def test_write_object_state_functions_data_consistency(
         torch.testing.assert_close(
             cube_object.data.object_state_w[..., 10:], cube_object.data.object_link_state_w[..., 10:]
         )
+=======
+>>>>>>> abfba5273e (Fresh start, no history)

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +48,12 @@ UR10_CFG = ArticulationCfg(
     actuators={
         "arm": ImplicitActuatorCfg(
             joint_names_expr=[".*"],
+<<<<<<< HEAD
             effort_limit_sim=87.0,
+=======
+            velocity_limit=100.0,
+            effort_limit=87.0,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=800.0,
             damping=40.0,
         ),

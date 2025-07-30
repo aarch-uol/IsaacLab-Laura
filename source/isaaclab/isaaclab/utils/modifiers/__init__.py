@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +47,11 @@ Usage with a class modifier:
 
     # create a modifier configuration
     # a digital filter with a simple delay of 1 timestep
+<<<<<<< HEAD
     cfg = modifiers.DigitalFilterCfg(A=[0.0], B=[0.0, 1.0])
+=======
+    cfg = modifiers.DigitalFilter(A=[0.0], B=[0.0, 1.0])
+>>>>>>> abfba5273e (Fresh start, no history)
 
     # create the modifier instance
     my_modifier = modifiers.DigitalFilter(cfg, my_tensor.shape, "cuda")

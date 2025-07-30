@@ -2,10 +2,19 @@
     "algo_name": "bc",
     "experiment": {
         "name": "bc_rnn_low_dim_franka_stack",
+<<<<<<< HEAD
         "validate": false,
         "logging": {
             "terminal_output_to_txt": true,
             "log_tb": true
+=======
+        "validate": true,
+        "logging": {
+            "terminal_output_to_txt": true,
+            "log_tb": true,
+            "log_wandb": true,
+            "wandb_proj_name": "stack_task"
+>>>>>>> abfba5273e (Fresh start, no history)
         },
         "save": {
             "enabled": true,
@@ -31,8 +40,13 @@
         "hdf5_cache_mode": "all",
         "hdf5_use_swmr": true,
         "hdf5_normalize_obs": false,
+<<<<<<< HEAD
         "hdf5_filter_key": null,
         "hdf5_validation_filter_key": null,
+=======
+        "hdf5_filter_key": "train",
+        "hdf5_validation_filter_key": "valid",
+>>>>>>> abfba5273e (Fresh start, no history)
         "seq_length": 10,
         "dataset_keys": [
             "actions"
@@ -48,7 +62,11 @@
             "policy": {
                 "optimizer_type": "adam",
                 "learning_rate": {
+<<<<<<< HEAD
                     "initial": 0.001,
+=======
+                    "initial": 0.0001,
+>>>>>>> abfba5273e (Fresh start, no history)
                     "decay_factor": 0.1,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"

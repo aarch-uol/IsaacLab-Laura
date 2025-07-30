@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -13,7 +17,13 @@ from .franka_stack_ik_rel_blueprint_mimic_env_cfg import FrankaCubeStackIKRelBlu
 from .franka_stack_ik_rel_mimic_env import FrankaCubeStackIKRelMimicEnv
 from .franka_stack_ik_rel_mimic_env_cfg import FrankaCubeStackIKRelMimicEnvCfg
 from .franka_stack_ik_rel_visuomotor_mimic_env_cfg import FrankaCubeStackIKRelVisuomotorMimicEnvCfg
+<<<<<<< HEAD
 
+=======
+from .cube_blueprint_mimic_env_cfg import CubeBlueprintMimicEnvCfg
+from .cube_mimic_env_cfg import CubeMimicEnvCfg
+from .cube_mimic_env import CubeMimicEnv
+>>>>>>> abfba5273e (Fresh start, no history)
 ##
 # Inverse Kinematics - Relative Pose Control
 ##
@@ -26,6 +36,17 @@ gym.register(
     },
     disable_env_checker=True,
 )
+<<<<<<< HEAD
+=======
+# gym.register(
+#     id="Isaac-Stack-Cube-Franka-IK-Rel-Mimic",
+#     entry_point="isaaclab_mimic.envs:FrankaCubeStackIKRelMimicEnv",
+#     kwargs={
+#         "env_cfg_entry_point": franka_stack_ik_rel_mimic_env_cfg.FrankaCubeStackIKRelMimicEnvCfg,
+#     },
+#     disable_env_checker=True,
+# )
+>>>>>>> abfba5273e (Fresh start, no history)
 
 gym.register(
     id="Isaac-Stack-Cube-Franka-IK-Rel-Blueprint-Mimic-v0",
@@ -53,3 +74,27 @@ gym.register(
     },
     disable_env_checker=True,
 )
+<<<<<<< HEAD
+=======
+
+##################
+ ## cube mimic
+
+gym.register(
+    id="Cube-Mimic-v0",
+    entry_point="isaaclab_mimic.envs:CubeMimicEnv",
+    kwargs={
+        "env_cfg_entry_point": cube_mimic_env_cfg.CubeMimicEnvCfg,
+    },
+    disable_env_checker=True,
+)
+
+gym.register(
+    id="Cube-Blueprint-Mimic-v0",
+    entry_point="isaaclab_mimic.envs:CubeMimicEnv",
+    kwargs={
+        "env_cfg_entry_point": cube_blueprint_mimic_env_cfg.CubeBlueprintMimicEnvCfg,
+    },
+    disable_env_checker=True,
+)
+>>>>>>> abfba5273e (Fresh start, no history)

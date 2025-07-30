@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -162,7 +166,12 @@ class FactoryEnvCfg(DirectRLEnvCfg):
                 damping=0.0,
                 friction=0.0,
                 armature=0.0,
+<<<<<<< HEAD
                 effort_limit_sim=87,
+=======
+                effort_limit=87,
+                velocity_limit=124.6,
+>>>>>>> abfba5273e (Fresh start, no history)
             ),
             "panda_arm2": ImplicitActuatorCfg(
                 joint_names_expr=["panda_joint[5-7]"],
@@ -170,11 +179,21 @@ class FactoryEnvCfg(DirectRLEnvCfg):
                 damping=0.0,
                 friction=0.0,
                 armature=0.0,
+<<<<<<< HEAD
                 effort_limit_sim=12,
             ),
             "panda_hand": ImplicitActuatorCfg(
                 joint_names_expr=["panda_finger_joint[1-2]"],
                 effort_limit_sim=40.0,
+=======
+                effort_limit=12,
+                velocity_limit=149.5,
+            ),
+            "panda_hand": ImplicitActuatorCfg(
+                joint_names_expr=["panda_finger_joint[1-2]"],
+                effort_limit=40.0,
+                velocity_limit=0.04,
+>>>>>>> abfba5273e (Fresh start, no history)
                 stiffness=7500.0,
                 damping=173.0,
                 friction=0.1,

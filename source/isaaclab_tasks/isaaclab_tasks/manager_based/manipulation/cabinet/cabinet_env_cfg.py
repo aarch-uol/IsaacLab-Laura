@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -71,13 +75,23 @@ class CabinetSceneCfg(InteractiveSceneCfg):
         actuators={
             "drawers": ImplicitActuatorCfg(
                 joint_names_expr=["drawer_top_joint", "drawer_bottom_joint"],
+<<<<<<< HEAD
                 effort_limit_sim=87.0,
+=======
+                effort_limit=87.0,
+                velocity_limit=100.0,
+>>>>>>> abfba5273e (Fresh start, no history)
                 stiffness=10.0,
                 damping=1.0,
             ),
             "doors": ImplicitActuatorCfg(
                 joint_names_expr=["door_left_joint", "door_right_joint"],
+<<<<<<< HEAD
                 effort_limit_sim=87.0,
+=======
+                effort_limit=87.0,
+                velocity_limit=100.0,
+>>>>>>> abfba5273e (Fresh start, no history)
                 stiffness=10.0,
                 damping=2.5,
             ),

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -32,7 +36,14 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
 
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
+<<<<<<< HEAD
             asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
+=======
+            asset_name="robot", 
+            joint_names=["panda_joint.*"], 
+            scale=0.5, 
+            use_default_offset=True
+>>>>>>> abfba5273e (Fresh start, no history)
         )
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",

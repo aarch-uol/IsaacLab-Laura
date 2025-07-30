@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -59,6 +63,7 @@ class ContactSensorData:
     """The normal contact forces filtered between the sensor bodies and filtered bodies in world frame.
 
     Shape is (N, B, M, 3), where N is the number of sensors, B is number of bodies in each sensor
+<<<<<<< HEAD
     and M is the number of filtered bodies.
 
     Note:
@@ -72,6 +77,9 @@ class ContactSensorData:
     B is number of bodies in each sensor and M is the number of filtered bodies.
 
     In the history dimension, the first index is the most recent and the last index is the oldest.
+=======
+    and ``M`` is the number of filtered bodies.
+>>>>>>> abfba5273e (Fresh start, no history)
 
     Note:
         If the :attr:`ContactSensorCfg.filter_prim_paths_expr` is empty, then this quantity is None.

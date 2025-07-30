@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -246,12 +250,15 @@ class DCMotor(IdealPDActuator):
     applied output torque will be driven to the Continuous Torque (`effort_limit`).
 
     The figure below demonstrates the clipping action for example (velocity, torque) pairs.
+<<<<<<< HEAD
 
     .. figure:: ../../_static/actuator-group/dc_motor_clipping.jpg
         :align: center
         :figwidth: 100%
         :alt: The effort clipping as a function of joint velocity for a linear DC Motor.
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     """
 
     cfg: DCMotorCfg

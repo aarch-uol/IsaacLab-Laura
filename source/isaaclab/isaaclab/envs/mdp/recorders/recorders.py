@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
+=======
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+>>>>>>> abfba5273e (Fresh start, no history)
 from __future__ import annotations
 
 from collections.abc import Sequence

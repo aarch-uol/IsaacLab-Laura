@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -49,25 +53,45 @@ RIDGEBACK_FRANKA_PANDA_CFG = ArticulationCfg(
     actuators={
         "base": ImplicitActuatorCfg(
             joint_names_expr=["dummy_base_.*"],
+<<<<<<< HEAD
             effort_limit_sim=1000.0,
+=======
+            velocity_limit=100.0,
+            effort_limit=1000.0,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=0.0,
             damping=1e5,
         ),
         "panda_shoulder": ImplicitActuatorCfg(
             joint_names_expr=["panda_joint[1-4]"],
+<<<<<<< HEAD
             effort_limit_sim=87.0,
+=======
+            effort_limit=87.0,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=800.0,
             damping=40.0,
         ),
         "panda_forearm": ImplicitActuatorCfg(
             joint_names_expr=["panda_joint[5-7]"],
+<<<<<<< HEAD
             effort_limit_sim=12.0,
+=======
+            effort_limit=12.0,
+            velocity_limit=100.0,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=800.0,
             damping=40.0,
         ),
         "panda_hand": ImplicitActuatorCfg(
             joint_names_expr=["panda_finger_joint.*"],
+<<<<<<< HEAD
             effort_limit_sim=200.0,
+=======
+            effort_limit=200.0,
+            velocity_limit=0.2,
+>>>>>>> abfba5273e (Fresh start, no history)
             stiffness=1e5,
             damping=1e3,
         ),

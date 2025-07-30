@@ -60,10 +60,18 @@ x-default-isaac-lab-volumes: &default-isaac-lab-volumes
   - type: volume
     source: isaac-lab-data
     target: ${DOCKER_ISAACLAB_PATH}/data_storage
+<<<<<<< HEAD
     # This volume is used to store the history of the bash shell
   - type: bind
     source: .isaac-lab-docker-history
     target: ${DOCKER_USER_HOME}/.bash_history
+=======
+    # pull in nvoptix 
+  - type: bind
+    source: /usr/share/nvidia/nvoptix.bin
+    target: /usr/share/nvidia/nvoptix.bin
+    read_only: true
+>>>>>>> abfba5273e (Fresh start, no history)
 
 x-default-isaac-lab-environment: &default-isaac-lab-environment
   - ISAACSIM_PATH=${DOCKER_ISAACLAB_PATH}/_isaac_sim
@@ -91,8 +99,13 @@ services:
         - ISAACSIM_ROOT_PATH_ARG=${DOCKER_ISAACSIM_ROOT_PATH}
         - ISAACLAB_PATH_ARG=${DOCKER_ISAACLAB_PATH}
         - DOCKER_USER_HOME_ARG=${DOCKER_USER_HOME}
+<<<<<<< HEAD
     image: isaac-lab-base${DOCKER_NAME_SUFFIX-}
     container_name: isaac-lab-base${DOCKER_NAME_SUFFIX-}
+=======
+    image: isaac-lab-base
+    container_name: isaac-lab-base
+>>>>>>> abfba5273e (Fresh start, no history)
     environment: *default-isaac-lab-environment
     volumes: *default-isaac-lab-volumes
     network_mode: host
@@ -101,6 +114,13 @@ services:
     entrypoint: bash
     stdin_open: true
     tty: true
+<<<<<<< HEAD
+=======
+    devices:
+    - /dev/hidraw0:/dev/hidraw0
+    - /dev/hidraw1:/dev/hidraw1
+    - /dev/hidraw2:/dev/hidraw2
+>>>>>>> abfba5273e (Fresh start, no history)
 
   # This service adds a ROS2 Humble
   # installation on top of the base image
@@ -117,11 +137,16 @@ services:
         # avoid a warning message when building only the base profile
         # with the .env.base file
         - ROS2_APT_PACKAGE=${ROS2_APT_PACKAGE:-NONE}
+<<<<<<< HEAD
         # Make sure that the correct Docker Name Suffix is being passed to the dockerfile, to know which base image to
         # start from.
         - DOCKER_NAME_SUFFIX=${DOCKER_NAME_SUFFIX-}
     image: isaac-lab-ros2${DOCKER_NAME_SUFFIX-}
     container_name: isaac-lab-ros2${DOCKER_NAME_SUFFIX-}
+=======
+    image: isaac-lab-ros2
+    container_name: isaac-lab-ros2
+>>>>>>> abfba5273e (Fresh start, no history)
     environment: *default-isaac-lab-environment
     volumes: *default-isaac-lab-volumes
     network_mode: host
@@ -130,8 +155,18 @@ services:
     entrypoint: bash
     stdin_open: true
     tty: true
+<<<<<<< HEAD
 
 volumes:
+=======
+    devices:
+    - /dev/hidraw0:/dev/hidraw0
+    - /dev/hidraw1:/dev/hidraw1
+    - /dev/hidraw2:/dev/hidraw2
+    
+    volumes:
+
+>>>>>>> abfba5273e (Fresh start, no history)
   # isaac-sim
   isaac-cache-kit:
   isaac-cache-ov:
@@ -145,4 +180,8 @@ volumes:
   # isaac-lab
   isaac-lab-docs:
   isaac-lab-logs:
+<<<<<<< HEAD
   isaac-lab-data:
+=======
+  isaac-lab-data:
+>>>>>>> abfba5273e (Fresh start, no history)

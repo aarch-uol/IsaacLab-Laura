@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -268,6 +272,7 @@ def undesired_contacts(env: ManagerBasedRLEnv, threshold: float, sensor_cfg: Sce
     return torch.sum(is_contact, dim=1)
 
 
+<<<<<<< HEAD
 def desired_contacts(env, sensor_cfg: SceneEntityCfg, threshold: float = 1.0) -> torch.Tensor:
     """Penalize if none of the desired contacts are present."""
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
@@ -278,6 +283,8 @@ def desired_contacts(env, sensor_cfg: SceneEntityCfg, threshold: float = 1.0) ->
     return 1.0 * zero_contact
 
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 def contact_forces(env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
     """Penalize contact forces as the amount of violations of the net contact force."""
     # extract the used quantities (to enable type-hinting)

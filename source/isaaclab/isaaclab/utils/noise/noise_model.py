@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -130,7 +134,11 @@ class NoiseModel:
         """
         pass
 
+<<<<<<< HEAD
     def __call__(self, data: torch.Tensor) -> torch.Tensor:
+=======
+    def apply(self, data: torch.Tensor) -> torch.Tensor:
+>>>>>>> abfba5273e (Fresh start, no history)
         """Apply the noise to the data.
 
         Args:
@@ -154,8 +162,11 @@ class NoiseModelWithAdditiveBias(NoiseModel):
         # store the bias noise configuration
         self._bias_noise_cfg = noise_model_cfg.bias_noise_cfg
         self._bias = torch.zeros((num_envs, 1), device=self._device)
+<<<<<<< HEAD
         self._num_components: int | None = None
         self._sample_bias_per_component = noise_model_cfg.sample_bias_per_component
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def reset(self, env_ids: Sequence[int] | None = None):
         """Reset the noise model.
@@ -172,7 +183,11 @@ class NoiseModelWithAdditiveBias(NoiseModel):
         # reset the bias term
         self._bias[env_ids] = self._bias_noise_cfg.func(self._bias[env_ids], self._bias_noise_cfg)
 
+<<<<<<< HEAD
     def __call__(self, data: torch.Tensor) -> torch.Tensor:
+=======
+    def apply(self, data: torch.Tensor) -> torch.Tensor:
+>>>>>>> abfba5273e (Fresh start, no history)
         """Apply bias noise to the data.
 
         Args:
@@ -181,6 +196,7 @@ class NoiseModelWithAdditiveBias(NoiseModel):
         Returns:
             The data with the noise applied. Shape is the same as the input data.
         """
+<<<<<<< HEAD
         # if sample_bias_per_component, on first apply, expand bias to match last dim of data
         if self._sample_bias_per_component and self._num_components is None:
             *_, self._num_components = data.shape
@@ -189,3 +205,6 @@ class NoiseModelWithAdditiveBias(NoiseModel):
             # now re-sample that expanded bias in-place
             self.reset()
         return super().__call__(data) + self._bias
+=======
+        return super().apply(data) + self._bias
+>>>>>>> abfba5273e (Fresh start, no history)

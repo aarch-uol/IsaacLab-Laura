@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -22,29 +26,44 @@ import gymnasium as gym
 import numpy as np
 import torch
 import torch.nn as nn  # noqa: F401
+<<<<<<< HEAD
 import warnings
 from typing import Any
 
 from stable_baselines3.common.preprocessing import is_image_space, is_image_space_channels_first
+=======
+from typing import Any
+
+>>>>>>> abfba5273e (Fresh start, no history)
 from stable_baselines3.common.utils import constant_fn
 from stable_baselines3.common.vec_env.base_vec_env import VecEnv, VecEnvObs, VecEnvStepReturn
 
 from isaaclab.envs import DirectRLEnv, ManagerBasedRLEnv
 
+<<<<<<< HEAD
 # remove SB3 warnings because PPO with bigger net actually benefits from GPU
 warnings.filterwarnings("ignore", message="You are trying to run PPO on the GPU")
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 """
 Configuration Parser.
 """
 
 
+<<<<<<< HEAD
 def process_sb3_cfg(cfg: dict, num_envs: int) -> dict:
+=======
+def process_sb3_cfg(cfg: dict) -> dict:
+>>>>>>> abfba5273e (Fresh start, no history)
     """Convert simple YAML types to Stable-Baselines classes/components.
 
     Args:
         cfg: A configuration dictionary.
+<<<<<<< HEAD
         num_envs: the number of parallel environments (used to compute `batch_size` for a desired number of minibatches)
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
     Returns:
         A dictionary containing the converted configuration.
@@ -60,24 +79,35 @@ def process_sb3_cfg(cfg: dict, num_envs: int) -> dict:
             else:
                 if key in ["policy_kwargs", "replay_buffer_class", "replay_buffer_kwargs"]:
                     hyperparams[key] = eval(value)
+<<<<<<< HEAD
                 elif key in ["learning_rate", "clip_range", "clip_range_vf"]:
+=======
+                elif key in ["learning_rate", "clip_range", "clip_range_vf", "delta_std"]:
+>>>>>>> abfba5273e (Fresh start, no history)
                     if isinstance(value, str):
                         _, initial_value = value.split("_")
                         initial_value = float(initial_value)
                         hyperparams[key] = lambda progress_remaining: progress_remaining * initial_value
                     elif isinstance(value, (float, int)):
+<<<<<<< HEAD
                         # negative value: ignore (ex: for clipping)
+=======
+                        # Negative value: ignore (ex: for clipping)
+>>>>>>> abfba5273e (Fresh start, no history)
                         if value < 0:
                             continue
                         hyperparams[key] = constant_fn(float(value))
                     else:
                         raise ValueError(f"Invalid value for {key}: {hyperparams[key]}")
 
+<<<<<<< HEAD
         # Convert to a desired batch_size (n_steps=2048 by default for SB3 PPO)
         if "n_minibatches" in hyperparams:
             hyperparams["batch_size"] = (hyperparams.get("n_steps", 2048) * num_envs) // hyperparams["n_minibatches"]
             del hyperparams["n_minibatches"]
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         return hyperparams
 
     # parse agent configuration and convert to classes
@@ -100,8 +130,13 @@ class Sb3VecEnvWrapper(VecEnv):
 
     Note:
         While Stable-Baselines3 supports Gym 0.26+ API, their vectorized environment
+<<<<<<< HEAD
         uses their own API (i.e. it is closer to Gym 0.21). Thus, we implement
         the API for the vectorized environment.
+=======
+        still uses the old API (i.e. it is closer to Gym 0.21). Thus, we implement
+        the old API for the vectorized environment.
+>>>>>>> abfba5273e (Fresh start, no history)
 
     We also add monitoring functionality that computes the un-discounted episode
     return and length. This information is added to the info dicts under key `episode`.
@@ -134,13 +169,21 @@ class Sb3VecEnvWrapper(VecEnv):
 
     """
 
+<<<<<<< HEAD
     def __init__(self, env: ManagerBasedRLEnv | DirectRLEnv, fast_variant: bool = True):
+=======
+    def __init__(self, env: ManagerBasedRLEnv | DirectRLEnv):
+>>>>>>> abfba5273e (Fresh start, no history)
         """Initialize the wrapper.
 
         Args:
             env: The environment to wrap around.
+<<<<<<< HEAD
             fast_variant: Use fast variant for processing info
                 (Only episodic reward, lengths and truncation info are included)
+=======
+
+>>>>>>> abfba5273e (Fresh start, no history)
         Raises:
             ValueError: When the environment is not an instance of :class:`ManagerBasedRLEnv` or :class:`DirectRLEnv`.
         """
@@ -152,16 +195,36 @@ class Sb3VecEnvWrapper(VecEnv):
             )
         # initialize the wrapper
         self.env = env
+<<<<<<< HEAD
         self.fast_variant = fast_variant
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # collect common information
         self.num_envs = self.unwrapped.num_envs
         self.sim_device = self.unwrapped.device
         self.render_mode = self.unwrapped.render_mode
+<<<<<<< HEAD
         self.observation_processors = {}
         self._process_spaces()
         # add buffer for logging episodic information
         self._ep_rew_buf = np.zeros(self.num_envs)
         self._ep_len_buf = np.zeros(self.num_envs)
+=======
+
+        # obtain gym spaces
+        # note: stable-baselines3 does not like when we have unbounded action space so
+        #   we set it to some high value here. Maybe this is not general but something to think about.
+        observation_space = self.unwrapped.single_observation_space["policy"]
+        action_space = self.unwrapped.single_action_space
+        if isinstance(action_space, gym.spaces.Box) and not action_space.is_bounded("both"):
+            action_space = gym.spaces.Box(low=-100, high=100, shape=action_space.shape)
+
+        # initialize vec-env
+        VecEnv.__init__(self, self.num_envs, observation_space, action_space)
+        # add buffer for logging episodic information
+        self._ep_rew_buf = torch.zeros(self.num_envs, device=self.sim_device)
+        self._ep_len_buf = torch.zeros(self.num_envs, device=self.sim_device)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def __str__(self):
         """Returns the wrapper name and the :attr:`env` representation string."""
@@ -194,11 +257,19 @@ class Sb3VecEnvWrapper(VecEnv):
 
     def get_episode_rewards(self) -> list[float]:
         """Returns the rewards of all the episodes."""
+<<<<<<< HEAD
         return self._ep_rew_buf.tolist()
 
     def get_episode_lengths(self) -> list[int]:
         """Returns the number of time-steps of all the episodes."""
         return self._ep_len_buf.tolist()
+=======
+        return self._ep_rew_buf.cpu().tolist()
+
+    def get_episode_lengths(self) -> list[int]:
+        """Returns the number of time-steps of all the episodes."""
+        return self._ep_len_buf.cpu().tolist()
+>>>>>>> abfba5273e (Fresh start, no history)
 
     """
     Operations - MDP
@@ -210,8 +281,13 @@ class Sb3VecEnvWrapper(VecEnv):
     def reset(self) -> VecEnvObs:  # noqa: D102
         obs_dict, _ = self.env.reset()
         # reset episodic information buffers
+<<<<<<< HEAD
         self._ep_rew_buf = np.zeros(self.num_envs)
         self._ep_len_buf = np.zeros(self.num_envs)
+=======
+        self._ep_rew_buf.zero_()
+        self._ep_len_buf.zero_()
+>>>>>>> abfba5273e (Fresh start, no history)
         # convert data types to numpy depending on backend
         return self._process_obs(obs_dict)
 
@@ -228,12 +304,22 @@ class Sb3VecEnvWrapper(VecEnv):
     def step_wait(self) -> VecEnvStepReturn:  # noqa: D102
         # record step information
         obs_dict, rew, terminated, truncated, extras = self.env.step(self._async_actions)
+<<<<<<< HEAD
         # compute reset ids
         dones = terminated | truncated
+=======
+        # update episode un-discounted return and length
+        self._ep_rew_buf += rew
+        self._ep_len_buf += 1
+        # compute reset ids
+        dones = terminated | truncated
+        reset_ids = (dones > 0).nonzero(as_tuple=False)
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # convert data types to numpy depending on backend
         # note: ManagerBasedRLEnv uses torch backend (by default).
         obs = self._process_obs(obs_dict)
+<<<<<<< HEAD
         rewards = rew.detach().cpu().numpy()
         terminated = terminated.detach().cpu().numpy()
         truncated = truncated.detach().cpu().numpy()
@@ -244,14 +330,27 @@ class Sb3VecEnvWrapper(VecEnv):
         # update episode un-discounted return and length
         self._ep_rew_buf += rewards
         self._ep_len_buf += 1
+=======
+        rew = rew.detach().cpu().numpy()
+        terminated = terminated.detach().cpu().numpy()
+        truncated = truncated.detach().cpu().numpy()
+        dones = dones.detach().cpu().numpy()
+>>>>>>> abfba5273e (Fresh start, no history)
         # convert extra information to list of dicts
         infos = self._process_extras(obs, terminated, truncated, extras, reset_ids)
 
         # reset info for terminated environments
+<<<<<<< HEAD
         self._ep_rew_buf[reset_ids] = 0.0
         self._ep_len_buf[reset_ids] = 0
 
         return obs, rewards, dones, infos
+=======
+        self._ep_rew_buf[reset_ids] = 0
+        self._ep_len_buf[reset_ids] = 0
+
+        return obs, rew, dones, infos
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def close(self):  # noqa: D102
         self.env.close()
@@ -285,8 +384,12 @@ class Sb3VecEnvWrapper(VecEnv):
             return env_method(*method_args, indices=indices, **method_kwargs)
 
     def env_is_wrapped(self, wrapper_class, indices=None):  # noqa: D102
+<<<<<<< HEAD
         # fake implementation to be able to use `evaluate_policy()` helper
         return [False]
+=======
+        raise NotImplementedError("Checking if environment is wrapped is not supported.")
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def get_images(self):  # noqa: D102
         raise NotImplementedError("Getting images is not supported.")
@@ -295,6 +398,7 @@ class Sb3VecEnvWrapper(VecEnv):
     Helper functions.
     """
 
+<<<<<<< HEAD
     def _process_spaces(self):
         # process observation space
         observation_space = self.unwrapped.single_observation_space["policy"]
@@ -347,6 +451,8 @@ class Sb3VecEnvWrapper(VecEnv):
         # initialize vec-env
         VecEnv.__init__(self, self.num_envs, observation_space, action_space)
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     def _process_obs(self, obs_dict: torch.Tensor | dict[str, torch.Tensor]) -> np.ndarray | dict[str, np.ndarray]:
         """Convert observations into NumPy data type."""
         # Sb3 doesn't support asymmetric observation spaces, so we only use "policy"
@@ -354,9 +460,13 @@ class Sb3VecEnvWrapper(VecEnv):
         # note: ManagerBasedRLEnv uses torch backend (by default).
         if isinstance(obs, dict):
             for key, value in obs.items():
+<<<<<<< HEAD
                 if key in self.observation_processors:
                     obs[key] = self.observation_processors[key](value)
                 obs[key] = obs[key].detach().cpu().numpy()
+=======
+                obs[key] = value.detach().cpu().numpy()
+>>>>>>> abfba5273e (Fresh start, no history)
         elif isinstance(obs, torch.Tensor):
             obs = obs.detach().cpu().numpy()
         else:
@@ -367,6 +477,7 @@ class Sb3VecEnvWrapper(VecEnv):
         self, obs: np.ndarray, terminated: np.ndarray, truncated: np.ndarray, extras: dict, reset_ids: np.ndarray
     ) -> list[dict[str, Any]]:
         """Convert miscellaneous information into dictionary for each sub-environment."""
+<<<<<<< HEAD
         # faster version: only process env that terminated and add bootstrapping info
         if self.fast_variant:
             infos = [{} for _ in range(self.num_envs)]
@@ -390,6 +501,8 @@ class Sb3VecEnvWrapper(VecEnv):
 
             return infos
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # create empty list of dictionaries to fill
         infos: list[dict[str, Any]] = [dict.fromkeys(extras.keys()) for _ in range(self.num_envs)]
         # fill-in information for each sub-environment

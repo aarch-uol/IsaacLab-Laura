@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -17,6 +21,7 @@ from pxr import UsdPhysics
 import isaaclab.sim as sim_utils
 import isaaclab.utils.string as string_utils
 from isaaclab.markers import VisualizationMarkers
+<<<<<<< HEAD
 from isaaclab.utils.math import (
     combine_frame_transforms,
     convert_quat,
@@ -25,6 +30,9 @@ from isaaclab.utils.math import (
     quat_from_angle_axis,
     subtract_frame_transforms,
 )
+=======
+from isaaclab.utils.math import combine_frame_transforms, convert_quat, is_identity_pose, subtract_frame_transforms
+>>>>>>> abfba5273e (Fresh start, no history)
 
 from ..sensor_base import SensorBase
 from .frame_transformer_data import FrameTransformerData
@@ -430,11 +438,23 @@ class FrameTransformer(SensorBase):
             if not hasattr(self, "frame_visualizer"):
                 self.frame_visualizer = VisualizationMarkers(self.cfg.visualizer_cfg)
 
+<<<<<<< HEAD
+=======
+                try:
+                    # isaacsim.util is not available in headless mode
+                    import isaacsim.util.debug_draw._debug_draw as isaac_debug_draw
+
+                    self.debug_draw = isaac_debug_draw.acquire_debug_draw_interface()
+                except ImportError:
+                    omni.log.info("isaacsim.util.debug_draw module not found. Debug visualization will be limited.")
+
+>>>>>>> abfba5273e (Fresh start, no history)
             # set their visibility to true
             self.frame_visualizer.set_visibility(True)
         else:
             if hasattr(self, "frame_visualizer"):
                 self.frame_visualizer.set_visibility(False)
+<<<<<<< HEAD
 
     def _debug_vis_callback(self, event):
         # Get the all frames pose
@@ -464,6 +484,27 @@ class FrameTransformer(SensorBase):
             scales=marker_scales,
             marker_indices=marker_indices,
         )
+=======
+                # clear the lines
+                if hasattr(self, "debug_draw"):
+                    self.debug_draw.clear_lines()
+
+    def _debug_vis_callback(self, event):
+        # Update the visualized markers
+        all_pos = torch.cat([self._data.source_pos_w, self._data.target_pos_w.view(-1, 3)], dim=0)
+        all_quat = torch.cat([self._data.source_quat_w, self._data.target_quat_w.view(-1, 4)], dim=0)
+        self.frame_visualizer.visualize(all_pos, all_quat)
+
+        if hasattr(self, "debug_draw"):
+            # Draw lines connecting the source frame to the target frames
+            self.debug_draw.clear_lines()
+            # make the lines color yellow
+            source_pos = self._data.source_pos_w.cpu().tolist()
+            colors = [[1, 1, 0, 1]] * self._num_envs
+            for frame_index in range(len(self._target_frame_names)):
+                target_pos = self._data.target_pos_w[:, frame_index].cpu().tolist()
+                self.debug_draw.draw_lines(source_pos, target_pos, colors, [1.5] * self._num_envs)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     """
     Internal simulation callbacks.
@@ -475,6 +516,7 @@ class FrameTransformer(SensorBase):
         super()._invalidate_initialize_callback(event)
         # set all existing views to None to invalidate them
         self._frame_physx_view = None
+<<<<<<< HEAD
 
     """
     Internal helpers.
@@ -524,3 +566,5 @@ class FrameTransformer(SensorBase):
         orientations = quat_from_angle_axis(angle, rotation_axis)
 
         return positions, orientations, lengths
+=======
+>>>>>>> abfba5273e (Fresh start, no history)

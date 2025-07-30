@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -775,6 +779,7 @@ def test_external_force_buffer(sim, num_articulations, device):
                 external_wrench_b[..., 3:],
                 body_ids=body_ids,
                 positions=external_wrench_positions_b,
+<<<<<<< HEAD
                 is_global=True,
             )
         else:
@@ -783,6 +788,12 @@ def test_external_force_buffer(sim, num_articulations, device):
                 external_wrench_b[..., 3:],
                 body_ids=body_ids,
                 is_global=False,
+=======
+            )
+        else:
+            articulation.set_external_force_and_torque(
+                external_wrench_b[..., :3], external_wrench_b[..., 3:], body_ids=body_ids
+>>>>>>> abfba5273e (Fresh start, no history)
             )
 
         # check if the articulation's force and torque buffers are correctly updated
@@ -790,7 +801,10 @@ def test_external_force_buffer(sim, num_articulations, device):
             assert articulation._external_force_b[i, 0, 0].item() == force
             assert articulation._external_torque_b[i, 0, 0].item() == force
             assert articulation._external_wrench_positions_b[i, 0, 0].item() == position
+<<<<<<< HEAD
             assert articulation._use_global_wrench_frame == (step == 0 or step == 3)
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # apply action to the articulation
         articulation.set_joint_position_target(articulation.data.default_joint_pos.clone())
@@ -1550,7 +1564,11 @@ def test_body_root_state(sim, num_articulations, device, with_offset):
             torch.testing.assert_close(pos_gt, body_com_state_w[..., :3], atol=1e-3, rtol=1e-1)
 
             # orientation
+<<<<<<< HEAD
             com_quat_b = articulation.data.body_com_quat_b
+=======
+            com_quat_b = articulation.data.com_quat_b
+>>>>>>> abfba5273e (Fresh start, no history)
             com_quat_w = math_utils.quat_mul(body_link_state_w[..., 3:7], com_quat_b)
             torch.testing.assert_close(com_quat_w, body_com_state_w[..., 3:7])
             torch.testing.assert_close(com_quat_w[:, 0, :], root_com_state_w[..., 3:7])
@@ -1720,6 +1738,7 @@ def test_body_incoming_joint_wrench_b_single_joint(sim, num_articulations, devic
         rtol=1e-3,
     )
 
+<<<<<<< HEAD
 
 @pytest.mark.parametrize("device", ["cuda:0", "cpu"])
 def test_setting_articulation_root_prim_path(sim, device):
@@ -1839,6 +1858,42 @@ def test_write_joint_state_data_consistency(sim, num_articulations, device, grav
     torch.testing.assert_close(articulation.data.body_link_pose_w, articulation.data.body_link_state_w[..., :7])
     torch.testing.assert_close(articulation.data.body_com_pose_w, articulation.data.body_com_state_w[..., :7])
     torch.testing.assert_close(articulation.data.body_vel_w, articulation.data.body_state_w[..., 7:])
+=======
+    def test_setting_articulation_root_prim_path(self):
+        """Test that the articulation root prim path can be set explicitly."""
+        with build_simulation_context(device="cuda:0", add_ground_plane=False, auto_add_lighting=True) as sim:
+            sim._app_control_on_stop_handle = None
+            # Create articulation
+            articulation_cfg = generate_articulation_cfg(articulation_type="humanoid")
+            print(articulation_cfg.spawn.usd_path)
+            articulation_cfg.articulation_root_prim_path = "/torso"
+            articulation, _ = generate_articulation(articulation_cfg, 1, "cuda:0")
+
+            # Check that boundedness of articulation is correct
+            self.assertEqual(ctypes.c_long.from_address(id(articulation)).value, 1)
+
+            # Play sim
+            sim.reset()
+            # Check if articulation is initialized
+            self.assertTrue(articulation._is_initialized)
+
+    def test_setting_invalid_articulation_root_prim_path(self):
+        """Test that the articulation root prim path can be set explicitly."""
+        with build_simulation_context(device="cuda:0", add_ground_plane=False, auto_add_lighting=True) as sim:
+            sim._app_control_on_stop_handle = None
+            # Create articulation
+            articulation_cfg = generate_articulation_cfg(articulation_type="humanoid")
+            print(articulation_cfg.spawn.usd_path)
+            articulation_cfg.articulation_root_prim_path = "/non_existing_prim_path"
+            articulation, _ = generate_articulation(articulation_cfg, 1, "cuda:0")
+
+            # Check that boundedness of articulation is correct
+            self.assertEqual(ctypes.c_long.from_address(id(articulation)).value, 1)
+
+            # Play sim
+            with pytest.raises(RuntimeError):
+                sim.reset()
+>>>>>>> abfba5273e (Fresh start, no history)
 
 
 if __name__ == "__main__":

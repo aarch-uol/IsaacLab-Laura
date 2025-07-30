@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -291,8 +295,15 @@ class Articulation(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+<<<<<<< HEAD
         self.write_root_link_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_com_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
+=======
+
+        # set into simulation
+        self.write_root_pose_to_sim(root_state[:, :7], env_ids=env_ids)
+        self.write_root_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def write_root_com_state_to_sim(self, root_state: torch.Tensor, env_ids: Sequence[int] | None = None):
         """Set the root center of mass state over selected environment indices into the simulation.
@@ -304,6 +315,10 @@ class Articulation(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+<<<<<<< HEAD
+=======
+        # set into simulation
+>>>>>>> abfba5273e (Fresh start, no history)
         self.write_root_com_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_com_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
 
@@ -317,6 +332,10 @@ class Articulation(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+<<<<<<< HEAD
+=======
+        # set into simulation
+>>>>>>> abfba5273e (Fresh start, no history)
         self.write_root_link_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_link_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
 
@@ -329,7 +348,27 @@ class Articulation(AssetBase):
             root_pose: Root poses in simulation frame. Shape is (len(env_ids), 7).
             env_ids: Environment indices. If None, then all indices are used.
         """
+<<<<<<< HEAD
         self.write_root_link_pose_to_sim(root_pose, env_ids=env_ids)
+=======
+        # resolve all indices
+        physx_env_ids = env_ids
+        if env_ids is None:
+            env_ids = slice(None)
+            physx_env_ids = self._ALL_INDICES
+        # note: we need to do this here since tensors are not set into simulation until step.
+        # set into internal buffers
+        self._data.root_state_w[env_ids, :7] = root_pose.clone()
+        # convert root quaternion from wxyz to xyzw
+        root_poses_xyzw = self._data.root_state_w[:, :7].clone()
+        root_poses_xyzw[:, 3:] = math_utils.convert_quat(root_poses_xyzw[:, 3:], to="xyzw")
+        # Need to invalidate the buffer to trigger the update with the new root pose.
+        self._data._body_state_w.timestamp = -1.0
+        self._data._body_link_state_w.timestamp = -1.0
+        self._data._body_com_state_w.timestamp = -1.0
+        # set into simulation
+        self.root_physx_view.set_root_transforms(root_poses_xyzw, indices=physx_env_ids)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def write_root_link_pose_to_sim(self, root_pose: torch.Tensor, env_ids: Sequence[int] | None = None):
         """Set the root link pose over selected environment indices into the simulation.
@@ -345,6 +384,7 @@ class Articulation(AssetBase):
         if env_ids is None:
             env_ids = slice(None)
             physx_env_ids = self._ALL_INDICES
+<<<<<<< HEAD
 
         # note: we need to do this here since tensors are not set into simulation until step.
         # set into internal buffers
@@ -366,6 +406,19 @@ class Articulation(AssetBase):
         self._data._body_link_state_w.timestamp = -1.0
         self._data._body_com_state_w.timestamp = -1.0
 
+=======
+        # note: we need to do this here since tensors are not set into simulation until step.
+        # set into internal buffers
+        self._data.root_link_state_w[env_ids, :7] = root_pose.clone()
+        self._data.root_state_w[env_ids, :7] = self._data.root_link_state_w[env_ids, :7]
+        # convert root quaternion from wxyz to xyzw
+        root_poses_xyzw = self._data.root_link_state_w[:, :7].clone()
+        root_poses_xyzw[:, 3:] = math_utils.convert_quat(root_poses_xyzw[:, 3:], to="xyzw")
+        # Need to invalidate the buffer to trigger the update with the new root pose.
+        self._data._body_state_w.timestamp = -1.0
+        self._data._body_link_state_w.timestamp = -1.0
+        self._data._body_com_state_w.timestamp = -1.0
+>>>>>>> abfba5273e (Fresh start, no history)
         # set into simulation
         self.root_physx_view.set_root_transforms(root_poses_xyzw, indices=physx_env_ids)
 
@@ -380,6 +433,7 @@ class Articulation(AssetBase):
             env_ids: Environment indices. If None, then all indices are used.
         """
         # resolve all indices
+<<<<<<< HEAD
         if env_ids is None:
             local_env_ids = slice(env_ids)
         else:
@@ -405,6 +459,25 @@ class Articulation(AssetBase):
 
         # write transformed pose in link frame to sim
         self.write_root_link_pose_to_sim(root_pose=root_link_pose, env_ids=env_ids)
+=======
+        physx_env_ids = env_ids
+        if env_ids is None:
+            env_ids = slice(None)
+            physx_env_ids = self._ALL_INDICES
+
+        com_pos = self.data.com_pos_b[env_ids, 0, :]
+        com_quat = self.data.com_quat_b[env_ids, 0, :]
+
+        root_link_pos, root_link_quat = math_utils.combine_frame_transforms(
+            root_pose[..., :3],
+            root_pose[..., 3:7],
+            math_utils.quat_apply(math_utils.quat_inv(com_quat), -com_pos),
+            math_utils.quat_inv(com_quat),
+        )
+
+        root_link_pose = torch.cat((root_link_pos, root_link_quat), dim=-1)
+        self.write_root_link_pose_to_sim(root_pose=root_link_pose, env_ids=physx_env_ids)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def write_root_velocity_to_sim(self, root_velocity: torch.Tensor, env_ids: Sequence[int] | None = None):
         """Set the root center of mass velocity over selected environment indices into the simulation.
@@ -416,6 +489,7 @@ class Articulation(AssetBase):
             root_velocity: Root center of mass velocities in simulation world frame. Shape is (len(env_ids), 6).
             env_ids: Environment indices. If None, then all indices are used.
         """
+<<<<<<< HEAD
         self.write_root_com_velocity_to_sim(root_velocity=root_velocity, env_ids=env_ids)
 
     def write_root_com_velocity_to_sim(self, root_velocity: torch.Tensor, env_ids: Sequence[int] | None = None):
@@ -428,11 +502,14 @@ class Articulation(AssetBase):
             root_velocity: Root center of mass velocities in simulation world frame. Shape is (len(env_ids), 6).
             env_ids: Environment indices. If None, then all indices are used.
         """
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # resolve all indices
         physx_env_ids = env_ids
         if env_ids is None:
             env_ids = slice(None)
             physx_env_ids = self._ALL_INDICES
+<<<<<<< HEAD
 
         # note: we need to do this here since tensors are not set into simulation until step.
         # set into internal buffers
@@ -447,6 +524,38 @@ class Articulation(AssetBase):
 
         # set into simulation
         self.root_physx_view.set_root_velocities(self._data.root_com_vel_w, indices=physx_env_ids)
+=======
+        # note: we need to do this here since tensors are not set into simulation until step.
+        # set into internal buffers
+        self._data.root_state_w[env_ids, 7:] = root_velocity.clone()
+        self._data.body_acc_w[env_ids] = 0.0
+        # set into simulation
+        self.root_physx_view.set_root_velocities(self._data.root_state_w[:, 7:], indices=physx_env_ids)
+
+    def write_root_com_velocity_to_sim(self, root_velocity: torch.Tensor, env_ids: Sequence[int] | None = None):
+        """Set the root center of mass velocity over selected environment indices into the simulation.
+
+        The velocity comprises linear velocity (x, y, z) and angular velocity (x, y, z) in that order.
+        NOTE: This sets the velocity of the root's center of mass rather than the roots frame.
+
+        Args:
+            root_velocity: Root center of mass velocities in simulation world frame. Shape is (len(env_ids), 6).
+            env_ids: Environment indices. If None, then all indices are used.
+        """
+
+        # resolve all indices
+        physx_env_ids = env_ids
+        if env_ids is None:
+            env_ids = slice(None)
+            physx_env_ids = self._ALL_INDICES
+        # note: we need to do this here since tensors are not set into simulation until step.
+        # set into internal buffers
+        self._data.root_com_state_w[env_ids, 7:] = root_velocity.clone()
+        self._data.root_state_w[env_ids, 7:] = self._data.root_com_state_w[env_ids, 7:]
+        self._data.body_acc_w[env_ids] = 0.0
+        # set into simulation
+        self.root_physx_view.set_root_velocities(self._data.root_com_state_w[:, 7:], indices=physx_env_ids)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def write_root_link_velocity_to_sim(self, root_velocity: torch.Tensor, env_ids: Sequence[int] | None = None):
         """Set the root link velocity over selected environment indices into the simulation.
@@ -459,6 +568,7 @@ class Articulation(AssetBase):
             env_ids: Environment indices. If None, then all indices are used.
         """
         # resolve all indices
+<<<<<<< HEAD
         if env_ids is None:
             local_env_ids = slice(env_ids)
         else:
@@ -481,6 +591,22 @@ class Articulation(AssetBase):
 
         # write transformed velocity in CoM frame to sim
         self.write_root_com_velocity_to_sim(root_velocity=root_com_velocity, env_ids=env_ids)
+=======
+        physx_env_ids = env_ids
+        if env_ids is None:
+            env_ids = slice(None)
+            physx_env_ids = self._ALL_INDICES
+
+        root_com_velocity = root_velocity.clone()
+        quat = self.data.root_link_state_w[env_ids, 3:7]
+        com_pos_b = self.data.com_pos_b[env_ids, 0, :]
+        # transform given velocity to center of mass
+        root_com_velocity[:, :3] += torch.linalg.cross(
+            root_com_velocity[:, 3:], math_utils.quat_apply(quat, com_pos_b), dim=-1
+        )
+        # write center of mass velocity to sim
+        self.write_root_com_velocity_to_sim(root_velocity=root_com_velocity, env_ids=physx_env_ids)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def write_joint_state_to_sim(
         self,
@@ -527,12 +653,15 @@ class Articulation(AssetBase):
         # set into internal buffers
         self._data.joint_pos[env_ids, joint_ids] = position
         # Need to invalidate the buffer to trigger the update with the new root pose.
+<<<<<<< HEAD
         self._data._body_com_vel_w.timestamp = -1.0
         self._data._body_link_vel_w.timestamp = -1.0
         self._data._body_com_pose_b.timestamp = -1.0
         self._data._body_com_pose_w.timestamp = -1.0
         self._data._body_link_pose_w.timestamp = -1.0
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         self._data._body_state_w.timestamp = -1.0
         self._data._body_link_state_w.timestamp = -1.0
         self._data._body_com_state_w.timestamp = -1.0
@@ -842,7 +971,10 @@ class Articulation(AssetBase):
         positions: torch.Tensor | None = None,
         body_ids: Sequence[int] | slice | None = None,
         env_ids: Sequence[int] | None = None,
+<<<<<<< HEAD
         is_global: bool = False,
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     ):
         """Set external force and torque to apply on the asset's bodies in their local frame.
 
@@ -860,6 +992,7 @@ class Articulation(AssetBase):
                 # example of disabling external wrench
                 asset.set_external_force_and_torque(forces=torch.zeros(0, 3), torques=torch.zeros(0, 3))
 
+<<<<<<< HEAD
         .. caution::
             If the function is called consecutively with and with different values for ``is_global``, then the
             all the external wrenches will be applied in the frame specified by the last call.
@@ -871,6 +1004,8 @@ class Articulation(AssetBase):
                 asset.set_external_force_and_torque(forces=torch.ones(1, 1, 3), env_ids=[1], is_global=False)
                 # Both environments will have the external wrenches applied in the link frame
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         .. note::
             This function does not apply the external wrench to the simulation. It only fills the buffers with
             the desired values. To apply the external wrench, call the :meth:`write_data_to_sim` function
@@ -882,8 +1017,11 @@ class Articulation(AssetBase):
             positions: Positions to apply external wrench. Shape is (len(env_ids), len(body_ids), 3). Defaults to None.
             body_ids: Body indices to apply external wrench to. Defaults to None (all bodies).
             env_ids: Environment indices to apply external wrench to. Defaults to None (all instances).
+<<<<<<< HEAD
             is_global: Whether to apply the external wrench in the global frame. Defaults to False. If set to False,
                 the external wrench is applied in the link frame of the articulations' bodies.
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         """
         if forces.any() or torques.any():
             self.has_external_wrench = True
@@ -914,6 +1052,7 @@ class Articulation(AssetBase):
         self._external_force_b.flatten(0, 1)[indices] = forces.flatten(0, 1)
         self._external_torque_b.flatten(0, 1)[indices] = torques.flatten(0, 1)
 
+<<<<<<< HEAD
         if is_global != self._use_global_wrench_frame:
             omni.log.warn(
                 f"The external wrench frame has been changed from {self._use_global_wrench_frame} to {is_global}. This"
@@ -921,6 +1060,8 @@ class Articulation(AssetBase):
             )
             self._use_global_wrench_frame = is_global
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         # If the positions are not provided, the behavior and performance of the simulation should not be affected.
         if positions is not None:
             # Generates a flag that is set for a full simulation step. This is done to avoid discarding
@@ -1278,7 +1419,10 @@ class Articulation(AssetBase):
         self._external_force_b = torch.zeros((self.num_instances, self.num_bodies, 3), device=self.device)
         self._external_torque_b = torch.zeros_like(self._external_force_b)
         self._external_wrench_positions_b = torch.zeros_like(self._external_force_b)
+<<<<<<< HEAD
         self._use_global_wrench_frame = False
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # asset named data
         self._data.joint_names = self.joint_names
@@ -1346,6 +1490,18 @@ class Articulation(AssetBase):
         default_root_state = torch.tensor(default_root_state, dtype=torch.float, device=self.device)
         self._data.default_root_state = default_root_state.repeat(self.num_instances, 1)
 
+<<<<<<< HEAD
+=======
+        # -- external wrench
+        external_wrench_frame = self.cfg.articulation_external_wrench_frame
+        if external_wrench_frame == "local":
+            self._use_global_wrench_frame = False
+        elif external_wrench_frame == "world":
+            self._use_global_wrench_frame = True
+        else:
+            raise ValueError(f"Invalid external wrench frame: {external_wrench_frame}. Must be 'local' or 'world'.")
+
+>>>>>>> abfba5273e (Fresh start, no history)
         # -- joint state
         self._data.default_joint_pos = torch.zeros(self.num_instances, self.num_joints, device=self.device)
         self._data.default_joint_vel = torch.zeros_like(self._data.default_joint_pos)
@@ -1456,6 +1612,7 @@ class Articulation(AssetBase):
                 f" joints available: {total_act_joints} != {self.num_joints - self.num_fixed_tendons}."
             )
 
+<<<<<<< HEAD
         if self.cfg.actuator_value_resolution_debug_print:
             t = PrettyTable(["Group", "Property", "Name", "ID", "USD Value", "ActutatorCfg Value", "Applied"])
             for actuator_group, actuator in self.actuators.items():
@@ -1469,6 +1626,8 @@ class Articulation(AssetBase):
                         group_count += 1
             omni.log.warn(f"\nActuatorCfg-USD Value Discrepancy Resolution (matching values are skipped): \n{t}")
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
     def _process_fixed_tendons(self):
         """Process fixed tendons."""
         # create a list to store the fixed tendon names

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -27,7 +31,11 @@ INSTALL_REQUIRES = [
     # devices
     "hidapi==0.14.0.post2",
     # reinforcement learning
+<<<<<<< HEAD
     "gymnasium==1.2.0",
+=======
+    "gymnasium",
+>>>>>>> abfba5273e (Fresh start, no history)
     # procedural-generation
     "trimesh",
     "pyglet<2",
@@ -36,7 +44,11 @@ INSTALL_REQUIRES = [
     "einops",  # needed for transformers, doesn't always auto-install
     "warp-lang",
     # make sure this is consistent with isaac sim version
+<<<<<<< HEAD
     "pillow==11.2.1",
+=======
+    "pillow==11.0.0",
+>>>>>>> abfba5273e (Fresh start, no history)
     # livestream
     "starlette==0.45.3",
     # testing

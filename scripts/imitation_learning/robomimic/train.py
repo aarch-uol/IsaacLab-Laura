@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -69,7 +73,13 @@ import torch
 import traceback
 from collections import OrderedDict
 from torch.utils.data import DataLoader
+<<<<<<< HEAD
 
+=======
+import chills.tasks
+
+import wandb
+>>>>>>> abfba5273e (Fresh start, no history)
 import psutil
 
 # Robomimic imports
@@ -85,6 +95,10 @@ from robomimic.utils.log_utils import DataLogger, PrintLogger
 # Isaac Lab imports (needed so that environment is registered)
 import isaaclab_tasks  # noqa: F401
 import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
+<<<<<<< HEAD
+=======
+import chills.tasks
+>>>>>>> abfba5273e (Fresh start, no history)
 
 
 def normalize_hdf5_actions(config: Config, log_dir: str) -> str:
@@ -143,6 +157,11 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
         ckpt_dir: Directory to save checkpoints.
         video_dir: Directory to save videos.
     """
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> abfba5273e (Fresh start, no history)
     # first set seeds
     np.random.seed(config.train.seed)
     torch.manual_seed(config.train.seed)
@@ -160,7 +179,12 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
         logger = PrintLogger(os.path.join(log_dir, "log.txt"))
         sys.stdout = logger
         sys.stderr = logger
+<<<<<<< HEAD
 
+=======
+ 
+    
+>>>>>>> abfba5273e (Fresh start, no history)
     # read config to set up metadata for observation modalities (e.g. detecting rgb observations)
     ObsUtils.initialize_obs_utils_with_config(config)
 
@@ -185,7 +209,11 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
     if config.experiment.rollout.enabled:
         # create environments for validation runs
         env_names = [env_meta["env_name"]]
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> abfba5273e (Fresh start, no history)
         if config.experiment.additional_envs is not None:
             for name in config.experiment.additional_envs:
                 env_names.append(name)
@@ -197,6 +225,10 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
                 render=False,
                 render_offscreen=config.experiment.render_video,
                 use_image_obs=shape_meta["use_images"],
+<<<<<<< HEAD
+=======
+                #env_kwargs = env_meta.get("env_kwargs", {})
+>>>>>>> abfba5273e (Fresh start, no history)
             )
             envs[env.name] = env
             print(envs[env.name])
@@ -204,7 +236,11 @@ def train(config: Config, device: str, log_dir: str, ckpt_dir: str, video_dir: s
     print("")
 
     # setup for a new training run
+<<<<<<< HEAD
     data_logger = DataLogger(log_dir, config=config, log_tb=config.experiment.logging.log_tb)
+=======
+    data_logger = DataLogger(log_dir, config=config, log_tb=config.experiment.logging.log_tb, log_wandb=config.experiment.logging.log_wandb,)
+>>>>>>> abfba5273e (Fresh start, no history)
     model = algo_factory(
         algo_name=config.algo_name,
         config=config,
@@ -354,6 +390,7 @@ def main(args: argparse.Namespace):
     if args.task is not None:
         # obtain the configuration entry point
         cfg_entry_point_key = f"robomimic_{args.algo}_cfg_entry_point"
+<<<<<<< HEAD
         task_name = args.task.split(":")[-1]
 
         print(f"Loading configuration for task: {task_name}")
@@ -364,6 +401,17 @@ def main(args: argparse.Namespace):
         if cfg_entry_point_file is None:
             raise ValueError(
                 f"Could not find configuration for the environment: '{task_name}'."
+=======
+
+        print(f"Loading configuration for task: {args.task}")
+        print(gym.envs.registry.keys())
+        print(" ")
+        cfg_entry_point_file = gym.spec(args.task).kwargs.pop(cfg_entry_point_key)
+        # check if entry point exists
+        if cfg_entry_point_file is None:
+            raise ValueError(
+                f"Could not find configuration for the environment: '{args.task}'."
+>>>>>>> abfba5273e (Fresh start, no history)
                 f" Please check that the gym registry has the entry point: '{cfg_entry_point_key}'."
             )
 
@@ -382,9 +430,21 @@ def main(args: argparse.Namespace):
 
     if args.name is not None:
         config.experiment.name = args.name
+<<<<<<< HEAD
 
     # change location of experiment directory
     config.train.output_dir = os.path.abspath(os.path.join("./logs", args.log_dir, args.task))
+=======
+    
+    run=wandb.init(
+        project=config.experiment.logging.wandb_proj_name,
+        name=config.experiment.name
+    )
+    run.define_metric("train reward", step_metric="episode")
+    run.define_metric("episode error", step_metric="episode")
+    # change location of experiment directory
+    config.train.output_dir = os.path.abspath(os.path.join("/workspace/isaaclab/", args.log_dir, args.task))
+>>>>>>> abfba5273e (Fresh start, no history)
 
     log_dir, ckpt_dir, video_dir = TrainUtils.get_exp_dir(config)
 
@@ -403,6 +463,10 @@ def main(args: argparse.Namespace):
     except Exception as e:
         res_str = f"run failed with error:\n{e}\n\n{traceback.format_exc()}"
     print(res_str)
+<<<<<<< HEAD
+=======
+    run.finish()
+>>>>>>> abfba5273e (Fresh start, no history)
 
 
 if __name__ == "__main__":
@@ -435,3 +499,7 @@ if __name__ == "__main__":
     main(args)
     # close sim app
     simulation_app.close()
+<<<<<<< HEAD
+=======
+>>>>>>> harry/main
+>>>>>>> abfba5273e (Fresh start, no history)

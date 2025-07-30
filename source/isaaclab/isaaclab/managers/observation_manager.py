@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -14,7 +18,11 @@ from collections.abc import Sequence
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
 
+<<<<<<< HEAD
 from isaaclab.utils import class_to_dict, modifiers, noise
+=======
+from isaaclab.utils import class_to_dict, modifiers
+>>>>>>> abfba5273e (Fresh start, no history)
 from isaaclab.utils.buffers import CircularBuffer
 
 from .manager_base import ManagerBase, ManagerTermBase
@@ -239,23 +247,34 @@ class ObservationManager(ManagerBase):
                 if term_name in self._group_obs_term_history_buffer[group_name]:
                     self._group_obs_term_history_buffer[group_name][term_name].reset(batch_ids=env_ids)
         # call all modifiers that are classes
+<<<<<<< HEAD
         for mod in self._group_obs_class_instances:
+=======
+        for mod in self._group_obs_class_modifiers:
+>>>>>>> abfba5273e (Fresh start, no history)
             mod.reset(env_ids=env_ids)
 
         # nothing to log here
         return {}
 
+<<<<<<< HEAD
     def compute(self, update_history: bool = False) -> dict[str, torch.Tensor | dict[str, torch.Tensor]]:
+=======
+    def compute(self) -> dict[str, torch.Tensor | dict[str, torch.Tensor]]:
+>>>>>>> abfba5273e (Fresh start, no history)
         """Compute the observations per group for all groups.
 
         The method computes the observations for all the groups handled by the observation manager.
         Please check the :meth:`compute_group` on the processing of observations per group.
 
+<<<<<<< HEAD
         Args:
             update_history: The boolean indicator without return obs should be appended to observation history.
                 Default to False, in which case calling compute_group does not modify history. This input is no-ops
                 if the group's history_length == 0.
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
         Returns:
             A dictionary with keys as the group names and values as the computed observations.
             The observations are either concatenated into a single tensor or returned as a dictionary
@@ -265,14 +284,22 @@ class ObservationManager(ManagerBase):
         obs_buffer = dict()
         # iterate over all the terms in each group
         for group_name in self._group_obs_term_names:
+<<<<<<< HEAD
             obs_buffer[group_name] = self.compute_group(group_name, update_history=update_history)
+=======
+            obs_buffer[group_name] = self.compute_group(group_name)
+>>>>>>> abfba5273e (Fresh start, no history)
         # otherwise return a dict with observations of all groups
 
         # Cache the observations.
         self._obs_buffer = obs_buffer
         return obs_buffer
 
+<<<<<<< HEAD
     def compute_group(self, group_name: str, update_history: bool = False) -> torch.Tensor | dict[str, torch.Tensor]:
+=======
+    def compute_group(self, group_name: str) -> torch.Tensor | dict[str, torch.Tensor]:
+>>>>>>> abfba5273e (Fresh start, no history)
         """Computes the observations for a given group.
 
         The observations for a given group are computed by calling the registered functions for each
@@ -295,9 +322,12 @@ class ObservationManager(ManagerBase):
         Args:
             group_name: The name of the group for which to compute the observations. Defaults to None,
                 in which case observations for all the groups are computed and returned.
+<<<<<<< HEAD
             update_history: The boolean indicator without return obs should be appended to observation group's history.
                 Default to False, in which case calling compute_group does not modify history. This input is no-ops
                 if the group's history_length == 0.
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 
         Returns:
             Depending on the group's configuration, the tensors for individual observation terms are
@@ -328,16 +358,22 @@ class ObservationManager(ManagerBase):
             if term_cfg.modifiers is not None:
                 for modifier in term_cfg.modifiers:
                     obs = modifier.func(obs, **modifier.params)
+<<<<<<< HEAD
             if isinstance(term_cfg.noise, noise.NoiseCfg):
                 obs = term_cfg.noise.func(obs, term_cfg.noise)
             elif isinstance(term_cfg.noise, noise.NoiseModelCfg) and term_cfg.noise.func is not None:
                 obs = term_cfg.noise.func(obs)
+=======
+            if term_cfg.noise:
+                obs = term_cfg.noise.func(obs, term_cfg.noise)
+>>>>>>> abfba5273e (Fresh start, no history)
             if term_cfg.clip:
                 obs = obs.clip_(min=term_cfg.clip[0], max=term_cfg.clip[1])
             if term_cfg.scale is not None:
                 obs = obs.mul_(term_cfg.scale)
             # Update the history buffer if observation term has history enabled
             if term_cfg.history_length > 0:
+<<<<<<< HEAD
                 circular_buffer = self._group_obs_term_history_buffer[group_name][term_name]
                 if update_history:
                     circular_buffer.append(obs)
@@ -355,6 +391,15 @@ class ObservationManager(ManagerBase):
                     group_obs[term_name] = circular_buffer.buffer.reshape(self._env.num_envs, -1)
                 else:
                     group_obs[term_name] = circular_buffer.buffer
+=======
+                self._group_obs_term_history_buffer[group_name][term_name].append(obs)
+                if term_cfg.flatten_history_dim:
+                    group_obs[term_name] = self._group_obs_term_history_buffer[group_name][term_name].buffer.reshape(
+                        self._env.num_envs, -1
+                    )
+                else:
+                    group_obs[term_name] = self._group_obs_term_history_buffer[group_name][term_name].buffer
+>>>>>>> abfba5273e (Fresh start, no history)
             else:
                 group_obs[term_name] = obs
 
@@ -404,9 +449,15 @@ class ObservationManager(ManagerBase):
         self._group_obs_concatenate_dim: dict[str, int] = dict()
 
         self._group_obs_term_history_buffer: dict[str, dict] = dict()
+<<<<<<< HEAD
         # create a list to store classes instances, e.g., for modifiers and noise models
         # we store it as a separate list to only call reset on them and prevent unnecessary calls
         self._group_obs_class_instances: list[modifiers.ModifierBase | noise.NoiseModel] = list()
+=======
+        # create a list to store modifiers that are classes
+        # we store it as a separate list to only call reset on them and prevent unnecessary calls
+        self._group_obs_class_modifiers: list[modifiers.ModifierBase] = list()
+>>>>>>> abfba5273e (Fresh start, no history)
 
         # make sure the simulation is playing since we compute obs dims which needs asset quantities
         if not self._env.sim.is_playing():
@@ -517,7 +568,11 @@ class ObservationManager(ManagerBase):
                                 mod_cfg.func = mod_cfg.func(cfg=mod_cfg, data_dim=obs_dims, device=self._env.device)
 
                                 # add to list of class modifiers
+<<<<<<< HEAD
                                 self._group_obs_class_instances.append(mod_cfg.func)
+=======
+                                self._group_obs_class_modifiers.append(mod_cfg.func)
+>>>>>>> abfba5273e (Fresh start, no history)
                         else:
                             raise TypeError(
                                 f"Modifier configuration '{mod_cfg}' of observation term '{term_name}' is not of"
@@ -547,6 +602,7 @@ class ObservationManager(ManagerBase):
                                     f" and optional parameters: {args_with_defaults}, but received: {term_params}."
                                 )
 
+<<<<<<< HEAD
                 # prepare noise model classes
                 if term_cfg.noise is not None and isinstance(term_cfg.noise, noise.NoiseModelCfg):
                     noise_model_cls = term_cfg.noise.class_type
@@ -561,6 +617,8 @@ class ObservationManager(ManagerBase):
                     )
                     self._group_obs_class_instances.append(term_cfg.noise.func)
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
                 # create history buffers and calculate history term dimensions
                 if term_cfg.history_length > 0:
                     group_entry_history_buffer[term_name] = CircularBuffer(

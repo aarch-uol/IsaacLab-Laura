@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -68,6 +72,7 @@ class RigidObjectCollectionData:
         )
 
         # Initialize the lazy buffers.
+<<<<<<< HEAD
         # -- link frame w.r.t. world frame
         self._object_link_pose_w = TimestampedBuffer()
         self._object_link_vel_w = TimestampedBuffer()
@@ -81,6 +86,12 @@ class RigidObjectCollectionData:
         self._object_state_w = TimestampedBuffer()
         self._object_link_state_w = TimestampedBuffer()
         self._object_com_state_w = TimestampedBuffer()
+=======
+        self._object_state_w = TimestampedBuffer()
+        self._object_link_state_w = TimestampedBuffer()
+        self._object_com_state_w = TimestampedBuffer()
+        self._object_acc_w = TimestampedBuffer()
+>>>>>>> abfba5273e (Fresh start, no history)
 
     def update(self, dt: float):
         """Updates the data for the rigid object collection.
@@ -121,6 +132,7 @@ class RigidObjectCollectionData:
     """
 
     ##
+<<<<<<< HEAD
     # Root state properties.
     ##
 
@@ -192,6 +204,12 @@ class RigidObjectCollectionData:
         return self._object_com_vel_w.data
 
     @property
+=======
+    # Properties.
+    ##
+
+    @property
+>>>>>>> abfba5273e (Fresh start, no history)
     def object_state_w(self):
         """Object state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame.
         Shape is (num_instances, num_objects, 13).
@@ -199,10 +217,22 @@ class RigidObjectCollectionData:
         The position and orientation are of the rigid body's actor frame. Meanwhile, the linear and angular
         velocities are of the rigid body's center of mass frame.
         """
+<<<<<<< HEAD
         if self._object_state_w.timestamp < self._sim_timestamp:
             self._object_state_w.data = torch.cat((self.object_link_pose_w, self.object_com_vel_w), dim=-1)
             self._object_state_w.timestamp = self._sim_timestamp
 
+=======
+
+        if self._object_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
+            pose[..., 3:7] = math_utils.convert_quat(pose[..., 3:7], to="wxyz")
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+            # set the buffer data and timestamp
+            self._object_state_w.data = torch.cat((pose, velocity), dim=-1)
+            self._object_state_w.timestamp = self._sim_timestamp
+>>>>>>> abfba5273e (Fresh start, no history)
         return self._object_state_w.data
 
     @property
@@ -214,9 +244,25 @@ class RigidObjectCollectionData:
         world.
         """
         if self._object_link_state_w.timestamp < self._sim_timestamp:
+<<<<<<< HEAD
             self._object_link_state_w.data = torch.cat((self.object_link_pose_w, self.object_link_vel_w), dim=-1)
             self._object_link_state_w.timestamp = self._sim_timestamp
 
+=======
+            # read data from simulation
+            pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
+            pose[..., 3:7] = math_utils.convert_quat(pose[..., 3:7], to="wxyz")
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+
+            # adjust linear velocity to link from center of mass
+            velocity[..., :3] += torch.linalg.cross(
+                velocity[..., 3:], math_utils.quat_apply(pose[..., 3:7], -self.com_pos_b[..., :]), dim=-1
+            )
+
+            # set the buffer data and timestamp
+            self._object_link_state_w.data = torch.cat((pose, velocity), dim=-1)
+            self._object_link_state_w.timestamp = self._sim_timestamp
+>>>>>>> abfba5273e (Fresh start, no history)
         return self._object_link_state_w.data
 
     @property
@@ -225,6 +271,7 @@ class RigidObjectCollectionData:
         Shape is (num_instances, num_objects, 13).
 
         The position, quaternion, and linear/angular velocity are of the rigid body's center of mass frame
+<<<<<<< HEAD
         relative to the world. Center of mass frame has the orientation along the principle axes of inertia.
         """
         if self._object_com_state_w.timestamp < self._sim_timestamp:
@@ -235,10 +282,34 @@ class RigidObjectCollectionData:
 
     @property
     def object_com_acc_w(self):
+=======
+        relative to the world. Center of mass frame is the orientation principle axes of inertia.
+        """
+
+        if self._object_com_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
+            pose[..., 3:7] = math_utils.convert_quat(pose[..., 3:7], to="wxyz")
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+
+            # adjust pose to center of mass
+            pos, quat = math_utils.combine_frame_transforms(
+                pose[..., :3], pose[..., 3:7], self.com_pos_b[..., :], self.com_quat_b[..., :]
+            )
+
+            # set the buffer data and timestamp
+            self._object_com_state_w.data = torch.cat((pos, quat, velocity), dim=-1)
+            self._object_com_state_w.timestamp = self._sim_timestamp
+        return self._object_com_state_w.data
+
+    @property
+    def object_acc_w(self):
+>>>>>>> abfba5273e (Fresh start, no history)
         """Acceleration of all objects. Shape is (num_instances, num_objects, 6).
 
         This quantity is the acceleration of the rigid bodies' center of mass frame.
         """
+<<<<<<< HEAD
         if self._object_com_acc_w.timestamp < self._sim_timestamp:
             self._object_com_acc_w.data = self._reshape_view_to_data(self._root_physx_view.get_accelerations())
             self._object_com_acc_w.timestamp = self._sim_timestamp
@@ -265,6 +336,13 @@ class RigidObjectCollectionData:
     ##
     # Derived properties.
     ##
+=======
+        if self._object_acc_w.timestamp < self._sim_timestamp:
+            # note: we use finite differencing to compute acceleration
+            self._object_acc_w.data = self._reshape_view_to_data(self._root_physx_view.get_accelerations().clone())
+            self._object_acc_w.timestamp = self._sim_timestamp
+        return self._object_acc_w.data
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def projected_gravity_b(self):
@@ -282,6 +360,7 @@ class RigidObjectCollectionData:
         forward_w = math_utils.quat_apply(self.object_link_quat_w, self.FORWARD_VEC_B)
         return torch.atan2(forward_w[..., 1], forward_w[..., 0])
 
+<<<<<<< HEAD
     @property
     def object_link_lin_vel_b(self) -> torch.Tensor:
         """Object link linear velocity in base frame. Shape is (num_instances, num_objects, 3).
@@ -323,12 +402,101 @@ class RigidObjectCollectionData:
     ##
 
     @property
+=======
+    ##
+    # Derived properties.
+    ##
+
+    @property
+    def object_pos_w(self) -> torch.Tensor:
+        """Object position in simulation world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the position of the actor frame of the rigid bodies.
+        """
+        return self.object_state_w[..., :3]
+
+    @property
+    def object_quat_w(self) -> torch.Tensor:
+        """Object orientation (w, x, y, z) in simulation world frame. Shape is (num_instances, num_objects, 4).
+
+        This quantity is the orientation of the actor frame of the rigid bodies.
+        """
+        return self.object_state_w[..., 3:7]
+
+    @property
+    def object_vel_w(self) -> torch.Tensor:
+        """Object velocity in simulation world frame. Shape is (num_instances, num_objects, 6).
+
+        This quantity contains the linear and angular velocities of the rigid bodies' center of mass frame.
+        """
+        return self.object_state_w[..., 7:13]
+
+    @property
+    def object_lin_vel_w(self) -> torch.Tensor:
+        """Object linear velocity in simulation world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the linear velocity of the rigid bodies' center of mass frame.
+        """
+        return self.object_state_w[..., 7:10]
+
+    @property
+    def object_ang_vel_w(self) -> torch.Tensor:
+        """Object angular velocity in simulation world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the angular velocity of the rigid bodies' center of mass frame.
+        """
+        return self.object_state_w[..., 10:13]
+
+    @property
+    def object_lin_vel_b(self) -> torch.Tensor:
+        """Object linear velocity in base frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the linear velocity of the rigid bodies' center of mass frame with respect to the
+        rigid body's actor frame.
+        """
+        return math_utils.quat_apply_inverse(self.object_quat_w, self.object_lin_vel_w)
+
+    @property
+    def object_ang_vel_b(self) -> torch.Tensor:
+        """Object angular velocity in base world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the angular velocity of the rigid bodies' center of mass frame with respect to the
+        rigid body's actor frame.
+        """
+        return math_utils.quat_apply_inverse(self.object_quat_w, self.object_ang_vel_w)
+
+    @property
+    def object_lin_acc_w(self) -> torch.Tensor:
+        """Linear acceleration of all bodies in simulation world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the linear acceleration of the rigid bodies' center of mass frame.
+        """
+        return self.object_acc_w[..., 0:3]
+
+    @property
+    def object_ang_acc_w(self) -> torch.Tensor:
+        """Angular acceleration of all bodies in simulation world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the angular acceleration of the rigid bodies' center of mass frame.
+        """
+        return self.object_acc_w[..., 3:6]
+
+    @property
+>>>>>>> abfba5273e (Fresh start, no history)
     def object_link_pos_w(self) -> torch.Tensor:
         """Object link position in simulation world frame. Shape is (num_instances, num_objects, 3).
 
         This quantity is the position of the actor frame of the rigid bodies.
         """
+<<<<<<< HEAD
         return self.object_link_pose_w[..., :3]
+=======
+        if self._object_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
+            return pose[..., :3]
+        return self.object_link_state_w[..., :3]
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def object_link_quat_w(self) -> torch.Tensor:
@@ -336,7 +504,24 @@ class RigidObjectCollectionData:
 
         This quantity is the orientation of the actor frame of the rigid bodies.
         """
+<<<<<<< HEAD
         return self.object_link_pose_w[..., 3:7]
+=======
+        if self._object_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
+            pose[..., 3:7] = math_utils.convert_quat(pose[..., 3:7], to="wxyz")
+            return pose[..., 3:7]
+        return self.object_link_state_w[..., 3:7]
+
+    @property
+    def object_link_vel_w(self) -> torch.Tensor:
+        """Object link velocity in simulation world frame. Shape is (num_instances, num_objects, 6).
+
+        This quantity contains the linear and angular velocities of the rigid bodies' actor frame.
+        """
+        return self.object_link_state_w[..., 7:13]
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def object_link_lin_vel_w(self) -> torch.Tensor:
@@ -344,7 +529,11 @@ class RigidObjectCollectionData:
 
         This quantity is the linear velocity of the rigid bodies' actor frame.
         """
+<<<<<<< HEAD
         return self.object_link_vel_w[..., :3]
+=======
+        return self.object_link_state_w[..., 7:10]
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def object_link_ang_vel_w(self) -> torch.Tensor:
@@ -352,7 +541,29 @@ class RigidObjectCollectionData:
 
         This quantity is the angular velocity of the rigid bodies' actor frame.
         """
+<<<<<<< HEAD
         return self.object_link_vel_w[..., 3:6]
+=======
+        return self.object_link_state_w[..., 10:13]
+
+    @property
+    def object_link_lin_vel_b(self) -> torch.Tensor:
+        """Object link linear velocity in base frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the linear velocity of the actor frame of the root rigid body frame with respect to the
+        rigid body's actor frame.
+        """
+        return math_utils.quat_apply_inverse(self.object_link_quat_w, self.object_link_lin_vel_w)
+
+    @property
+    def object_link_ang_vel_b(self) -> torch.Tensor:
+        """Object link angular velocity in base world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the angular velocity of the actor frame of the root rigid body frame with respect to the
+        rigid body's actor frame.
+        """
+        return math_utils.quat_apply_inverse(self.object_link_quat_w, self.object_link_ang_vel_w)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def object_com_pos_w(self) -> torch.Tensor:
@@ -360,6 +571,7 @@ class RigidObjectCollectionData:
 
         This quantity is the position of the center of mass frame of the rigid bodies.
         """
+<<<<<<< HEAD
         return self.object_com_pose_w[..., :3]
 
     @property
@@ -370,6 +582,29 @@ class RigidObjectCollectionData:
         This quantity is the orientation of the center of mass frame of the rigid bodies.
         """
         return self.object_com_pose_w[..., 3:7]
+=======
+        return self.object_com_state_w[..., :3]
+
+    @property
+    def object_com_quat_w(self) -> torch.Tensor:
+        """Object center of mass orientation (w, x, y, z) in simulation world frame. Shape is (num_instances, num_objects, 4).
+
+        This quantity is the orientation of the center of mass frame of the rigid bodies.
+        """
+        return self.object_com_state_w[..., 3:7]
+
+    @property
+    def object_com_vel_w(self) -> torch.Tensor:
+        """Object center of mass velocity in simulation world frame. Shape is (num_instances, num_objects, 6).
+
+        This quantity contains the linear and angular velocities of the rigid bodies' center of mass frame.
+        """
+        if self._object_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+            return velocity
+        return self.object_com_state_w[..., 7:13]
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def object_com_lin_vel_w(self) -> torch.Tensor:
@@ -377,7 +612,15 @@ class RigidObjectCollectionData:
 
         This quantity is the linear velocity of the rigid bodies' center of mass frame.
         """
+<<<<<<< HEAD
         return self.object_com_vel_w[..., :3]
+=======
+        if self._object_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+            return velocity[..., 0:3]
+        return self.object_com_state_w[..., 7:10]
+>>>>>>> abfba5273e (Fresh start, no history)
 
     @property
     def object_com_ang_vel_w(self) -> torch.Tensor:
@@ -385,6 +628,7 @@ class RigidObjectCollectionData:
 
         This quantity is the angular velocity of the rigid bodies' center of mass frame.
         """
+<<<<<<< HEAD
         return self.object_com_vel_w[..., 3:6]
 
     @property
@@ -492,6 +736,50 @@ class RigidObjectCollectionData:
     def com_quat_b(self) -> torch.Tensor:
         """Same as :attr:`object_com_quat_b`."""
         return self.object_com_quat_b
+=======
+        if self._object_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+            return velocity[..., 3:6]
+        return self.object_com_state_w[..., 10:13]
+
+    @property
+    def object_com_lin_vel_b(self) -> torch.Tensor:
+        """Object center of mass linear velocity in base frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the linear velocity of the center of mass frame of the root rigid body frame with respect to the
+        rigid body's actor frame.
+        """
+        return math_utils.quat_apply_inverse(self.object_link_quat_w, self.object_com_lin_vel_w)
+
+    @property
+    def object_com_ang_vel_b(self) -> torch.Tensor:
+        """Object center of mass angular velocity in base world frame. Shape is (num_instances, num_objects, 3).
+
+        This quantity is the angular velocity of the center of mass frame of the root rigid body frame with respect to the
+        rigid body's actor frame.
+        """
+        return math_utils.quat_apply_inverse(self.object_link_quat_w, self.object_com_ang_vel_w)
+
+    @property
+    def com_pos_b(self) -> torch.Tensor:
+        """Center of mass of all of the bodies in simulation world frame. Shape is (num_instances, 1, 3).
+
+        This quantity is the center of mass location relative to its body frame.
+        """
+        pos = self._root_physx_view.get_coms().to(self.device)[..., :3]
+        return self._reshape_view_to_data(pos)
+
+    @property
+    def com_quat_b(self) -> torch.Tensor:
+        """Orientation (w,x,y,z) of the prinicple axies of inertia of all of the bodies in simulation world frame. Shape is (num_instances, 1, 4).
+
+        This quantity is the orientation of the principles axes of inertia relative to its body frame.
+        """
+        quat = self._root_physx_view.get_coms().to(self.device)[..., 3:7].view(self.num_instances, self.num_objects, 4)
+        quat_wxyz = math_utils.convert_quat(quat, to="wxyz")
+        return self._reshape_view_to_data(quat_wxyz)
+>>>>>>> abfba5273e (Fresh start, no history)
 
     ##
     # Helpers.

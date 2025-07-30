@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Sub-module with utilities for parsing and loading configurations."""
 
+<<<<<<< HEAD
 import collections
+=======
+
+>>>>>>> abfba5273e (Fresh start, no history)
 import gymnasium as gym
 import importlib
 import inspect
@@ -52,6 +60,7 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
         ValueError: If the entry point key is not available in the gym registry for the task.
     """
     # obtain the configuration entry point
+<<<<<<< HEAD
     cfg_entry_point = gym.spec(task_name.split(":")[-1]).kwargs.get(entry_point_key)
     # check if entry point exists
     if cfg_entry_point is None:
@@ -76,6 +85,14 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
             f"Could not find configuration for the environment: '{task_name}'."
             f"\nPlease check that the gym registry has the entry point: '{entry_point_key}'."
             f"{msg if agents else ''}"
+=======
+    cfg_entry_point = gym.spec(task_name).kwargs.get(entry_point_key)
+    # check if entry point exists
+    if cfg_entry_point is None:
+        raise ValueError(
+            f"Could not find configuration for the environment: '{task_name}'."
+            f" Please check that the gym registry has the entry point: '{entry_point_key}'."
+>>>>>>> abfba5273e (Fresh start, no history)
         )
     # parse the default config file
     if isinstance(cfg_entry_point, str) and cfg_entry_point.endswith(".yaml"):
@@ -135,7 +152,11 @@ def parse_env_cfg(
             environment configuration.
     """
     # load the default configuration
+<<<<<<< HEAD
     cfg = load_cfg_from_registry(task_name.split(":")[-1], "env_cfg_entry_point")
+=======
+    cfg = load_cfg_from_registry(task_name, "env_cfg_entry_point")
+>>>>>>> abfba5273e (Fresh start, no history)
 
     # check that it is not a dict
     # we assume users always use a class for the configuration

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> abfba5273e (Fresh start, no history)
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -23,8 +27,11 @@ import omni.usd
 import pytest
 
 from isaaclab.envs import ManagerBasedEnv, ManagerBasedEnvCfg
+<<<<<<< HEAD
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
 
@@ -37,6 +44,7 @@ class EmptyManagerCfg:
 
 
 @configclass
+<<<<<<< HEAD
 class EmptyObservationWithHistoryCfg:
     """Empty observation with history specifications for the environment."""
 
@@ -53,6 +61,8 @@ class EmptyObservationWithHistoryCfg:
 
 
 @configclass
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 class EmptySceneCfg(InteractiveSceneCfg):
     """Configuration for an empty scene."""
 
@@ -85,6 +95,7 @@ def get_empty_base_env_cfg(device: str = "cuda:0", num_envs: int = 1, env_spacin
     return EmptyEnvCfg()
 
 
+<<<<<<< HEAD
 def get_empty_base_env_cfg_with_history(device: str = "cuda:0", num_envs: int = 1, env_spacing: float = 1.0):
     """Generate base environment config based on device"""
 
@@ -111,6 +122,8 @@ def get_empty_base_env_cfg_with_history(device: str = "cuda:0", num_envs: int = 
     return EmptyEnvWithHistoryCfg()
 
 
+=======
+>>>>>>> abfba5273e (Fresh start, no history)
 @pytest.mark.parametrize("device", ["cuda:0", "cpu"])
 def test_initialization(device):
     """Test initialization of ManagerBasedEnv."""
@@ -134,6 +147,7 @@ def test_initialization(device):
         obs, ext = env.step(action=act)
     # close the environment
     env.close()
+<<<<<<< HEAD
 
 
 @pytest.mark.parametrize("device", ["cuda:0", "cpu"])
@@ -198,3 +212,5 @@ def test_observation_history_changes_only_after_step(device):
 
     # close the environment
     env.close()
+=======
+>>>>>>> abfba5273e (Fresh start, no history)

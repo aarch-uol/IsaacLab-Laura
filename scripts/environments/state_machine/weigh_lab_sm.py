@@ -136,9 +136,13 @@ def infer_state_machine(
                 sm_state[tid] = PickSmState.APPROACH_OBJECT
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT:
+        pose_pos = wp.transform_get_translation(object_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m)
+        offset_pos = wp.vec3(pose_pos.x + 0.02, pose_pos.y, pose_pos.z + 0.04)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         CONICAL = False
         count = 0
-        des_ee_pose[tid] = object_pose[tid]
         pos = wp.transform_get_translation(object_pose[tid])
         if count == 0:
             z_val = pos.z

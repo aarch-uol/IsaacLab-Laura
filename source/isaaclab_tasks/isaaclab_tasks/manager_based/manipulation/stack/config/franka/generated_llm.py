@@ -16,13 +16,11 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
     object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-    object_dropping_table = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": 0.005, "asset_cfg": SceneEntityCfg("object1")})
     success_term = DoneTerm(func=mdp.objects_stacked)
-    timeout_term = DoneTerm(func=mdp.time_out, time_out=True)
+    time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
 class ObservationsCfg:
-    @configclass
     class PolicyCfg(ObsGroup):
         last_action = ObsTerm(func=mdp.last_action)
         joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
@@ -34,7 +32,6 @@ class ObservationsCfg:
         ee_frame_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
 
-    @configclass
     class SubtasksCfg(ObsGroup):
         reach_object = ObsTerm(func=mdp.reach_object, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object1"), "threshold": 0.05})
         object_grasped = ObsTerm(func=mdp.object_grasped, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "robot_cfg": SceneEntityCfg("robot"), "object_cfg": SceneEntityCfg("object1")})
@@ -53,22 +50,16 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         super().__post_init__()
         glassware = glassware_files.Glassware()
         self.terminations = TerminationsCfg()
-        # Set Observations
         self.observations = ObservationsCfg()
-
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
-
         # Add semantics to table
         self.scene.table.spawn.semantic_tags = [("class", "table")]
         # Add semantics to ground
         self.scene.plane.spawn.semantic_tags = [("class", "ground")]
-
         # Set actions for the specific robot type (franka)
-        self.actions.arm_action = mdp.JointPositionActionCfg(
-            asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
-        )
+        self.actions.arm_action = mdp.JointPositionActionCfg(asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True)
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["panda_finger.*"],
@@ -78,8 +69,8 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware
-        self.scene.object1 = glassware.beaker  # Main object for the task
-        self.scene.object2 = glassware.electric_balance
+        self.scene.beaker = glassware.beaker
+        self.scene.hot_plate = glassware.hot_plate
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

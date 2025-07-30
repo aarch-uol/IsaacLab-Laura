@@ -23,6 +23,7 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         super().__post_init__()
         glassware = glassware_files.Glassware()
         self.terminations = TerminationsCfg()
+        self.observations = ObservationsCfg()
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
@@ -31,9 +32,7 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         # Add semantics to ground
         self.scene.plane.semantic_tags = [("class", "ground")]
         # Set actions for the specific robot type (franka)
-        self.actions.arm_action = mdp.JointPositionActionCfg(
-            asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
-        )
+        self.actions.arm_action = mdp.JointPositionActionCfg(asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True)
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["panda_finger.*"],
@@ -55,9 +54,6 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.scene.clamp_stand = glassware.clamp_stand
         self.scene.ring_stand = glassware.ring_stand
         self.scene.test_tube_rack = glassware.test_tube_rack
-
-        # Spawn other objects
-        self.scene.cube = glassware.cube
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

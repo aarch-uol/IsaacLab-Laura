@@ -70,6 +70,8 @@ def objects_stacked(
     stacked = torch.logical_and(
         torch.isclose(robot.data.joint_pos[:, -2], gripper_open_val.to(env.device), atol=atol, rtol=rtol), stacked
     )
+    if stacked == True:
+        print("Termination function: objects_stacked")
 
     return stacked
 
@@ -107,4 +109,6 @@ def object_reached_goal(
     mask = distance < threshold
     # if torch.any(mask):
     #     loghelper.logsubtask(LogType.FINISH)
+    if distance < threshold:
+        print("Term function: object_reached_goal")
     return mask  # or return distance < threshold

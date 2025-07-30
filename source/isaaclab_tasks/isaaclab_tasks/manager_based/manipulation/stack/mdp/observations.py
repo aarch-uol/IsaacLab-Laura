@@ -129,6 +129,8 @@ def reach_object(
     object_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
     # if object_ee_distance.item() < std :
     #     loghelper.logsubtask(LogType.APPR)
+    if object_ee_distance < threshold:
+        print("Obs function: reach_object")
     return object_ee_distance < threshold
 
 
@@ -159,6 +161,8 @@ def object_grasped(
     grasped = torch.logical_and(
         grasped, torch.abs(robot.data.joint_pos[:, -2] - gripper_open_val.to(env.device)) > gripper_threshold
     )
+    if grasped[0]:
+        print("Obs function: object_grasped")
     # if grasped[0]:
     #     loghelper.logsubtask(LogType.GRASP)
 
@@ -174,7 +178,8 @@ def is_object_lifted(
     object = env.scene[object_cfg.name]
     # if object.data.root_pos_w[:, 2].item() > threshold : 
     #     loghelper.logsubtask(LogType.LIFT)
- 
+    if object.data.root_pos_w[:, 2] > threshold:
+        print("Obs function: is_object_lifted")
     return object.data.root_pos_w[:, 2] > threshold
 
 ### Add a waypoint here
@@ -199,7 +204,9 @@ def reach_object2(
     object2_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
     # if object2_ee_distance.item() < std :
     #     loghelper.logsubtask(LogType.APPR_2)
-    return object2_ee_distance < threshold
+    if object2_ee_distance < (threshold + 0.05):
+        print("Obs function: reach_object2")
+    return object2_ee_distance < (threshold + 0.05)
 
 def pour_object(
     env: ManagerBasedEnv,
@@ -223,6 +230,8 @@ def pour_object(
     # Optional: convert radians to degrees
     angles_deg = angles_rad * (180.0 / torch.pi)
     angles_deg = 270 - angles_deg
+    if angles_deg < angle:
+        print("Obs function: pour_object")
     return angles_deg < angle
 
 def reorient_object(
@@ -247,6 +256,8 @@ def reorient_object(
     # Optional: convert radians to degrees
     angles_deg = angles_rad * (180.0 / torch.pi)
     angles_deg = 360 - angles_deg
+    if angles_deg > angle:
+        print("Obs func: reorient_object")
     return angles_deg > angle
 
 def object_stacked(
@@ -256,10 +267,13 @@ def object_stacked(
     upper_object_cfg: SceneEntityCfg,
     lower_object_cfg: SceneEntityCfg,
     command_name: str = "object_pose",
-    xy_threshold: float = 0.05,
-    height_threshold: float = 0.005,
-    height_diff: float = 0.0468,
+    xy_threshold: float = 0.1,
+    height_threshold: float = 0.006,
+    height_diff: float = 0.05,
+    threshold: float = 0.02,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
+    atol=0.0001,
+    rtol=0.0001,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Check if an object is stacked by the specified robot."""
@@ -269,27 +283,49 @@ def object_stacked(
     lower_object: RigidObject = env.scene[lower_object_cfg.name]
     command = env.command_manager.get_command(command_name)
 
-    pos_diff = upper_object.data.root_pos_w - lower_object.data.root_pos_w
-    height_dist = torch.linalg.vector_norm(pos_diff[:, 2:], dim=1)
-    xy_dist = torch.linalg.vector_norm(pos_diff[:, :2], dim=1)
+    # pos_diff = upper_object.data.root_pos_w - lower_object.data.root_pos_w
+    # height_dist = torch.linalg.vector_norm(pos_diff[:, 2:], dim=1)
+    # xy_dist = torch.linalg.vector_norm(pos_diff[:, :2], dim=1)
 
-    stacked = torch.logical_and(xy_dist < xy_threshold, (height_dist - height_diff) < height_threshold)
+    # stacked = torch.logical_and(xy_dist < xy_threshold, (height_dist - height_diff) < height_threshold)
 
-    # Checking right and left gripper positions
-    stacked = torch.logical_and(
-        torch.isclose(robot.data.joint_pos[:, -1], gripper_open_val.to(env.device), atol=1e-4, rtol=1e-4), stacked
-    )
-    stacked = torch.logical_and(
-        torch.isclose(robot.data.joint_pos[:, -2], gripper_open_val.to(env.device), atol=1e-4, rtol=1e-4), stacked
-    )
+    # # Checking right and left gripper positions
+    # stacked = torch.logical_and(
+    #     torch.isclose(robot.data.joint_pos[:, -1], gripper_open_val.to(env.device), atol=1e-4, rtol=1e-4), stacked
+    # )
+    # stacked = torch.logical_and(
+    #     torch.isclose(robot.data.joint_pos[:, -2], gripper_open_val.to(env.device), atol=1e-4, rtol=1e-4), stacked
+    # )
     # if stacked[0]:
     #     loghelper.logsubtask(LogType.STACK)
+        # Position difference between cube and hot plate 
+    pos_diff = lower_object.data.root_pos_w - upper_object.data.root_pos_w
+
+    # # Compute cube position difference in x-y plane
+    xy_dist = torch.norm(pos_diff[:, :2], dim=1)
+
+    height_diff_actual = pos_diff[:, 2]
+
+    # Is true when reaches threshold
+    xy_check = xy_dist < xy_threshold
+
+    # Check that the object is stacked
+    # overall_height = height_diff_actual - height_diff
+    overall_height = height_diff_actual + height_diff
+    # print(overall_height)
+    # height_check = torch.abs(overall_height) < height_threshold
+    height_check = torch.where(overall_height < 0, overall_height, torch.abs(overall_height))
+
+    # Combine [True] for all dimensions
+    stacked = torch.logical_and(xy_check, height_check)
+    if stacked == True:
+        print("Obs function: object_stacked")
 
     return stacked
 
 def object_near_goal(
     env: ManagerBasedRLEnv,
-    command_name: str = "object_pose",
+    # command_name: str = "object_pose",
     threshold: float = 0.02,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
@@ -308,21 +344,38 @@ def object_near_goal(
     # extract the used quantities (to enable type-hinting)
     robot: RigidObject = env.scene[robot_cfg.name]
     object: RigidObject = env.scene[object_cfg.name]
-    command = env.command_manager.get_command(command_name)
+    # command = env.command_manager.get_command(command_name)
     # compute the desired position in the world frame
-    object_pos_w = object.data.root_pos_w[:, :3]
-    object_pos_b, _ = subtract_frame_transforms(
-        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
-    )
-    des_pos_b = command[:, :3]
-    error = torch.norm(des_pos_b - object_pos_b, dim=1)
+    # object_pos_w = object.data.root_pos_w[:, :3]
+    # object_pos_b, _ = subtract_frame_transforms(
+    #     robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
+    # )
+    # des_pos_b = command[:, :3]
+    # error = torch.norm(des_pos_b - object_pos_b, dim=1)
     # des_pos_w, _ = combine_frame_transforms(robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], des_pos_b)
     # # distance of the end-effector to the object: (num_envs,)
     # distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)
     # if error.item() < threshold:
     #  #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
     #     loghelper.logsubtask(LogType.GOAL)
-    return error < threshold
+    # return error < threshold
+        # Desired position in robot base frame
+    des_pos_b = torch.tensor([0.6, 0.0, 0.0203], device=robot.data.root_pos_w.device)
+    # Transform desired pos to world frame
+    des_pos_w, _ = combine_frame_transforms(
+        robot.data.root_state_w[:, :3],        # root position
+        robot.data.root_state_w[:, 3:7],       # root rotation (quat)
+        des_pos_b
+    )
+    # Compute distance to object
+    distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)  # shape: (num_envs,)
+    # Log if any environment meets condition
+    mask = distance < threshold
+    # if torch.any(mask):
+    #     loghelper.logsubtask(LogType.FINISH)
+    if distance < threshold:
+        print("Obs func: object_near_goal")
+    return mask 
 
 
 def object_reached_midgoal(
@@ -360,4 +413,6 @@ def object_reached_midgoal(
     # if error.item() < threshold:
     #  #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
     #     loghelper.logsubtask(LogType.MIDGOAL)
+    if error < threshold:
+        print("Obs function: object_reached_midgoal")
     return error < threshold

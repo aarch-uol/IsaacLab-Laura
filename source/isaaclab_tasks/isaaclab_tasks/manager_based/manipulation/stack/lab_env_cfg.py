@@ -11,6 +11,9 @@ from isaaclab.devices.openxr import XrCfg
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
+import math
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
@@ -18,6 +21,7 @@ from isaaclab.sensors.frame_transformer.frame_transformer_cfg import FrameTransf
 from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
+# from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 from . import mdp
 
@@ -40,8 +44,8 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
     # Table
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]),
-        spawn=UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd"),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[0, 0, 0], rot=[1, 0, 0, 0]),
+        spawn=UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/ThorlabsTable/table_instanceable.usd"),
     )
 
     # plane
@@ -105,8 +109,8 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object = ObsTerm(func=mdp.object_obs)
-        cube_positions = ObsTerm(func=mdp.cube_positions_in_world_frame)
-        cube_orientations = ObsTerm(func=mdp.cube_orientations_in_world_frame)
+        object_positions = ObsTerm(func=mdp.object_positions_in_world_frame)
+        object_orientations = ObsTerm(func=mdp.object_orientations_in_world_frame)
         eef_pos = ObsTerm(func=mdp.ee_frame_pos)
         eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
@@ -118,13 +122,22 @@ class ObservationsCfg:
     @configclass
     class SubtaskCfg(ObsGroup):
         """Observations for subtask group."""
-        ### Is there a way to make multiple subtaskcfgs
+        # def set_loghelper(self, loghelper: LoggingHelper):
+        #     # Inject the logger into any terms that need it
+        #     self.appr_obj1.params["loghelper"] = loghelper
+        #     self.grasp_obj1.params["loghelper"] = loghelper
+        #     self.lift.params["loghelper"] = loghelper
+        #     self.appr_midgoal.params["loghelper"] = loghelper
+        #     self.appr_obj2.params["loghelper"] = loghelper
+        #     self.stack.params["loghelper"] = loghelper
+            # self.loghelper = loghelper
+
         appr_obj1 = ObsTerm(
             func=mdp.reach_object,
             params={
                 "ee_frame_cfg": SceneEntityCfg("ee_frame"),
                 "object_cfg": SceneEntityCfg("object1"),
-                "std" : 0.05
+                "threshold" : 0.05
             }
         )
         grasp_obj1 = ObsTerm(
@@ -138,17 +151,25 @@ class ObservationsCfg:
         lift = ObsTerm(
             func=mdp.is_object_lifted,
             params={
-                "obj_cfg": SceneEntityCfg("object1"),
+                "object_cfg": SceneEntityCfg("object1"),
                 "threshold" : 0.1
             }
         )
-        ### Add a waypoint
+        ### Check
+        appr_midgoal = ObsTerm(
+            func=mdp.object_reached_midgoal,
+            params={ 
+                "threshold": 0.04, 
+                "command_name": "object_pose",
+                
+            },
+        )
         appr_obj2 = ObsTerm(
             func=mdp.reach_object2,
             params={
                 "ee_frame_cfg": SceneEntityCfg("ee_frame"),
                 "object2_cfg": SceneEntityCfg("object2"),
-                "std" : 0.05
+                "threshold" : 0.05
             }
         )
         stack = ObsTerm(
@@ -181,8 +202,8 @@ class Observations2Cfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object = ObsTerm(func=mdp.object_obs)
-        cube_positions = ObsTerm(func=mdp.cube_positions_in_world_frame)
-        cube_orientations = ObsTerm(func=mdp.cube_orientations_in_world_frame)
+        cube_positions = ObsTerm(func=mdp.object_positions_in_world_frame)
+        cube_orientations = ObsTerm(func=mdp.object_orientations_in_world_frame)
         eef_pos = ObsTerm(func=mdp.ee_frame_pos)
         eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
@@ -209,7 +230,7 @@ class Observations2Cfg:
             params={
                 "ee_frame_cfg": SceneEntityCfg("ee_frame"),
                 "object_cfg": SceneEntityCfg("object1"),
-                "std" : 0.05
+                "threshold" : 0.05
             }
         )
         
@@ -224,7 +245,7 @@ class Observations2Cfg:
         lift = ObsTerm(
             func=mdp.is_object_lifted,
             params={
-                "obj_cfg": SceneEntityCfg("object1"),
+                "object_cfg": SceneEntityCfg("object1"),
                 "threshold" : 0.1
             }
         )
@@ -232,7 +253,7 @@ class Observations2Cfg:
             func=mdp.object_reached_midgoal,
             params={ 
                 "threshold": 0.04, 
-                "command_name": "object_pose", # change to low_pose and comment out object_pose
+                "command_name": "object_pose",
                 
             },
         )
@@ -241,24 +262,32 @@ class Observations2Cfg:
             params={
                 "ee_frame_cfg": SceneEntityCfg("ee_frame"),
                 "object2_cfg": SceneEntityCfg("object2"),
-                "std" : 0.05
+                "threshold" : 0.05
             }
         )
         pour = ObsTerm(
             func=mdp.pour_object, 
             params={
-                "hand_frame_cfg": SceneEntityCfg("ee_frame"),
+                "ee_frame_cfg": SceneEntityCfg("ee_frame"),
                 "angle_threshold": 45,
             }
         )
-        appr_goal = ObsTerm() # on table?
-        #     func=mdp.object_near_goal,
-        #     params={ 
-        #         "threshold": 0.04, 
-        #         "command_name": "end_pose", # end_pose doesn't exist
-                
-        #     },
-        # )
+        reorient = ObsTerm(
+            func=mdp.reorient_object,
+            params={
+                "ee_frame_cfg": SceneEntityCfg("ee_frame"),
+                "angle_threshold": 175,
+            }
+        )
+        stack = ObsTerm(
+            func=mdp.object_stacked,
+            params={
+                "robot_cfg": SceneEntityCfg("robot"),
+                "upper_object_cfg": SceneEntityCfg("object1"),
+                "lower_object_cfg": SceneEntityCfg("object2"),
+            },
+        )
+
         
         def __post_init__(self):
             self.enable_corruption = False
@@ -270,6 +299,12 @@ class Observations2Cfg:
 @configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
+    # def set_loghelper(self, loghelper: LoggingHelper):    
+    #     self.success_stack.params["loghelper"] = loghelper
+    #     self.time_out.params["loghelper"] = loghelper
+    #     self.object_1_dropping.params["loghelper"] = loghelper
+    #     self.object_2_dropping.params["loghelper"] = loghelper
+    #     self.robot_drop_dropping.params["loghelper"] = loghelper
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
@@ -298,7 +333,46 @@ class Terminations2Cfg:
         func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")}
     )
     ### OBJECT1 DROPPED - CONICAL
-    # success_lift = DoneTerm(func=mdp.object_reached_goal)
+    success_goal = DoneTerm(func=mdp.object_reached_goal)
+
+@configclass
+class EventCfg:
+    """Configuration for events."""
+
+    init_franka_arm_pose = EventTerm(
+        func=franka_stack_events.set_default_joint_pose,
+        mode="startup",
+        params={
+            "default_pose": [0.405, 0.35, -0.22, -3.0, -2.85, math.pi/2, 0.9, 0.02, 0.02],
+        },
+    )
+    randomize_franka_joint_state = EventTerm(
+        func=franka_stack_events.randomize_joint_by_gaussian_offset,
+        mode="reset",
+        params={
+            "mean": 0.0,
+            "std": 0.02,
+            "asset_cfg": SceneEntityCfg("robot"),
+        },
+    )
+    reset_object1_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.35, 0.0), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("object1"), 
+        },
+    )
+    reset_object2_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.2, 0.1), "y": (0.0, 0.1), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("object2"),
+        },
+    )
 
 
 @configclass
@@ -308,16 +382,20 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
     # Scene settings
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
     # Basic settings
-    observations: ObservationsCfg = ObservationsCfg() # Subtasks is a part of this
+    # observations: ObservationsCfg = ObservationsCfg() # Subtasks is a part of this
     actions: ActionsCfg = ActionsCfg()
     # MDP settings
-    terminations: TerminationsCfg = TerminationsCfg()
+    # terminations: TerminationsCfg = TerminationsCfg()
     commands: CommandsCfg = CommandsCfg()
+    events: EventCfg = EventCfg()
+    # loghelper = LoggingHelper()
 
     # Unused managers
     rewards = None
-    events = None # Elsewhere
+    # events = None # Elsewhere
     curriculum = None
+    terminations = None # Elsewhere
+    observations = None # Elsewhere
 
     xr: XrCfg = XrCfg(
         anchor_pos=(-0.1, -0.5, -1.05),
@@ -346,16 +424,19 @@ class PourEnvCfg(ManagerBasedRLEnvCfg):
     # Scene settings
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
     # Basic settings
-    observations: Observations2Cfg = ObservationsCfg() # Subtasks is a part of this
+    # observations: Observations2Cfg = Observations2Cfg() # Subtasks is a part of this
     actions: ActionsCfg = ActionsCfg()
     # MDP settings
-    terminations: Terminations2Cfg = Terminations2Cfg()
+    # terminations2: Terminations2Cfg = Terminations2Cfg()
     commands: CommandsCfg = CommandsCfg()
+    events: EventCfg = EventCfg()
 
     # Unused managers
     rewards = None
-    events = None # Elsewhere
+    # events = None # Elsewhere
     curriculum = None
+    terminations = None # Elsewhere
+    observations = None # Elsewhere
 
     xr: XrCfg = XrCfg(
         anchor_pos=(-0.1, -0.5, -1.05),

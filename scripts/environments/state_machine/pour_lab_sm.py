@@ -69,12 +69,12 @@ class PickSmState:
     APPROACH_ABOVE_OBJECT = wp.constant(1)
     APPROACH_OBJECT = wp.constant(2)
     GRASP_OBJECT = wp.constant(3)
-    # LIFT_OBJECT = wp.constant(4)
-    APPROACH_ABOVE_OBJECT2 = wp.constant(4)
-    POUR = wp.constant(5)
-    REORIENT = wp.constant(6)
-    APPROACH_OBJECT2 = wp.constant(7)
-    UNGRASP_OBJECT = wp.constant(8)
+    LIFT_OBJECT = wp.constant(4)
+    APPROACH_ABOVE_OBJECT2 = wp.constant(5)
+    POUR = wp.constant(6)
+    REORIENT = wp.constant(7)
+    APPROACH_GOAL = wp.constant(8)
+    UNGRASP_OBJECT = wp.constant(9)
 
 
 class PickSmWaitTime:
@@ -84,11 +84,11 @@ class PickSmWaitTime:
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
-    # LIFT_OBJECT = wp.constant(0.5)
+    LIFT_OBJECT = wp.constant(0.5)
     APPROACH_ABOVE_OBJECT2 = wp.constant(0.5)
     POUR = wp.constant(1.0)
     REORIENT = wp.constant(1.0)
-    APPROACH_OBJECT2 = wp.constant(0.6)
+    APPROACH_GOAL = wp.constant(0.6)
     UNGRASP_OBJECT = wp.constant(0.3)
 
 
@@ -160,7 +160,12 @@ def infer_state_machine(
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT:
         ### Getting position and rotation for the robot to go to the object at
-        des_ee_pose[tid] = object_pose[tid]
+        # des_ee_pose[tid] = object_pose[tid]
+        pose_pos = wp.transform_get_translation(object_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m)
+        offset_pos = wp.vec3(pose_pos.x + 0.015, pose_pos.y, pose_pos.z + 0.05)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         CONICAL = False
         count = 0
         pos = wp.transform_get_translation(object_pose[tid])
@@ -186,29 +191,32 @@ def infer_state_machine(
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT:
             # move to next state and reset wait time
-            print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
-            sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
+            print("[SM_INFO] : Moving from GRSP to APPROACH_ABOVE_OBJECT2")
+            sm_state[tid] = PickSmState.LIFT_OBJECT
             sm_wait_time[tid] = 0.0
-    # elif state == PickSmState.LIFT_OBJECT:
-    #     des_ee_pose[tid] = des_object_pose[tid]
-    #     gripper_state[tid] = GripperState.CLOSE
-    #     # wait for a while
-    #     if distance_below_threshold(
-    #         wp.transform_get_translation(ee_pose[tid]),
-    #         wp.transform_get_translation(des_ee_pose[tid]),
-    #         0.03,
-    #     ):
-    #         # wait for a while
-    #         if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
-    #             # move to next state and reset wait time
-    #             print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
-    #             sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
-    #             sm_wait_time[tid] = 0.0
+    elif state == PickSmState.LIFT_OBJECT:
+        des_ee_pose[tid] = des_object_pose[tid]
+        gripper_state[tid] = GripperState.CLOSE
+        # wait for a while
+        if distance_below_threshold(
+            wp.transform_get_translation(ee_pose[tid]),
+            wp.transform_get_translation(des_ee_pose[tid]),
+            0.03,
+        ):
+            # wait for a while
+            if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
+                # move to next state and reset wait time
+                print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
+                sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
+                sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_ABOVE_OBJECT2:
         # Change offset position
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
-        offset_pos = wp.vec3(offset_pos.x + 0.1, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
+        # if CONICAL == True:
+        #     offset_pos = wp.vec3(offset_pos.x + 0.1, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
+        # else:
+        offset_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.15, offset_pos.z + 0.05)  # raise 25 cm 
         new_offset = wp.transform(offset_pos, offset_rot)
         # Target pose: above the object using offset
         # above_target_pose = wp.transform_multiply(offset[tid], final_object_pose[tid])
@@ -282,29 +290,29 @@ def infer_state_machine(
 
         if sm_wait_time[tid] >= PickSmWaitTime.REORIENT:
             print("[SM_INFO] : Moving from REORIENT to REST")
-            sm_state[tid] = PickSmState.APPROACH_OBJECT2
+            sm_state[tid] = PickSmState.APPROACH_GOAL
             sm_wait_time[tid] = 0.0
-        elif state == PickSmState.APPROACH_OBJECT2:
-            pose_pos = wp.transform_get_translation(final_object_pose[tid])
-            pose_rot = wp.transform_get_rotation(final_object_pose[tid])
-            if CONICAL == True:
-                offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
-            else:
-                # Apply offset in x-direction (5 cm = 0.05 m)
-                offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
-            des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
-            gripper_state[tid] = GripperState.CLOSE
-            # wait for a while
-            if distance_below_threshold(
-                wp.transform_get_translation(ee_pose[tid]),
-                wp.transform_get_translation(des_ee_pose[tid]),
-                0.03,
-            ):
-                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
-                    # move to next state and reset wait time
-                    print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
-                    sm_state[tid] = PickSmState.UNGRASP_OBJECT
-                    sm_wait_time[tid] = 0.0
+    elif state == PickSmState.APPROACH_GOAL:
+        pose_pos = wp.transform_get_translation(final_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(final_object_pose[tid])
+        if CONICAL == True:
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+        else:
+            # Apply offset in x-direction (5 cm = 0.05 m)
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+        gripper_state[tid] = GripperState.CLOSE
+        # wait for a while
+        if distance_below_threshold(
+            wp.transform_get_translation(ee_pose[tid]),
+            wp.transform_get_translation(des_ee_pose[tid]),
+            0.03,
+        ):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_GOAL:
+                # move to next state and reset wait time
+                print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
+                sm_state[tid] = PickSmState.UNGRASP_OBJECT
+                sm_wait_time[tid] = 0.0
     elif state == PickSmState.UNGRASP_OBJECT:
         des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.OPEN
@@ -426,16 +434,16 @@ def main():
     # parse configuration
     env_cfg: LiftEnvCfg = parse_env_cfg(
         #"Isaac-Lift-Cube-Franka-IK-Abs-v0",
-        "Isaac-Stack-Lab-Franka-IK-Abs-v0",
-        # "Isaac-Stack-LLM-Franka-IK-Abs-v0",
+        # "Isaac-Stack-Lab-Franka-IK-Abs-v0",
+        "Isaac-Stack-LLM-Franka-IK-Abs-v0",
         device=args_cli.device,
         num_envs=args_cli.num_envs,
         use_fabric=not args_cli.disable_fabric,
     )
     # create environment
     #env = gym.make("Isaac-Lift-Cube-Franka-IK-Abs-v0", cfg=env_cfg)
-    env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
-    # env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
+    # env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start
     env.reset()
     # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)

@@ -1,0 +1,15 @@
+# Python
+.DS_Store
+**/*.egg-info/
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+**/*.pb
+
+# Isaac-Sim packman
+_isaac_sim*
+
+.ChillsEnv
+.Trash-1000
+
+chills/

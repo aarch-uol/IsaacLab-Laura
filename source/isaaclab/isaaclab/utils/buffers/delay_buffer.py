@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -58,30 +46,10 @@ class DelayBuffer:
         # the buffer size: current data plus the history length
         self._circular_buffer = CircularBuffer(self._history_length + 1, batch_size, device)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # the minimum and maximum lags across all batch indices.
         self._min_time_lag = 0
         self._max_time_lag = 0
         # the lags for each batch index.
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-        # the minimum and maximum lags across all environments.
-        self._min_time_lag = 0
-        self._max_time_lag = 0
-        # the lags for each environment.
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        # the minimum and maximum lags across all environments.
-        self._min_time_lag = 0
-        self._max_time_lag = 0
-        # the lags for each environment.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         self._time_lags = torch.zeros(batch_size, dtype=torch.int, device=device)
 
     """

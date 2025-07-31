@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -19,16 +7,7 @@
 
 
 from dataclasses import MISSING
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 from typing import Literal
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 from isaaclab.markers import VisualizationMarkersCfg
 from isaaclab.markers.config import RAY_CASTER_MARKER_CFG
@@ -65,18 +44,11 @@ class RayCasterCfg(SensorBaseCfg):
     offset: OffsetCfg = OffsetCfg()
     """The offset pose of the sensor's frame from the sensor's parent frame. Defaults to identity."""
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     attach_yaw_only: bool | None = None
-=======
-    attach_yaw_only: bool = MISSING
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """Whether the rays' starting positions and directions only track the yaw orientation.
     Defaults to None, which doesn't raise a warning of deprecated usage.
 
     This is useful for ray-casting height maps, where only yaw rotation is needed.
-<<<<<<< HEAD
 
     .. deprecated:: 2.1.1
 
@@ -98,19 +70,6 @@ class RayCasterCfg(SensorBaseCfg):
       This is useful for ray-casting height maps.
     * ``world`` if rays' starting positions and directions are always fixed. This is useful in combination with a mapping
       package on the robot and querying ray-casts in a global frame.
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-    attach_yaw_only: bool = MISSING
-    """Whether the rays' starting positions and directions only track the yaw orientation.
-
-    This is useful for ray-casting height maps, where only yaw rotation is needed.
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """
 
     pattern_cfg: PatternBaseCfg = MISSING
@@ -120,9 +79,6 @@ class RayCasterCfg(SensorBaseCfg):
     """Maximum distance (in meters) from the sensor to ray cast to. Defaults to 1e6."""
 
     drift_range: tuple[float, float] = (0.0, 0.0)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     """The range of drift (in meters) to add to the ray starting positions (xyz) in world frame. Defaults to (0.0, 0.0).
 
     For floating base robots, this is useful for simulating drift in the robot's pose estimation.
@@ -131,15 +87,6 @@ class RayCasterCfg(SensorBaseCfg):
     ray_cast_drift_range: dict[str, tuple[float, float]] = {"x": (0.0, 0.0), "y": (0.0, 0.0), "z": (0.0, 0.0)}
     """The range of drift (in meters) to add to the projected ray points in local projection frame. Defaults to
     a dictionary with zero drift for each x, y and z axis.
-=======
-    """The range of drift (in meters) to add to the ray starting positions (xyz). Defaults to (0.0, 0.0).
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    """The range of drift (in meters) to add to the ray starting positions (xyz). Defaults to (0.0, 0.0).
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    """The range of drift (in meters) to add to the ray starting positions (xyz). Defaults to (0.0, 0.0).
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     For floating base robots, this is useful for simulating drift in the robot's pose estimation.
     """

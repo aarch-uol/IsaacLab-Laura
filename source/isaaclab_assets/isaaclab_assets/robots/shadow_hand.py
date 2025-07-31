@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -65,15 +53,7 @@ SHADOW_HAND_CFG = ArticulationCfg(
     actuators={
         "fingers": ImplicitActuatorCfg(
             joint_names_expr=["robot0_WR.*", "robot0_(FF|MF|RF|LF|TH)J(3|2|1)", "robot0_(LF|TH)J4", "robot0_THJ0"],
-<<<<<<< HEAD
-<<<<<<< HEAD
             effort_limit_sim={
-=======
-            effort_limit={
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-            effort_limit={
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 "robot0_WRJ1": 4.785,
                 "robot0_WRJ0": 2.175,
                 "robot0_(FF|MF|RF|LF)J1": 0.7245,

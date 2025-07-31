@@ -1,3 +1,19 @@
+# C++
+**/cmake-build*/
+**/build*/
+**/*.so
+**/*.log*
+
+# Omniverse
+**/*.dmp
+**/.thumbs
+
+# No USD files allowed in the repo
+**/*.usd
+**/*.usda
+**/*.usdc
+**/*.usdz
+
 # Python
 .DS_Store
 **/*.egg-info/
@@ -5,8 +21,6 @@
 **/.pytest_cache/
 **/*.pyc
 **/*.pb
-
-<<<<<<< HEAD
 
 # Docker/Singularity
 **/*.sif
@@ -33,12 +47,12 @@ docker/artifacts/
 **/docs/_build/*
 **/generated/*
 
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # Isaac-Sim packman
 _isaac_sim*
+_repo
+_build
+.lastformat
 
-<<<<<<< HEAD
 # RL-Games
 **/runs/*
 **/logs/*
@@ -55,14 +69,3 @@ tests/
 
 # Docker history
 .isaac-lab-docker-history
-
-# Isaac-Sim packman
-_isaac_sim*
-
-.ChillsEnv
-.Trash-1000
-
-=======
-.ChillsEnv
-.Trash-1000
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2

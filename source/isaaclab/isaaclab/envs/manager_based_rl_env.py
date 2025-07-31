@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -87,39 +75,15 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # -- counter for curriculum
         self.common_step_counter = 0
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # initialize the episode length buffer BEFORE loading the managers to use it in mdp functions.
         self.episode_length_buf = torch.zeros(cfg.scene.num_envs, device=cfg.sim.device, dtype=torch.long)
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # initialize the base class to setup the scene.
         super().__init__(cfg=cfg)
         # store the render mode
         self.render_mode = render_mode
 
         # initialize data and constants
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        # -- init buffers
-        self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        # -- init buffers
-        self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        # -- init buffers
-        self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # -- set the framerate of the gym video recorder wrapper so that the playback speed of the produced video matches the simulation
         self.metadata["render_fps"] = 1 / self.step_dt
 
@@ -273,19 +237,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
             self.event_manager.apply(mode="interval", dt=self.step_dt)
         # -- compute observations
         # note: done after reset to get the correct observations for reset envs
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # return observations, rewards, resets and extras
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras
@@ -296,15 +248,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         By convention, if mode is:
 
         - **human**: Render to the current display and return nothing. Usually for human consumption.
-<<<<<<< HEAD
-<<<<<<< HEAD
         - **rgb_array**: Return a numpy.ndarray with shape (x, y, 3), representing RGB values for an
-=======
-        - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        - **rgb_array**: Return an numpy.ndarray with shape (x, y, 3), representing RGB values for an
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
           x-by-y pixel image, suitable for turning into a video.
 
         Args:

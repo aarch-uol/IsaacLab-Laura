@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -156,22 +144,12 @@ class ActuatorBase(ABC):
         self._device = device
         self._joint_names = joint_names
         self._joint_indices = joint_ids
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.joint_property_resolution_table: dict[str, list] = {}
-=======
-
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         # For explicit models, we do not want to enforce the effort limit through the solver
         # (unless it is explicitly set)
         if not self.is_implicit_model and self.cfg.effort_limit_sim is None:
             self.cfg.effort_limit_sim = self._DEFAULT_MAX_EFFORT_SIM
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         # resolve usd, actuator configuration values
         # case 1: if usd_value == actuator_cfg_value: all good,
         # case 2: if usd_value != actuator_cfg_value: we use actuator_cfg_value
@@ -204,25 +182,6 @@ class ActuatorBase(ABC):
                 )
 
         self.velocity_limit = self._parse_joint_parameter(self.cfg.velocity_limit, self.velocity_limit_sim)
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-        # parse joint stiffness and damping
-        self.stiffness = self._parse_joint_parameter(self.cfg.stiffness, stiffness)
-        self.damping = self._parse_joint_parameter(self.cfg.damping, damping)
-        # parse joint armature and friction
-        self.armature = self._parse_joint_parameter(self.cfg.armature, armature)
-        self.friction = self._parse_joint_parameter(self.cfg.friction, friction)
-        # parse joint limits
-        # -- velocity
-        self.velocity_limit_sim = self._parse_joint_parameter(self.cfg.velocity_limit_sim, velocity_limit)
-        self.velocity_limit = self._parse_joint_parameter(self.cfg.velocity_limit, self.velocity_limit_sim)
-        # -- effort
-        self.effort_limit_sim = self._parse_joint_parameter(self.cfg.effort_limit_sim, effort_limit)
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self.effort_limit = self._parse_joint_parameter(self.cfg.effort_limit, self.effort_limit_sim)
 
         # create commands buffers for allocation
@@ -307,8 +266,6 @@ class ActuatorBase(ABC):
     Helper functions.
     """
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     def _record_actuator_resolution(self, cfg_val, new_val, usd_val, joint_names, joint_ids, actuator_param: str):
         if actuator_param not in self.joint_property_resolution_table:
             self.joint_property_resolution_table[actuator_param] = []
@@ -321,10 +278,6 @@ class ActuatorBase(ABC):
             applied_val_log = default_usd_val if cfg_val is None else float(new_val[idx])
             table.append([name, int(ids[idx]), default_usd_val, cfg_val_log, applied_val_log])
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     def _parse_joint_parameter(
         self, cfg_value: float | dict[str, float] | None, default_value: float | torch.Tensor | None
     ) -> torch.Tensor:

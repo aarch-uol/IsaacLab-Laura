@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -317,19 +305,7 @@ class ManagerBasedEnv:
         self.recorder_manager.record_post_reset(env_ids)
 
         # compute observations
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         if self.cfg.wait_for_textures and self.sim.has_rtx_sensors():
             while SimulationManager.assets_loading():
@@ -389,19 +365,7 @@ class ManagerBasedEnv:
         self.recorder_manager.record_post_reset(env_ids)
 
         # compute observations
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # return observations
         return self.obs_buf, self.extras
@@ -452,19 +416,7 @@ class ManagerBasedEnv:
             self.event_manager.apply(mode="interval", dt=self.step_dt)
 
         # -- compute observations
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        self.obs_buf = self.observation_manager.compute()
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         self.recorder_manager.record_post_step()
 
         # return observations and extras

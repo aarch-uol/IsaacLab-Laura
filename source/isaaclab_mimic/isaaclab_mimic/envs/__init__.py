@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -25,25 +13,7 @@ from .franka_stack_ik_rel_blueprint_mimic_env_cfg import FrankaCubeStackIKRelBlu
 from .franka_stack_ik_rel_mimic_env import FrankaCubeStackIKRelMimicEnv
 from .franka_stack_ik_rel_mimic_env_cfg import FrankaCubeStackIKRelMimicEnvCfg
 from .franka_stack_ik_rel_visuomotor_mimic_env_cfg import FrankaCubeStackIKRelVisuomotorMimicEnvCfg
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-from .cube_blueprint_mimic_env_cfg import CubeBlueprintMimicEnvCfg
-from .cube_mimic_env_cfg import CubeMimicEnvCfg
-from .cube_mimic_env import CubeMimicEnv
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-from .cube_blueprint_mimic_env_cfg import CubeBlueprintMimicEnvCfg
-from .cube_mimic_env_cfg import CubeMimicEnvCfg
-from .cube_mimic_env import CubeMimicEnv
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-from .cube_blueprint_mimic_env_cfg import CubeBlueprintMimicEnvCfg
-from .cube_mimic_env_cfg import CubeMimicEnvCfg
-from .cube_mimic_env import CubeMimicEnv
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 ##
 # Inverse Kinematics - Relative Pose Control
 ##
@@ -56,29 +26,6 @@ gym.register(
     },
     disable_env_checker=True,
 )
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
-# gym.register(
-#     id="Isaac-Stack-Cube-Franka-IK-Rel-Mimic",
-#     entry_point="isaaclab_mimic.envs:FrankaCubeStackIKRelMimicEnv",
-#     kwargs={
-#         "env_cfg_entry_point": franka_stack_ik_rel_mimic_env_cfg.FrankaCubeStackIKRelMimicEnvCfg,
-#     },
-#     disable_env_checker=True,
-# )
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 gym.register(
     id="Isaac-Stack-Cube-Franka-IK-Rel-Blueprint-Mimic-v0",
@@ -106,41 +53,3 @@ gym.register(
     },
     disable_env_checker=True,
 )
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
-
-##################
- ## cube mimic
-
-gym.register(
-    id="Cube-Mimic-v0",
-    entry_point="isaaclab_mimic.envs:CubeMimicEnv",
-    kwargs={
-        "env_cfg_entry_point": cube_mimic_env_cfg.CubeMimicEnvCfg,
-    },
-    disable_env_checker=True,
-)
-
-gym.register(
-    id="Cube-Blueprint-Mimic-v0",
-    entry_point="isaaclab_mimic.envs:CubeMimicEnv",
-    kwargs={
-        "env_cfg_entry_point": cube_blueprint_mimic_env_cfg.CubeBlueprintMimicEnvCfg,
-    },
-    disable_env_checker=True,
-<<<<<<< HEAD
-<<<<<<< HEAD
-)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2

@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -23,34 +11,16 @@ the curriculum introduced by the function.
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import re
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, ClassVar
 
-<<<<<<< HEAD
 from isaaclab.managers import CurriculumTermCfg, ManagerTermBase
-=======
-from collections.abc import Sequence
-from typing import TYPE_CHECKING
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-from collections.abc import Sequence
-from typing import TYPE_CHECKING
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 class modify_reward_weight(ManagerTermBase):
     """Curriculum that modifies the reward weight based on a step-wise schedule."""
 
@@ -320,29 +290,3 @@ class modify_term_cfg(modify_env_param):
         super().__init__(cfg, env)
         # overwrite the simplified address with the full manager path
         self._address = self._address.replace("s.", "_manager.cfg.", 1)
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-def modify_reward_weight(env: ManagerBasedRLEnv, env_ids: Sequence[int], term_name: str, weight: float, num_steps: int):
-    """Curriculum that modifies a reward weight a given number of steps.
-
-    Args:
-        env: The learning environment.
-        env_ids: Not used since all environments are affected.
-        term_name: The name of the reward term.
-        weight: The weight of the reward term.
-        num_steps: The number of steps after which the change should be applied.
-    """
-    if env.common_step_counter > num_steps:
-        # obtain term settings
-        term_cfg = env.reward_manager.get_term_cfg(term_name)
-        # update term settings
-        term_cfg.weight = weight
-        env.reward_manager.set_term_cfg(term_name, term_cfg)
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2

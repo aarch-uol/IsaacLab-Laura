@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -785,16 +773,7 @@ def repeated_objects_terrain(
     # -- common parameters
     num_objects = cp_0.num_objects + int(difficulty * (cp_1.num_objects - cp_0.num_objects))
     height = cp_0.height + difficulty * (cp_1.height - cp_0.height)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     platform_height = cfg.platform_height if cfg.platform_height >= 0.0 else height
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # -- object specific parameters
     # note: SIM114 requires duplicated logical blocks under a single body.
     if isinstance(cfg, MeshRepeatedBoxesTerrainCfg):
@@ -830,19 +809,7 @@ def repeated_objects_terrain(
     # initialize list of meshes
     meshes_list = list()
     # compute quantities
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     origin = np.asarray((0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.5 * platform_height))
-=======
-    origin = np.asarray((0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.5 * height))
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    origin = np.asarray((0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.5 * height))
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    origin = np.asarray((0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.5 * height))
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     platform_corners = np.asarray([
         [origin[0] - cfg.platform_width / 2, origin[1] - cfg.platform_width / 2],
         [origin[0] + cfg.platform_width / 2, origin[1] + cfg.platform_width / 2],
@@ -874,21 +841,9 @@ def repeated_objects_terrain(
     # generate obstacles (but keep platform clean)
     for index in range(len(object_centers)):
         # randomize the height of the object
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         abs_height_noise = np.random.uniform(cfg.abs_height_noise[0], cfg.abs_height_noise[1])
         rel_height_noise = np.random.uniform(cfg.rel_height_noise[0], cfg.rel_height_noise[1])
         ob_height = height * rel_height_noise + abs_height_noise
-=======
-        ob_height = height + np.random.uniform(-cfg.max_height_noise, cfg.max_height_noise)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        ob_height = height + np.random.uniform(-cfg.max_height_noise, cfg.max_height_noise)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        ob_height = height + np.random.uniform(-cfg.max_height_noise, cfg.max_height_noise)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         if ob_height > 0.0:
             object_mesh = object_func(center=object_centers[index], height=ob_height, **object_kwargs)
             meshes_list.append(object_mesh)
@@ -897,23 +852,8 @@ def repeated_objects_terrain(
     ground_plane = make_plane(cfg.size, height=0.0, center_zero=False)
     meshes_list.append(ground_plane)
     # generate a platform in the middle
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     dim = (cfg.platform_width, cfg.platform_width, 0.5 * platform_height)
     pos = (0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.25 * platform_height)
-=======
-    dim = (cfg.platform_width, cfg.platform_width, 0.5 * height)
-    pos = (0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.25 * height)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    dim = (cfg.platform_width, cfg.platform_width, 0.5 * height)
-    pos = (0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.25 * height)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    dim = (cfg.platform_width, cfg.platform_width, 0.5 * height)
-    pos = (0.5 * cfg.size[0], 0.5 * cfg.size[1], 0.25 * height)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     platform = trimesh.creation.box(dim, trimesh.transformations.translation_matrix(pos))
     meshes_list.append(platform)
 

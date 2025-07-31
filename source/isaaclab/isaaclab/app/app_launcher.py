@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -673,20 +661,8 @@ class AppLauncher:
             # pass command line variable to kit
             sys.argv.append(f"--/plugins/carb.tasking.plugin/threadCount={num_threads_per_process}")
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # set rendering device. We do not need to set physics_gpu because it will automatically pick the same one
         # as the active_gpu device. Setting physics_gpu explicitly may result in a different device to be used.
-=======
-        # set physics and rendering device
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        # set physics and rendering device
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        # set physics and rendering device
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         launcher_args["physics_gpu"] = self.device_id
         launcher_args["active_gpu"] = self.device_id
 

@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +28,6 @@ from isaaclab.assets import RigidObject, RigidObjectCfg
 from isaaclab.sim import build_simulation_context
 from isaaclab.sim.spawners import materials
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 from isaaclab.utils.math import (
     combine_frame_transforms,
     default_orientation,
@@ -52,15 +37,6 @@ from isaaclab.utils.math import (
     quat_rotate,
     random_orientation,
 )
-=======
-from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mul, random_orientation
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mul, random_orientation
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mul, random_orientation
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 def generate_cubes_scene(
@@ -254,24 +230,12 @@ def test_external_force_buffer(device):
                 # set a non-zero force
                 force = 1
                 position = 1
-<<<<<<< HEAD
-<<<<<<< HEAD
                 is_global = True
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             else:
                 # set a zero force
                 force = 0
                 position = 0
-<<<<<<< HEAD
-<<<<<<< HEAD
                 is_global = False
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
             # set force value
             external_wrench_b[:, :, 0] = force
@@ -285,8 +249,6 @@ def test_external_force_buffer(device):
                     external_wrench_b[..., 3:],
                     body_ids=body_ids,
                     positions=external_wrench_positions_b,
-<<<<<<< HEAD
-<<<<<<< HEAD
                     is_global=is_global,
                 )
             else:
@@ -295,30 +257,13 @@ def test_external_force_buffer(device):
                     external_wrench_b[..., 3:],
                     body_ids=body_ids,
                     is_global=is_global,
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-                )
-            else:
-                cube_object.set_external_force_and_torque(
-                    external_wrench_b[..., :3], external_wrench_b[..., 3:], body_ids=body_ids
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 )
 
             # check if the cube's force and torque buffers are correctly updated
             assert cube_object._external_force_b[0, 0, 0].item() == force
             assert cube_object._external_torque_b[0, 0, 0].item() == force
             assert cube_object._external_wrench_positions_b[0, 0, 0].item() == position
-<<<<<<< HEAD
-<<<<<<< HEAD
             assert cube_object._use_global_wrench_frame == (step == 0 or step == 3)
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 
             # apply action to the object
             cube_object.write_data_to_sim()
@@ -730,19 +675,7 @@ def test_rigid_body_with_static_friction(num_cubes, device):
                 cube_object.update(sim.cfg.dt)
                 if force == "below_mu":
                     # Assert that the block has not moved
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                     torch.testing.assert_close(cube_object.data.root_pos_w, initial_root_pos, rtol=2e-3, atol=2e-3)
-=======
-                    torch.testing.assert_close(cube_object.data.root_pos_w, initial_root_pos, rtol=1e-3, atol=1e-3)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                    torch.testing.assert_close(cube_object.data.root_pos_w, initial_root_pos, rtol=1e-3, atol=1e-3)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-                    torch.testing.assert_close(cube_object.data.root_pos_w, initial_root_pos, rtol=1e-3, atol=1e-3)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             if force == "above_mu":
                 assert (cube_object.data.root_state_w[..., 0] - initial_root_pos[..., 0] > 0.02).all()
 
@@ -966,19 +899,7 @@ def test_body_root_state_properties(num_cubes, device, with_offset):
             else:
                 # cubes are spinning around center of mass
                 # position will not match
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                 # center of mass position will be constant (i.e. spinning around com)
-=======
-                # center of mass position will be constant (i.e. spining around com)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                # center of mass position will be constant (i.e. spining around com)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-                # center of mass position will be constant (i.e. spining around com)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                 torch.testing.assert_close(env_pos + offset, root_com_state_w[..., :3])
                 torch.testing.assert_close(env_pos + offset, body_com_state_w[..., :3].squeeze(-2))
                 # link position will be moving but should stay constant away from center of mass
@@ -994,19 +915,7 @@ def test_body_root_state_properties(num_cubes, device, with_offset):
                 torch.testing.assert_close(-offset, body_link_state_pos_rel_com.squeeze(-2))
 
                 # orientation of com will be a constant rotation from link orientation
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                 com_quat_b = cube_object.data.body_com_quat_b
-=======
-                com_quat_b = cube_object.data.com_quat_b
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                com_quat_b = cube_object.data.com_quat_b
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-                com_quat_b = cube_object.data.com_quat_b
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                 com_quat_w = quat_mul(body_link_state_w[..., 3:7], com_quat_b)
                 torch.testing.assert_close(com_quat_w, body_com_state_w[..., 3:7])
                 torch.testing.assert_close(com_quat_w.squeeze(-2), root_com_state_w[..., 3:7])
@@ -1016,19 +925,7 @@ def test_body_root_state_properties(num_cubes, device, with_offset):
                 torch.testing.assert_close(body_state_w[..., 3:7], body_link_state_w[..., 3:7])
 
                 # lin_vel will not match
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                 # center of mass vel will be constant (i.e. spinning around com)
-=======
-                # center of mass vel will be constant (i.e. spining around com)
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                # center of mass vel will be constant (i.e. spining around com)
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-                # center of mass vel will be constant (i.e. spining around com)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                 torch.testing.assert_close(torch.zeros_like(root_com_state_w[..., 7:10]), root_com_state_w[..., 7:10])
                 torch.testing.assert_close(torch.zeros_like(body_com_state_w[..., 7:10]), body_com_state_w[..., 7:10])
                 # link frame will be moving, and should be equal to input angular velocity cross offset
@@ -1073,19 +970,7 @@ def test_write_root_state(num_cubes, device, with_offset, state_location):
         com[..., :3] = offset.to("cpu")
         cube_object.root_physx_view.set_coms(com, env_idx)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # check center of mass has been set
-=======
-        # check ceter of mass has been set
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        # check ceter of mass has been set
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        # check ceter of mass has been set
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         torch.testing.assert_close(cube_object.root_physx_view.get_coms(), com)
 
         rand_state = torch.zeros_like(cube_object.data.root_state_w)
@@ -1117,9 +1002,6 @@ def test_write_root_state(num_cubes, device, with_offset, state_location):
                 torch.testing.assert_close(rand_state, cube_object.data.root_com_state_w)
             elif state_location == "link":
                 torch.testing.assert_close(rand_state, cube_object.data.root_link_state_w)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 
 @pytest.mark.parametrize("num_cubes", [1, 2])
@@ -1226,9 +1108,3 @@ def test_write_state_functions_data_consistency(num_cubes, device, with_offset, 
             torch.testing.assert_close(
                 cube_object.data.root_state_w[:, 10:], cube_object.data.root_link_state_w[:, 10:]
             )
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2

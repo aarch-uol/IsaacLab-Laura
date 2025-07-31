@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -157,19 +145,10 @@ class ManagerBase(ABC):
         self.cfg = copy.deepcopy(cfg)
         self._env = env
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # flag for whether the scene entities have been resolved
         # if sim is playing, we resolve the scene entities directly while preparing the terms
         self._is_scene_entities_resolved = self._env.sim.is_playing()
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # if the simulation is not playing, we use callbacks to trigger the resolution of the scene
         # entities configuration. this is needed for cases where the manager is created after the
         # simulation, but before the simulation is playing.
@@ -290,18 +269,9 @@ class ManagerBase(ABC):
 
         Please check the :meth:`_process_term_cfg_at_play` method for more information.
         """
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # check if scene entities have been resolved
         if self._is_scene_entities_resolved:
             return
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # check if config is dict already
         if isinstance(self.cfg, dict):
             cfg_items = self.cfg.items()
@@ -317,18 +287,9 @@ class ManagerBase(ABC):
             # these properties are only resolvable once the simulation starts playing
             self._process_term_cfg_at_play(term_name, term_cfg)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # set the flag
         self._is_scene_entities_resolved = True
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """
     Internal functions.
     """

@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -72,17 +60,7 @@ CASSIE_CFG = ArticulationCfg(
     actuators={
         "legs": ImplicitActuatorCfg(
             joint_names_expr=["hip_.*", "thigh_.*", "ankle_.*"],
-<<<<<<< HEAD
-<<<<<<< HEAD
             effort_limit_sim=200.0,
-=======
-            effort_limit=200.0,
-            velocity_limit=10.0,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-            effort_limit=200.0,
-            velocity_limit=10.0,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness={
                 "hip_abduction.*": 100.0,
                 "hip_rotation.*": 100.0,
@@ -100,17 +78,7 @@ CASSIE_CFG = ArticulationCfg(
         ),
         "toes": ImplicitActuatorCfg(
             joint_names_expr=["toe_.*"],
-<<<<<<< HEAD
-<<<<<<< HEAD
             effort_limit_sim=20.0,
-=======
-            effort_limit=20.0,
-            velocity_limit=10.0,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-            effort_limit=20.0,
-            velocity_limit=10.0,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
             stiffness={
                 "toe_joint.*": 20.0,
             },

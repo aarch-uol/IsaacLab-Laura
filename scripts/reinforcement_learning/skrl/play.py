@@ -27,13 +27,7 @@ parser.add_argument(
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Path to model checkpoint.")
-<<<<<<< HEAD
-<<<<<<< HEAD
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 parser.add_argument(
     "--use_pretrained_checkpoint",
     action="store_true",
@@ -73,13 +67,7 @@ simulation_app = app_launcher.app
 
 import gymnasium as gym
 import os
-<<<<<<< HEAD
-<<<<<<< HEAD
 import random
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 import time
 import torch
 
@@ -87,15 +75,7 @@ import skrl
 from packaging import version
 
 # check for minimum supported skrl version
-<<<<<<< HEAD
-<<<<<<< HEAD
 SKRL_VERSION = "1.4.3"
-=======
-SKRL_VERSION = "1.4.2"
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-SKRL_VERSION = "1.4.2"
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 if version.parse(skrl.__version__) < version.parse(SKRL_VERSION):
     skrl.logger.error(
         f"Unsupported skrl version: {skrl.__version__}. "
@@ -142,8 +122,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, expe
     if args_cli.ml_framework.startswith("jax"):
         skrl.config.jax.backend = "jax" if args_cli.ml_framework == "jax" else "numpy"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         # randomly sample a seed if seed = -1
     if args_cli.seed == -1:
         args_cli.seed = random.randint(0, 10000)
@@ -153,10 +131,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, expe
     experiment_cfg["seed"] = args_cli.seed if args_cli.seed is not None else experiment_cfg["seed"]
     env_cfg.seed = experiment_cfg["seed"]
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
     task_name = args_cli.task.split(":")[-1]
 
     # specify directory for logging experiments (load checkpoint)

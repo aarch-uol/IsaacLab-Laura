@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -91,49 +79,19 @@ class FrankaCabinetEnvCfg(DirectRLEnvCfg):
         actuators={
             "panda_shoulder": ImplicitActuatorCfg(
                 joint_names_expr=["panda_joint[1-4]"],
-<<<<<<< HEAD
-<<<<<<< HEAD
                 effort_limit_sim=87.0,
-=======
-                effort_limit=87.0,
-                velocity_limit=2.175,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                effort_limit=87.0,
-                velocity_limit=2.175,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 stiffness=80.0,
                 damping=4.0,
             ),
             "panda_forearm": ImplicitActuatorCfg(
                 joint_names_expr=["panda_joint[5-7]"],
-<<<<<<< HEAD
-<<<<<<< HEAD
                 effort_limit_sim=12.0,
-=======
-                effort_limit=12.0,
-                velocity_limit=2.61,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                effort_limit=12.0,
-                velocity_limit=2.61,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 stiffness=80.0,
                 damping=4.0,
             ),
             "panda_hand": ImplicitActuatorCfg(
                 joint_names_expr=["panda_finger_joint.*"],
-<<<<<<< HEAD
-<<<<<<< HEAD
                 effort_limit_sim=200.0,
-=======
-                effort_limit=200.0,
-                velocity_limit=0.2,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                effort_limit=200.0,
-                velocity_limit=0.2,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 stiffness=2e3,
                 damping=1e2,
             ),
@@ -160,33 +118,13 @@ class FrankaCabinetEnvCfg(DirectRLEnvCfg):
         actuators={
             "drawers": ImplicitActuatorCfg(
                 joint_names_expr=["drawer_top_joint", "drawer_bottom_joint"],
-<<<<<<< HEAD
-<<<<<<< HEAD
                 effort_limit_sim=87.0,
-=======
-                effort_limit=87.0,
-                velocity_limit=100.0,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                effort_limit=87.0,
-                velocity_limit=100.0,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 stiffness=10.0,
                 damping=1.0,
             ),
             "doors": ImplicitActuatorCfg(
                 joint_names_expr=["door_left_joint", "door_right_joint"],
-<<<<<<< HEAD
-<<<<<<< HEAD
                 effort_limit_sim=87.0,
-=======
-                effort_limit=87.0,
-                velocity_limit=100.0,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-                effort_limit=87.0,
-                velocity_limit=100.0,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 stiffness=10.0,
                 damping=2.5,
             ),
@@ -329,18 +267,9 @@ class FrankaCabinetEnv(DirectRLEnv):
 
         # clone and replicate
         self.scene.clone_environments(copy_from_source=False)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # we need to explicitly filter collisions for CPU simulation
         if self.device == "cpu":
             self.scene.filter_collisions(global_prim_paths=[self.cfg.terrain.prim_path])
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # add lights
         light_cfg = sim_utils.DomeLightCfg(intensity=2000.0, color=(0.75, 0.75, 0.75))

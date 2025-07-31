@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -142,48 +130,12 @@ class DataGenInfoPool:
                     diffs = subtask_indicators[1:] - subtask_indicators[:-1]
                     end_ind = int(diffs.nonzero()[0][0]) + 1
                     subtask_term_ind = end_ind + 1  # increment to support indexing like demo[start:end]
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
                 if subtask_term_ind <= prev_subtask_term_ind:
                     raise ValueError(
                         f"subtask termination signal is not increasing: {subtask_term_ind} should be greater than"
                         f" {prev_subtask_term_ind}"
                     )
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-                
-                try:
-                    if subtask_term_ind <= prev_subtask_term_ind:
-                        raise ValueError(
-                            f"subtask termination signal is not increasing: {subtask_term_ind} should be greater than"
-                            f" {prev_subtask_term_ind}"
-                        )
-                except ValueError as e:
-                    print(f"[WARN] Skipping episode due to datagen parsing error: {e}")
-                    return
-
-                
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-                
-                try:
-                    if subtask_term_ind <= prev_subtask_term_ind:
-                        raise ValueError(
-                            f"subtask termination signal is not increasing: {subtask_term_ind} should be greater than"
-                            f" {prev_subtask_term_ind}"
-                        )
-                except ValueError as e:
-                    print(f"[WARN] Skipping episode due to datagen parsing error: {e}")
-                    return
-
-                
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                 eef_subtask_boundaries.append((prev_subtask_term_ind, subtask_term_ind))
                 prev_subtask_term_ind = subtask_term_ind
 
@@ -194,9 +146,6 @@ class DataGenInfoPool:
             #
             for i in range(1, len(eef_subtask_boundaries)):
                 prev_max_offset_range = self.subtask_term_offset_ranges[eef_name][i - 1][1]
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                 assert (
                     eef_subtask_boundaries[i - 1][1] + prev_max_offset_range
                     < eef_subtask_boundaries[i][1] + self.subtask_term_offset_ranges[eef_name][i][0]
@@ -214,32 +163,6 @@ class DataGenInfoPool:
                     )
                 )
 
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
-                prev_end = eef_subtask_boundaries[i - 1][1]
-                curr_end = eef_subtask_boundaries[i][1]
-                curr_min_offset = self.subtask_term_offset_ranges[eef_name][i][0]
-                try: 
-                    if prev_end + prev_max_offset_range >= curr_end + curr_min_offset:
-                        raise AssertionError(
-                            f"[FAIL] Subtask sanity check failed in episode '{episode}' "
-                            f"(eef: '{eef_name}'): "
-                            f"subtask {i-1} end={prev_end}, max offset={prev_max_offset_range} → "
-                            f"subtask {i} end={curr_end}, min offset={curr_min_offset}"
-                        )
-                except AssertionError as e:
-                    print(f"[WARN] Skipping episode due to datagen parsing error: {e}")
-                    return
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             self._subtask_boundaries[eef_name].append(eef_subtask_boundaries)
 
     def load_from_dataset_file(self, file_path, select_demo_keys: str | None = None):

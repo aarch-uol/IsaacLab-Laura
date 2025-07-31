@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -107,25 +95,7 @@ class H1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
                 "yaw": (0.0, 0.0),
             },
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.events.base_com = None
-=======
-
-        # Terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = [".*torso_link"]
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-
-        # Terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = [".*torso_link"]
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-
-        # Terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = [".*torso_link"]
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # Rewards
         self.rewards.undesired_contacts = None
@@ -139,19 +109,7 @@ class H1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # Terminations
-=======
-        # terminations
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-        # terminations
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        # terminations
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         self.terminations.base_contact.params["sensor_cfg"].body_names = ".*torso_link"
 
 

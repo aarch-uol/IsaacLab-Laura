@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -23,9 +11,6 @@ import isaacsim.core.utils.prims as prim_utils
 import isaacsim.core.utils.stage as stage_utils
 import omni.kit.commands
 import omni.log
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 from pxr import Gf, Sdf, Usd
 
 # from Isaac Sim 4.2 onwards, pxr.Semantics is deprecated
@@ -33,15 +18,6 @@ try:
     import Semantics
 except ModuleNotFoundError:
     from pxr import Semantics
-=======
-from pxr import Gf, Sdf, Semantics, Usd
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-from pxr import Gf, Sdf, Semantics, Usd
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-from pxr import Gf, Sdf, Semantics, Usd
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 from isaaclab.sim import converters, schemas
 from isaaclab.sim.utils import bind_physics_material, bind_visual_material, clone, select_usd_variants

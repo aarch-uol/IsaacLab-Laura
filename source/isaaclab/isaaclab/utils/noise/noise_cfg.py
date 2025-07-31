@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -90,9 +78,6 @@ class NoiseModelCfg:
     noise_cfg: NoiseCfg = MISSING
     """The noise configuration to use."""
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     func: Callable[[torch.Tensor], torch.Tensor] | None = None
     """Function or callable class used by this noise model.
 
@@ -106,12 +91,6 @@ class NoiseModelCfg:
     This field is used internally by :class:ObservationManager and is not meant to be set directly.
     """
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 @configclass
 class NoiseModelWithAdditiveBiasCfg(NoiseModelCfg):
@@ -124,18 +103,9 @@ class NoiseModelWithAdditiveBiasCfg(NoiseModelCfg):
 
     Based on this configuration, the bias is sampled at every reset of the noise model.
     """
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     sample_bias_per_component: bool = True
     """Whether to sample a separate bias for each data component.
 
     Defaults to True.
     """
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2

@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -147,15 +135,7 @@ class EventManager(ManagerBase):
         # when the episode starts. otherwise the counter will start from the last time
         # for that environment
         if "interval" in self._mode_term_cfgs:
-<<<<<<< HEAD
-<<<<<<< HEAD
             for index, term_cfg in enumerate(self._mode_term_cfgs["interval"]):
-=======
-            for index, term_cfg in enumerate(self._mode_class_term_cfgs["interval"]):
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-            for index, term_cfg in enumerate(self._mode_class_term_cfgs["interval"]):
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
                 # sample a new interval and set that as time left
                 # note: global time events are based on simulation time and not episode time
                 #   so we do not reset them

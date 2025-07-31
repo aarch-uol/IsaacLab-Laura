@@ -1,9 +1,6 @@
 Changelog
 ---------
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 0.1.8 (2025-06-29)
 ~~~~~~~~~~~~~~~~~~
 
@@ -40,12 +37,6 @@ Changed
 * Optimized Stable-Baselines3 wrapper ``Sb3VecEnvWrapper`` (now 4x faster) by using Numpy buffers and only logging episode and truncation information by default.
 * Upgraded minimum SB3 version to 2.6.0 and added optional dependencies for progress bar
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 0.1.4 (2025-04-10)
 ~~~~~~~~~~~~~~~~~~
 

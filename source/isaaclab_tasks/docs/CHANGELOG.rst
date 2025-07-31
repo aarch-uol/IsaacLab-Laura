@@ -1,9 +1,6 @@
 Changelog
 ---------
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 0.10.36 (2025-06-26)
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -31,12 +28,6 @@ Changed
 * Show available RL library configs on error message when an entry point key is not available for a given task.
 
 
-=======
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 0.10.33 (2025-05-15)
 ~~~~~~~~~~~~~~~~~~~~
 

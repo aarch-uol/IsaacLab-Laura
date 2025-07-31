@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -90,30 +78,10 @@ def hydra_task_config(task_name: str, agent_cfg_entry_point: str) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # register the task to Hydra
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
             env_cfg, agent_cfg = register_task_to_hydra(task_name.split(":")[-1], agent_cfg_entry_point)
 
             # define the new Hydra main function
             @hydra.main(config_path=None, config_name=task_name.split(":")[-1], version_base="1.3")
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-            env_cfg, agent_cfg = register_task_to_hydra(task_name, agent_cfg_entry_point)
-
-            # define the new Hydra main function
-            @hydra.main(config_path=None, config_name=task_name, version_base="1.3")
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-            env_cfg, agent_cfg = register_task_to_hydra(task_name, agent_cfg_entry_point)
-
-            # define the new Hydra main function
-            @hydra.main(config_path=None, config_name=task_name, version_base="1.3")
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             def hydra_main(hydra_env_cfg: DictConfig, env_cfg=env_cfg, agent_cfg=agent_cfg):
                 # convert to a native dictionary
                 hydra_env_cfg = OmegaConf.to_container(hydra_env_cfg, resolve=True)

@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -25,19 +13,7 @@ from isaaclab.sensors import RayCasterCfg, patterns
 ##
 
 VELODYNE_VLP_16_RAYCASTER_CFG = RayCasterCfg(
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     ray_alignment="base",
-=======
-    attach_yaw_only=False,
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    attach_yaw_only=False,
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    attach_yaw_only=False,
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     pattern_cfg=patterns.LidarPatternCfg(
         channels=16, vertical_fov_range=(-15.0, 15.0), horizontal_fov_range=(-180.0, 180.0), horizontal_res=0.2
     ),

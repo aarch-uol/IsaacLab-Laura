@@ -1,29 +1,7 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 """
 Script to record demonstrations with Isaac Lab environments using human teleoperation.
 
@@ -125,18 +103,6 @@ from isaaclab.managers import DatasetExportMode
 
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import chills.tasks
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-import chills.tasks
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-import chills.tasks
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 class RateLimiter:
@@ -237,19 +203,7 @@ def main():
 
     # parse configuration
     env_cfg = parse_env_cfg(args_cli.task, device=args_cli.device, num_envs=1)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     env_cfg.env_name = args_cli.task.split(":")[-1]
-=======
-    env_cfg.env_name = args_cli.task
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    env_cfg.env_name = args_cli.task
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    env_cfg.env_name = args_cli.task
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     # extract success checking function to invoke in the main loop
     success_term = None

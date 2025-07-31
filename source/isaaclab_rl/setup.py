@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -34,25 +22,7 @@ INSTALL_REQUIRES = [
     "numpy<2",
     "torch>=2.5.1",
     "torchvision>=0.14.1",  # ensure compatibility with torch 1.13.1
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     "protobuf>=3.20.2,!=5.26.0",
-=======
-    # 5.26.0 introduced a breaking change, so we restricted it for now.
-    # See issue https://github.com/tensorflow/tensorboard/issues/6808 for details.
-    "protobuf>=3.20.2, < 5.0.0",
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    # 5.26.0 introduced a breaking change, so we restricted it for now.
-    # See issue https://github.com/tensorflow/tensorboard/issues/6808 for details.
-    "protobuf>=3.20.2, < 5.0.0",
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    # 5.26.0 introduced a breaking change, so we restricted it for now.
-    # See issue https://github.com/tensorflow/tensorboard/issues/6808 for details.
-    "protobuf>=3.20.2, < 5.0.0",
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # configuration management
     "hydra-core",
     # data collection
@@ -62,49 +32,17 @@ INSTALL_REQUIRES = [
     # video recording
     "moviepy",
     # make sure this is consistent with isaac sim version
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     "pillow==11.2.1",
-=======
-    "pillow==11.0.0",
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    "pillow==11.0.0",
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    "pillow==11.0.0",
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 ]
 
 PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu128"]
 
 # Extra dependencies for RL agents
 EXTRAS_REQUIRE = {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     "sb3": ["stable-baselines3>=2.6", "tqdm", "rich"],  # tqdm/rich for progress bar
     "skrl": ["skrl>=1.4.3"],
     "rl-games": ["rl-games==1.6.1", "gym"],  # rl-games still needs gym :(
     "rsl-rl": ["rsl-rl-lib==2.3.3"],
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-    "sb3": ["stable-baselines3>=2.1"],
-    "skrl": ["skrl>=1.4.2"],
-    "rl-games": ["rl-games==1.6.1", "gym"],  # rl-games still needs gym :(
-    "rsl-rl": ["rsl-rl-lib==2.3.1"],
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    "sb3": ["stable-baselines3>=2.1"],
-    "skrl": ["skrl>=1.4.2"],
-    "rl-games": ["rl-games==1.6.1", "gym"],  # rl-games still needs gym :(
-    "rsl-rl": ["rsl-rl-lib==2.3.1"],
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 }
 # Add the names with hyphens as aliases for convenience
 EXTRAS_REQUIRE["rl_games"] = EXTRAS_REQUIRE["rl-games"]

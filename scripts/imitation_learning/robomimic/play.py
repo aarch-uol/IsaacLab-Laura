@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,19 +31,7 @@ parser.add_argument(
 )
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 parser.add_argument("--horizon", type=int, default=800, help="Step horizon of each rollout.")
-=======
-parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts.")
 parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 parser.add_argument(
@@ -94,205 +70,63 @@ if args_cli.enable_pinocchio:
     import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
 
 from isaaclab_tasks.utils import parse_env_cfg
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
-import chills.tasks
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 def rollout(policy, env, success_term, horizon, device):
-    """Perform a single rollout of the policy in the environment, supporting sequence-based models."""
+    """Perform a single rollout of the policy in the environment.
+
+    Args:
+        policy: The robomimicpolicy to play.
+        env: The environment to play in.
+        horizon: The step horizon of each rollout.
+        device: The device to run the policy on.
+
+    Returns:
+        terminated: Whether the rollout terminated.
+        traj: The trajectory of the rollout.
+    """
     policy.start_episode()
     obs_dict, _ = env.reset()
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[])
-
-    context_length = getattr(policy, "n_obs_steps", 1)  # works for transformer or rnn models
-   # print(f"Policy's expected sequence length (policy.n_obs_steps): {getattr(policy, 'n_obs_steps', 1)}")
-
-    obs_seq = []  # list of previous obs for context window
-
-    
+    traj = dict(actions=[], obs=[], next_obs=[])
 
     for i in range(horizon):
-        # Prepare current observations from env for policy input
-        current_policy_obs = {}
-        for k, v in obs_dict["policy"].items():
-            # Ensure low-dim observations are 1D (D,)
-            # If env returns (1, D), squeeze the batch dimension
-            if v.ndim > 1 and v.shape[0] == 1:
-                processed_v = v.squeeze(0).to(device) # Apply squeeze
-                # print(f"  DEBUG: Squeezed '{k}' from {v.shape} to {processed_v.shape}") # Add debug print
-            else:
-                processed_v = v.to(device) # No squeeze needed, assume (D,)
-            current_policy_obs[k] = processed_v
-        
-        # Handle image observations specifically (if any)
+        # Prepare observations
+        obs = copy.deepcopy(obs_dict["policy"])
+        for ob in obs:
+            obs[ob] = torch.squeeze(obs[ob])
+
+        # Check if environment image observations
         if hasattr(env.cfg, "image_obs_list"):
+            # Process image observations for robomimic inference
             for image_name in env.cfg.image_obs_list:
                 if image_name in obs_dict["policy"].keys():
-                    image = obs_dict["policy"][image_name].to(device)
-                    # Assuming image comes as (H, W, C) and needs to be (C, H, W)
-                    # If it's already (1, H, W, C), squeeze the batch dim first.
-                    if image.ndim == 4 and image.shape[0] == 1:
-                        image = image.squeeze(0) # Remove initial batch if present
-
-                    # Permute and normalize after ensuring no batch dim
-                    image = image.permute(2, 0, 1).clone().float() # (C, H, W)
+                    # Convert from chw uint8 to hwc normalized float
+                    image = torch.squeeze(obs_dict["policy"][image_name])
+                    image = image.permute(2, 0, 1).clone().float()
                     image = image / 255.0
                     image = image.clip(0.0, 1.0)
-                    current_policy_obs[image_name] = image
+                    obs[image_name] = image
 
-        # Append to context buffer. obs_seq should hold items with shape (D,) or (C, H, W)
-        traj["obs"].append(current_policy_obs) # Store the current, processed observation
-        obs_seq.append(current_policy_obs) # Form the sequence input
+        traj["obs"].append(obs)
 
-<<<<<<< HEAD
         # Compute actions
         actions = policy(obs)
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
-import chills.tasks
-
-
-def rollout(policy, env, success_term, horizon, device):
-    """Perform a single rollout of the policy in the environment, supporting sequence-based models."""
-    policy.start_episode()
-    obs_dict, _ = env.reset()
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[])
-
-    context_length = getattr(policy, "n_obs_steps", 1)  # works for transformer or rnn models
-   # print(f"Policy's expected sequence length (policy.n_obs_steps): {getattr(policy, 'n_obs_steps', 1)}")
-
-    obs_seq = []  # list of previous obs for context window
-
-    
-
-    for i in range(horizon):
-        # Prepare current observations from env for policy input
-        current_policy_obs = {}
-        for k, v in obs_dict["policy"].items():
-            # Ensure low-dim observations are 1D (D,)
-            # If env returns (1, D), squeeze the batch dimension
-            if v.ndim > 1 and v.shape[0] == 1:
-                processed_v = v.squeeze(0).to(device) # Apply squeeze
-                # print(f"  DEBUG: Squeezed '{k}' from {v.shape} to {processed_v.shape}") # Add debug print
-            else:
-                processed_v = v.to(device) # No squeeze needed, assume (D,)
-            current_policy_obs[k] = processed_v
-        
-        # Handle image observations specifically (if any)
-        if hasattr(env.cfg, "image_obs_list"):
-            for image_name in env.cfg.image_obs_list:
-                if image_name in obs_dict["policy"].keys():
-                    image = obs_dict["policy"][image_name].to(device)
-                    # Assuming image comes as (H, W, C) and needs to be (C, H, W)
-                    # If it's already (1, H, W, C), squeeze the batch dim first.
-                    if image.ndim == 4 and image.shape[0] == 1:
-                        image = image.squeeze(0) # Remove initial batch if present
-
-                    # Permute and normalize after ensuring no batch dim
-                    image = image.permute(2, 0, 1).clone().float() # (C, H, W)
-                    image = image / 255.0
-                    image = image.clip(0.0, 1.0)
-                    current_policy_obs[image_name] = image
-
-        # Append to context buffer. obs_seq should hold items with shape (D,) or (C, H, W)
-        traj["obs"].append(current_policy_obs) # Store the current, processed observation
-        obs_seq.append(current_policy_obs) # Form the sequence input
-
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
-        # Fix obs length errors
-        if len(obs_seq) > context_length:
-            obs_seq = obs_seq[-context_length:]
-
-        # Pad if not enough context
-        if len(obs_seq) < context_length:
-            padding_obs = {}
-            for k, v in obs_seq[0].items(): # Use shape of first element in obs_seq for padding
-                # If obs_seq[0][k] is (D,) then zeros_like creates (D,)
-                # If obs_seq[0][k] is (C,H,W) then zeros_like creates (C,H,W)
-                padding_obs[k] = torch.zeros_like(v)
-            obs_seq = [padding_obs] * (context_length - len(obs_seq)) + obs_seq
-
-        # Convert context list to batched sequence dict
-        seq_input = {}
-        for key in obs_seq[0]:
-            # Each step[key] here should be (D,) or (C, H, W)
-            # torch.stack will create (context_length, D) or (context_length, C, H, W)
-            # unsqueeze(0) will add the batch dimension: (1, context_length, D) or (1, context_length, C, H, W)
-            seq_input[key] = torch.stack([step[key] for step in obs_seq], dim=0).to(device=device)
-
-        # Compute action from sequence
-        actions = policy(seq_input) # Normalised actions
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        
-        # Convert policy output (torch.Tensor) to numpy array for env.step()
-        # (1, Action_Dim) from policy, squeeze to (Action_Dim,)
-        if isinstance(actions, torch.Tensor):
-            # If tensor, convert to numpy, ensuring 1D (7,)
-            # Policy returns (7,) so no squeeze is needed *here*.
-            actions = actions.cpu().numpy()
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
-        actions_tensor = torch.from_numpy(actions).to(device=device).float()
-        actions_tensor = actions_tensor.unsqueeze(0) # unsqueeze from earlier
+        actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
+
         # Apply actions
-        obs_dict, _, terminated, truncated, _ = env.step(actions_tensor)
-        # Record trajectory - traj["next_obs"] should append the raw observation dictionary from env.step().
+        obs_dict, _, terminated, truncated, _ = env.step(actions)
+        obs = obs_dict["policy"]
+
+        # Record trajectory
         traj["actions"].append(actions.tolist())
-<<<<<<< HEAD
         traj["next_obs"].append(obs)
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-        
-        # Convert policy output (torch.Tensor) to numpy array for env.step()
-        # (1, Action_Dim) from policy, squeeze to (Action_Dim,)
-        if isinstance(actions, torch.Tensor):
-            # If tensor, convert to numpy, ensuring 1D (7,)
-            # Policy returns (7,) so no squeeze is needed *here*.
-            actions = actions.cpu().numpy()
-
-        actions_tensor = torch.from_numpy(actions).to(device=device).float()
-        actions_tensor = actions_tensor.unsqueeze(0) # unsqueeze from earlier
-        # Apply actions
-        obs_dict, _, terminated, truncated, _ = env.step(actions_tensor)
-        # Record trajectory - traj["next_obs"] should append the raw observation dictionary from env.step().
-        traj["actions"].append(actions.tolist())
-        traj["next_obs"].append(obs_dict["policy"])
-       # print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
-
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        traj["next_obs"].append(obs_dict["policy"])
-       # print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
-
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -303,21 +137,6 @@ def rollout(policy, env, success_term, horizon, device):
     return False, traj
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-
-
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-
-
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 def main():
     """Run a trained policy from robomimic with Isaac Lab environment."""
     # parse configuration
@@ -326,24 +145,6 @@ def main():
     # Set observations to dictionary mode for Robomimic
     env_cfg.observations.policy.concatenate_terms = False
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    #create a log handler 
-    loghelper = LoggingHelper()
-
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    #create a log handler 
-    loghelper = LoggingHelper()
-
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    #create a log handler 
-    loghelper = LoggingHelper()
-
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # Set termination conditions
     env_cfg.terminations.time_out = None
 
@@ -353,22 +154,7 @@ def main():
     # Extract success checking function
     success_term = env_cfg.terminations.success
     env_cfg.terminations.success = None
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-    
-       
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-    
-       
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-    
-       
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # Create environment
     env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
 
@@ -381,44 +167,14 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-    #print(policy.policy.obs_shapes)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # Run policy
     results = []
-    print("-----------Starting -------")
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
-        loghelper.startEpoch(trial)
         terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
-<<<<<<< HEAD
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-    #print(policy.policy.obs_shapes)
-    # Run policy
-    results = []
-    print("-----------Starting -------")
-    for trial in range(args_cli.num_rollouts):
-        print(f"[INFO] Starting trial {trial}")
-        loghelper.startEpoch(trial)
-        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
-        results.append(terminated)
-        print(f"[INFO] Trial {trial}: {terminated}\n")
-        loghelper.stopEpoch(trial)
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-        loghelper.stopEpoch(trial)
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     print(f"\nSuccessful trials: {results.count(True)}, out of {len(results)} trials")
     print(f"Success rate: {results.count(True) / len(results)}")

@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -336,32 +324,8 @@ class ActionManager(ManagerBase):
         Args:
             action: The actions to process.
         """
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         # check if action dimension is valid
         if self.total_action_dim != action.shape[1]:
-=======
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-       # print("Action shape:", action.shape)
-       #print("Expected action shape ", self.total_action_dim)
-        #print("Actions:", action.__dict__)
-        # check if action dimension is valid
-        if self.total_action_dim != action.shape[1]:
-            
-<<<<<<< HEAD
->>>>>>> abfba5273e (Fresh start, no history)
-=======
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-       # print("Action shape:", action.shape)
-       #print("Expected action shape ", self.total_action_dim)
-        #print("Actions:", action.__dict__)
-        # check if action dimension is valid
-        if self.total_action_dim != action.shape[1]:
-            
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             raise ValueError(f"Invalid action shape, expected: {self.total_action_dim}, received: {action.shape[1]}.")
         # store the input actions
         self._prev_action[:] = self._action

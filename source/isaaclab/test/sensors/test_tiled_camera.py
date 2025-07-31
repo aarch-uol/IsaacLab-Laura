@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,9 +25,6 @@ import isaacsim.core.utils.stage as stage_utils
 import omni.replicator.core as rep
 import pytest
 from isaacsim.core.prims import SingleGeometryPrim, SingleRigidPrim
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 from pxr import Gf, UsdGeom
 
 # from Isaac Sim 4.2 onwards, pxr.Semantics is deprecated
@@ -47,15 +32,6 @@ try:
     import Semantics
 except ModuleNotFoundError:
     from pxr import Semantics
-=======
-from pxr import Gf, Semantics, UsdGeom
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-from pxr import Gf, Semantics, UsdGeom
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-from pxr import Gf, Semantics, UsdGeom
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 import isaaclab.sim as sim_utils
 from isaaclab.sensors.camera import Camera, CameraCfg, TiledCamera, TiledCameraCfg

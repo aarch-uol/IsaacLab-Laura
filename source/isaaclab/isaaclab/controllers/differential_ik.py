@@ -1,16 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -183,18 +171,6 @@ class DifferentialIKController:
             pose_error = torch.cat((position_error, axis_angle_error), dim=1)
             delta_joint_pos = self._compute_delta_joint_pos(delta_pose=pose_error, jacobian=jacobian)
         # return the desired joint positions
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-       # print(f"Joint Pos : {joint_pos} \n Delta Joint Pos : {delta_joint_pos}")
->>>>>>> abfba5273e (Fresh start, no history)
-=======
-       # print(f"Joint Pos : {joint_pos} \n Delta Joint Pos : {delta_joint_pos}")
->>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
-=======
-       # print(f"Joint Pos : {joint_pos} \n Delta Joint Pos : {delta_joint_pos}")
->>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return joint_pos + delta_joint_pos
 
     """

@@ -125,12 +125,11 @@ gym.register(
     },
     disable_env_checker=True,
 )
-
 gym.register(
-    id="Dev-IK-Rel-Roll",
+    id="Dev-IK-Rel-v1",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={
-        "env_cfg_entry_point": f"{__name__}.dev_ik_rel_env_cfg:FrankaDevEnvCfg",
+        "env_cfg_entry_point": f"{__name__}.dev_ik_rel_env_obs:FrankaDevEnvCfg",
         "robomimic_bc_rnn_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_low_dim.json"),
         "robomimic_bc_trans_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_trans.json"),
         "robomimic_hbc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/hbc.json"),
@@ -139,3 +138,4 @@ gym.register(
     },
     disable_env_checker=True,
 )
+

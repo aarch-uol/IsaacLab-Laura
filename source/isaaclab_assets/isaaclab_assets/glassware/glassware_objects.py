@@ -85,5 +85,22 @@ class Chem_Assets:
                     random_choice = True
                 ),
             )
-                
+
+        def cube_obs(self,pos=[0.65, 0.3, 0.05],rot=[0, 0, 1, 0], name="cube_obs") -> RigidObjectCfg:
+            return RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/" + name,
+            init_state=RigidObjectCfg.InitialStateCfg(pos=pos,rot=rot),
+            spawn=UsdFileCfg(
+                usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
+                scale=(1.0, 1.0, 1.0),
+                rigid_props=RigidBodyPropertiesCfg(
+                    solver_position_iteration_count=16,
+                    solver_velocity_iteration_count=1,
+                    max_angular_velocity=1000.0,
+                    max_linear_velocity=1000.0,
+                    max_depenetration_velocity=5.0,
+                    disable_gravity=False,
+                ),
+            ),
+        )        
             

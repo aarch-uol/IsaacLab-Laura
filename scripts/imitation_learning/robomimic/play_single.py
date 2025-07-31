@@ -31,7 +31,7 @@ parser.add_argument(
 )
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
-parser.add_argument("--horizon", type=int, default=500, help="Step horizon of each rollout.")
+parser.add_argument("--horizon", type=int, default=400, help="Step horizon of each rollout.")
 parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts.")
 parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 parser.add_argument(
@@ -71,9 +71,11 @@ if args_cli.enable_pinocchio:
 
 from isaaclab_tasks.utils import parse_env_cfg
 from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers
+from isaaclab.utils.pretty_printer import print_table, LogRollout
 
+from isaaclab.safety.safety_logic import SafetyLogic
 
-def rollout(policy, env, success_term, horizon, device):
+def rollout(policy, env, success_term, horizon, device, logging):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -88,7 +90,14 @@ def rollout(policy, env, success_term, horizon, device):
     """
     policy.start_episode()
     obs_dict, _ = env.reset()
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
+    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[], obstacles =[])
+
+    safety_logic = SafetyLogic(obs_dict["policy"]["obstacle_pos"], 0.2)
+    
+    try:
+        print("obstacle initial state: ", env.cfg.scene.obstacle.init_state)
+    except:
+        print("Env cfg not found ", )
 
     for i in range(horizon):
         # Prepare observations
@@ -123,8 +132,8 @@ def rollout(policy, env, success_term, horizon, device):
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
 
-        
-        #traj['uncertainties'].append(uncertainty_dict['variance'])
+        uncertainty_dict = safety_logic._MC_dropout_uncertainty(policy, obs)
+        traj['uncertainties'].append(uncertainty_dict['variance'])
 
         actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
 
@@ -136,13 +145,12 @@ def rollout(policy, env, success_term, horizon, device):
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)
 
-       # print("Action : " ,actions.tolist())
-       # print("Next obs : ", obs)
-
-       # print("Current EE position : ", obs["eef_pos"])
-        # this is where the intervention class will be 
-
-
+        ######## EVAL #######
+        
+        collision_exp, dist = safety_logic.exp_static_coll(obs["eef_pos"])
+      
+      #  print_table(["Step", "Variance", "Collision dist", "Safety violation"], [i, uncertainty_dict['variance'].data[-1], dist, collision_exp])
+        logging.write_to_log([i, obs["joint_pos"][-1][-2].item() ,uncertainty_dict['variance'].data[-1], dist, collision_exp])
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -160,7 +168,7 @@ def main():
 
     # Set observations to dictionary mode for Robomimic
     env_cfg.observations.policy.concatenate_terms = False
-
+   
     # Set termination conditions
     env_cfg.terminations.time_out = None
 
@@ -173,7 +181,8 @@ def main():
 
     # Create environment
     env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
-
+   
+   # print("scene : ", env.cfg.scene.obstacle)
     # Set seed
     torch.manual_seed(args_cli.seed)
     env.seed(args_cli.seed)
@@ -183,13 +192,19 @@ def main():
 
     # Load policy
     policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-
+    print("policy : ", type(policy), " value : " ,  policy)
     # Run policy
+
+    
     results = []
     for trial in range(args_cli.num_rollouts):
+        filename = "BC_RNN_TEST_RUN_" + str(trial)
+        logging = LogRollout(filename,["Step", "Gripper pose" , "Variance", "Collision dist", "Safety violation"] )
         print(f"[INFO] Starting trial {trial}")
-        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
+        logging.new_trial(trial)
+        terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device, logging)
         results.append(terminated)
+        logging.trial_outcome(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
 
     print(f"\nSuccessful trials: {results.count(True)}, out of {len(results)} trials")

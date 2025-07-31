@@ -53,9 +53,9 @@ def reach_object(
     ee_w = ee_frame.data.target_pos_w[..., 0, :]
     # Distance of the end-effector to the object: (num_envs,)
     object_ee_distance = torch.norm(cube_pos_w - ee_w, dim=1)
-    # if object_ee_distance.item() < std :
-    #     print(f"Observed Object Reached : {object_ee_distance.item()}")
-    #    # loghelper.logsubtask(LogType.APPR)
+    if object_ee_distance.item() < std :
+        print(f"Observed Object Reached : {object_ee_distance.item()}")
+        loghelper.logsubtask(LogType.APPR)
     # if object_ee_distance[0] < std:
     #     print(f"Reached object, dist  :{object_ee_distance.item()}")
     return object_ee_distance < std
@@ -87,9 +87,9 @@ def object_grasped(
     grasped = torch.logical_and(
         grasped, torch.abs(robot.data.joint_pos[:, -2] - gripper_open_val.to(env.device)) > gripper_threshold
     )
-   # if grasped[0]:
-     #   print(f"Observed Object grasped : {grasped.item()}")
-    #     loghelper.logsubtask(LogType.GRASP)
+    if grasped[0]:
+        print(f"Observed Object grasped : {grasped.item()}")
+        loghelper.logsubtask(LogType.GRASP)
     return grasped
 
 def object_released(
@@ -250,3 +250,7 @@ def position_command_error(
     error = torch.sub(des_pos_b, object_pos_b)
     #print("position error : ", error)
     return error
+
+
+# def step(loghelper : LoggingHelper = LoggingHelper()):
+#     loghelper.logstep()

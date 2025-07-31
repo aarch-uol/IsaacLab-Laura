@@ -37,9 +37,10 @@ def load_data(file):
     return rollouts, labels, all_uncertainties, all_timesteps
 
 
-def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[_ for _ in range(7)]):
+def plot_rollouts(rollouts, labels, results_path, parameters, duration=400, joints_to_plot=[_ for _ in range(7)]):
     # define a window for each joint
-    windows = {joint_num: deque(maxlen=40) for joint_num in joints_to_plot}
+    windows = {joint_num: deque(maxlen=parameters['window_size']) for joint_num in joints_to_plot} 
+  
 
     successful_rollout_means, failed_rollout_means = [], []
     num_joints = 7
@@ -70,32 +71,31 @@ def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[
                 while len(rollout_uncertainties_per_joint_to_plot) < duration:
                     rollout_uncertainties_per_joint_to_plot.append(0)
 
-                plotted_line = plt.plot(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot, label=f"Joint {joint_num}")
+                plotted_line = plt.plot(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot, alpha=0.3, label=f"Joint {joint_num}")
                 mean = np.mean(rollout_uncertainties_per_joint_to_plot)
                 mean = [mean for _ in range(len(rollout_timesteps_to_plot))]
-                plt.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', color=plotted_line[0].get_color()) 
+                plt.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', alpha=0.4, color=plotted_line[0].get_color()) 
 
                 if labels[i] == True:
                     successful_rollout_means.append(mean)
                 else:
                     failed_rollout_means.append(mean)
 
+               
                 # simulate the real-time window (uncertainty values come in one timestep at a time...)
                 for timestep, unc in zip(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot):
+                    #windows[joint_num].append((timestep, unc))
                     windows[joint_num].append((timestep, unc))
-                    unc_threshold = 0.1
+                    unc_threshold = parameters['unc_threshold']
                     peaks = sum(1 for _, curr_unc in windows[joint_num] if curr_unc > unc_threshold)
-                    if peaks > 20:
+                    if peaks > parameters['max_peaks']:
                         #print(f"number of peaks in window: {peaks} for rollout {i}")
                         # backtrack to get the timesteps for the entire window - so it says something like "there is danger in this window"
                         for unsafe_timestep, unsafe_uncertainty in windows[joint_num]:
                             unsafe_timesteps.append((unsafe_timestep, unsafe_uncertainty))
-                
-                # overlay the unsafe timesteps/uncertainties for the current rollout 
-                # plt.scatter([unsafe_timestep for unsafe_timestep, _ in unsafe_timesteps], 
-                #             [unsafe_uncertainty for _, unsafe_uncertainty in unsafe_timesteps], 
-                #             color='red', s=10, zorder=2)
+            
 
+                # plot the unsafe windows 
                 # Extract x and y
                 unsafe_x = [t for t, _ in unsafe_timesteps]
                 unsafe_y = [u for _, u in unsafe_timesteps]
@@ -103,13 +103,29 @@ def plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[
                 # sort by timestep to ensure proper line order
                 unsafe_sorted = sorted(zip(unsafe_x, unsafe_y))
                 unsafe_x, unsafe_y = zip(*unsafe_sorted) if unsafe_sorted else ([], [])
-                plt.plot(unsafe_x, unsafe_y, color='red', linewidth=1, linestyle='-', zorder=2, label=f"Detected Unsafe Window (Joint {joint_num})")
-                #plt.scatter(unsafe_x, unsafe_y, color='red', s=10, zorder=3)
+                detected_unsafe_windows = int(len(unsafe_x)/parameters['window_size'])
+                # plt.plot(unsafe_x, unsafe_y, color='red', linewidth=1, linestyle='-', zorder=2, label=f"Detected Unsafe Window (Joint {joint_num}). Total unsafe windows detected: {detected_unsafe_windows}")
+                
+                for window_size in [10, 50, 100]:
+                    # Plot average uncertainty over each window
+                    window_avg_timesteps = []
+                    window_avg_values = []
+                    # temp_window = deque(maxlen=parameters[window_size])
+                    temp_window = deque(maxlen=window_size)
+                    for timestep, unc in zip(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot):
+                        temp_window.append((timestep, unc))
+                        # if len(temp_window) == parameters[window_size]:
+                        if len(temp_window) == window_size:
+                            # avg_unc = sum(u for _, u in temp_window) / parameters[window_size]
+                            avg_unc = sum(u for _, u in temp_window) / window_size
+                            end_timestep = temp_window[-1][0]
+                            window_avg_timesteps.append(end_timestep)
+                            window_avg_values.append(avg_unc)
 
-               
-                # reset the window for the current joint
+                    plt.plot(window_avg_timesteps, window_avg_values, zorder=3, label=f"Sliding Window Avg (Joint {joint_num}) for Window Size {window_size}")
+
+                # Reset the original window buffer
                 windows[joint_num].clear()
-
 
         title = f"Uncertainty for joint {joint_num} for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
         plt.title(title)
@@ -200,18 +216,36 @@ def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
 # uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
 
 model_arch = "BC_RNN_GMM"
-task = "stack_cube" # stack_cube or pick_place
+task = "pick_place" # stack_cube or pick_place
 model_name = f"ensemble"
 #uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
-uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties.txt"
+
+uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties3.txt"
 results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/" 
 
+# uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/video_plots/uncertainties.txt"
+# results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/Isaac-Stack-Cube-Franka-IK-Rel-v0/video_plots" 
+
+
+
+parameters = {
+    'stack_cube': {
+        'unc_threshold': 0.1,
+        'max_peaks': 20,
+        'window_size': 40
+    }, 
+    'pick_place': {
+        'unc_threshold': 0.05,
+        'max_peaks': 10,
+        'window_size': 60
+    }
+}
+
 rollouts, labels, all_uncertainties, all_timesteps = load_data(uncertainties_path)
-
-plot_rollouts(rollouts, labels, results_path, duration=400, joints_to_plot=[6])
-
+plot_rollouts(rollouts, labels, results_path, parameters[task], duration=800, joints_to_plot=[6])
 
 
 
 
 
+# plot another graph that says something like - "for the window at timestep x, the average uncertainty inside the window was y"

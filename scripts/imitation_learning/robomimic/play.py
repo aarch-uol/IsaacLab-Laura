@@ -459,30 +459,91 @@ def main():
     # Load policy
     #policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
     
-    ensemble = load_ensemble(device, ensemble_paths=[
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model0/bc_rnn_low_dim_franka_stack/20250722162848/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model1/bc_rnn_low_dim_franka_stack/20250722162851/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model2/bc_rnn_low_dim_franka_stack/20250722162852/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model3/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model4/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model5/bc_rnn_low_dim_franka_stack/20250722162854/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model6/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model7/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model8/bc_rnn_low_dim_franka_stack/20250722162856/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model9/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model10/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model11/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model12/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model13/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model14/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth'
+    # load the stack cube ensemble
+    # ensemble = load_ensemble(device, ensemble_paths=[
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model0/bc_rnn_low_dim_franka_stack/20250722162848/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model1/bc_rnn_low_dim_franka_stack/20250722162851/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model2/bc_rnn_low_dim_franka_stack/20250722162852/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model3/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model4/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model5/bc_rnn_low_dim_franka_stack/20250722162854/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model6/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model7/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model8/bc_rnn_low_dim_franka_stack/20250722162856/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model9/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model10/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model11/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model12/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model13/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
+    #     'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model14/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth'
+    # ])
+
+    # load the pick place ensemble - 47% success rate ensemble
+    # ensemble = load_ensemble(device, ensemble_paths=[ 
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model0/BC-RNN-GMM-Ensemble/20250728121319/models/model_epoch_2515_best_validation_268877.2984375.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model1/BC-RNN-GMM-Ensemble/20250728121322/models/model_epoch_1341_best_validation_264557.3390625.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model2/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_2127_best_validation_257163.584375.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model3/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_1466_best_validation_268943.61875.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model4/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_1122_best_validation_259180.1421875.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model5/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_1885_best_validation_263727.775.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model6/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_1039_best_validation_266665.428125.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model7/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_2821_best_validation_255741.9453125.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model8/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_2240_best_validation_261618.5515625.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model9/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_2576_best_validation_266381.5921875.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model10/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_1710_best_validation_254380.1484375.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model11/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_2149_best_validation_252307.69375.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model12/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_1114_best_validation_266930.321875.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model13/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_2771_best_validation_268996.6671875.pth',
+    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model14/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_2885_best_validation_250146.475.pth',
+    # ])
+
+    # load the pick place ensemble - 65% success rate ensemble
+    ensemble = load_ensemble(device, ensemble_paths=[ 
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model0/BC-RNN-GMM-Ensemble/20250728121319/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model1/BC-RNN-GMM-Ensemble/20250728121322/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model2/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model3/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model4/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model5/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model6/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model7/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model8/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model9/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model10/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model11/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model12/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model13/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_3000.pth',
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model14/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_3000.pth',
     ])
 
-    task = "stack_cube" # stack_cube or pick_place
+    # load the pick place ensemble - 60% success rate ensemble
+    # ensemble = load_ensemble(device, ensemble_paths=[ 
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
+    # ])
+
+    task = "pick_place" # stack_cube or pick_place
     model_name = f"model0"
     #uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
-    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties.txt"
+    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties4.txt"
     success_rate_path = f"docs/training_data/pick_place/uncertainty_rollout_pick_place/Dev-IK-Rel-v0-{args_cli.model_name}-success-rate.txt"
     
+    # clear uncertainties path
+    with open(uncertainties_path, 'w') as file:
+        pass
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):

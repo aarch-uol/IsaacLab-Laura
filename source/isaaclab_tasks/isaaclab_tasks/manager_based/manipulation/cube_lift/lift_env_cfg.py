@@ -271,10 +271,10 @@ class RewardsCfg:
 class TerminationsCfg:
     """Termination terms for the MDP."""
     def set_loghelper(self, loghelper: LoggingHelper):    
-        #self.success.params["loghelper"] = loghelper
+        self.success.params["loghelper"] = loghelper
         self.time_out.params["loghelper"] = loghelper
         self.object_dropping.params["loghelper"] = loghelper
-        #self.loghelper = loghelper
+        self.loghelper = loghelper
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 

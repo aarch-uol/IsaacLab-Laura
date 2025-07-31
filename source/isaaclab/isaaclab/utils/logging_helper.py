@@ -18,8 +18,9 @@ class ErrorType(Enum):
 
 
 class LoggingHelper:
-    def __init__(self, logname : str= "docs/vialrack_4k.txt"):
+    def __init__(self, logname : str= "docs/rollout_logging.txt"):
         self.namefile = logname
+        #self.step = 0
     
     def startEpoch(self, epochnum : int):
         with open(self.namefile, "a") as f:
@@ -36,3 +37,8 @@ class LoggingHelper:
     def logerror(self, errortype: ErrorType):
         with open(self.namefile, "a") as f:
             f.write(f"T{errortype.value}:{errortype.name}:TRUE \n")
+    
+    # def logstep(self):
+    #     with open(self.namefile, "a") as f:
+    #         f.write(f"S:{str(self.step)} \n")
+    #     self.step+=1

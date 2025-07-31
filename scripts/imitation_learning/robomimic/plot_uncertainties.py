@@ -2,9 +2,66 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 
+from isaaclab.utils.logging_helper import LoggingHelper
+
+def get_subtask_timesteps():
+    """
+    for each rollout, return the timesteps that each subtask was completed
+    """
+    subtask_codes = {
+        'APPR': '0',
+        'GRASP': '1',
+        'LIFT': '2',
+        'FINISH': '4'
+    }
+    with open(LoggingHelper().namefile, 'r') as file:
+        lines = file.readlines()
+
+    rollouts = [] 
+    rollout_number = 0
+    current_timestep = -1
+    for line in lines:
+        line = line.strip().split(':')
+        
+        if line[0] == 'X':
+            rollout_number += 1
+            current_timestep = -1
+
+        if line[0] == 'S':
+            current_timestep += 1
+    
+        # APPR subtask was completed successfully
+        if line[0] == subtask_codes['APPR'] and line[2] == 'TRUE' and 'APPR' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
+            rollouts.append([rollout_number, 'APPR', current_timestep])
+
+        if line[0] == subtask_codes['GRASP'] and line[2] == 'TRUE' and 'GRASP' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
+            rollouts.append([rollout_number, 'GRASP', current_timestep])
+        
+        if line[0] == subtask_codes['LIFT'] and line[2] == 'TRUE' and 'LIFT' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
+            rollouts.append([rollout_number, 'LIFT', current_timestep])
+
+        if line[0] == subtask_codes['FINISH'] and line[2] == 'TRUE' and 'FINISH' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
+            rollouts.append([rollout_number, 'FINISH', current_timestep])
+
+    # fix incorrect rollout numbers
+    prev_rollout_number = 1
+    rollout_number = 1
+    for i, rollout in enumerate(rollouts):
+        og_rollout_num = rollout[0]
+        if rollout[0] != prev_rollout_number:
+            rollout_number += 1
+        rollout[0] = rollout_number
+        prev_rollout_number = og_rollout_num
+    
+
+    subtask_timesteps = {(rol_num, subtask) : timestep for rol_num, subtask, timestep in rollouts}
+    print(subtask_timesteps)
+
+    return subtask_timesteps
+    
 
 
-def load_data(file):
+def load_uncertainties_file(file):
     rollouts = []
     rollout = []
     labels = []
@@ -241,7 +298,10 @@ parameters = {
     }
 }
 
-rollouts, labels, all_uncertainties, all_timesteps = load_data(uncertainties_path)
+
+subtask_timesteps = get_subtask_timesteps()
+
+rollouts, labels, all_uncertainties, all_timesteps = load_uncertainties_file(uncertainties_path)
 plot_rollouts(rollouts, labels, results_path, parameters[task], duration=800, joints_to_plot=[6])
 
 

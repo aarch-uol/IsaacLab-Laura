@@ -541,14 +541,18 @@ def main():
     uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties4.txt"
     success_rate_path = f"docs/training_data/pick_place/uncertainty_rollout_pick_place/Dev-IK-Rel-v0-{args_cli.model_name}-success-rate.txt"
     
-    # clear uncertainties path
+    # clear uncertainties file
     with open(uncertainties_path, 'w') as file:
         pass
+    # clear rollout logger file
+    with open(loghelper.namefile, 'w') as file:
+        pass
+    
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
-        loghelper.startEpoch(trial)
+       # loghelper.startEpoch(trial)
         #terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
         #terminated, traj = rollout_transformer(policy, env, success_term, args_cli.horizon, device)
         terminated, traj = rollout_ensemble(ensemble, env, success_term, args_cli.horizon, device)
@@ -560,7 +564,7 @@ def main():
             
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
-        loghelper.stopEpoch(trial)
+        #loghelper.stopEpoch(trial)
 
     print(f"\nSuccessful trials: {results.count(True)}, out of {len(results)} trials")
     print(f"Success rate: {results.count(True) / len(results)}")

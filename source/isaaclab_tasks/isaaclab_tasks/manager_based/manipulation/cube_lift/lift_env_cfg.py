@@ -48,7 +48,8 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
     # target object: will be populated by agent env cfg
     object: RigidObjectCfg | DeformableObjectCfg = MISSING
     
-    
+    #for collision
+    #obstacle: RigidObjectCfg =MISSING
    
 
    # glassware = RigidObjectCollectionCfg(rigid_objects={"vial" : vial, "flask" : flask})
@@ -126,7 +127,9 @@ class ObservationsCfg():
     @configclass
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
-
+        def set_loghelper(self, loghelper: LoggingHelper):
+            self.logstep.params["loghelper"] = loghelper
+        logstep = ObsTerm(func = mdp.logstep)
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
@@ -136,6 +139,7 @@ class ObservationsCfg():
         eef_pos = ObsTerm(func=mdp.ee_frame_pos)
         eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
+       # obstacle_pos = ObsTerm(func=mdp.obstacle_position_in_robot_root_frame)
         #robot_pose=ObsTerm(func=mdp.robot_pose)
         #object_to_target = ObsTerm(func=mdp.position_command_error)
         #norm_error = ObsTerm(func=mdp.object_goal_norm_error)
@@ -152,8 +156,8 @@ class ObservationsCfg():
             self.appr.params["loghelper"] = loghelper
             self.grasp.params["loghelper"] = loghelper
             self.lift.params["loghelper"] = loghelper
-            self.appr_goal.params["loghelper"] = loghelper
-           # self.loghelper = loghelper
+           # self.appr_goal.params["loghelper"] = loghelper
+            #self.loghelper = loghelper
 
 
         appr = ObsTerm(
@@ -211,7 +215,9 @@ class ObservationsCfg():
 @configclass
 class EventCfg:
     """Configuration for events."""
-
+    ## add in log helper funcs 
+    def set_loghelper(self, loghelper: LoggingHelper):    
+        self.reset_all.params["loghelper"] = loghelper
     reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
 
     reset_object_position = EventTerm(
@@ -274,7 +280,7 @@ class TerminationsCfg:
         self.success.params["loghelper"] = loghelper
         self.time_out.params["loghelper"] = loghelper
         self.object_dropping.params["loghelper"] = loghelper
-        self.loghelper = loghelper
+       # self.loghelper = loghelper
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
@@ -341,6 +347,8 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
         self.viewer.eye = (1.0, 1.0, 1.0)
         self.viewer.lookat = (0.0, 0.0, -0.1)
         self.terminations.set_loghelper(self.loghelper)
+        self.events.set_loghelper(self.loghelper)
+        self.observations.policy.set_loghelper(self.loghelper)
         self.observations.subtask_terms.set_loghelper(self.loghelper)
         self.sim.physx.bounce_threshold_velocity = 0.2
         self.sim.physx.bounce_threshold_velocity = 0.01

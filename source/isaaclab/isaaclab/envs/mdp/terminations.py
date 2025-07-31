@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -27,6 +31,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import ContactSensor
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
@@ -34,18 +39,25 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 =======
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
     from isaaclab.managers.command_manager import CommandTerm
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 """
 MDP terminations.
 """
@@ -53,11 +65,18 @@ MDP terminations.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def time_out(env: ManagerBasedRLEnv) -> torch.Tensor:
+=======
+def time_out(env: ManagerBasedRLEnv, loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """Terminate the episode when the episode length exceeds the maximum episode length."""
+    # if torch.max(env.episode_length_buf) >= env.max_episode_length:
+    #     loghelper.logerror(ErrorType.TIMEOUT)        
     return env.episode_length_buf >= env.max_episode_length
 
 
+<<<<<<< HEAD
 def command_resample(env: ManagerBasedRLEnv, command_name: str, num_resamples: int = 1) -> torch.Tensor:
 =======
 =======
@@ -74,12 +93,16 @@ def command_resample(env: ManagerBasedRLEnv, command_name: str, num_resamples: i
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+def command_resample(env: ManagerBasedRLEnv, command_name: str, num_resamples: int = 1, loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """Terminate the episode based on the total number of times commands have been re-sampled.
 
     This makes the maximum episode length fluid in nature as it depends on how the commands are
     sampled. It is useful in situations where delayed rewards are used :cite:`rudin2022advanced`.
     """
     command: CommandTerm = env.command_manager.get_term(command_name)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -90,6 +113,10 @@ def command_resample(env: ManagerBasedRLEnv, command_name: str, num_resamples: i
     # if torch.logical_and((command.time_left <= env.step_dt), (command.command_counter == num_resamples)).item():
     #     loghelper.logerror(ErrorType.RESAMPLE)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    # if torch.logical_and((command.time_left <= env.step_dt), (command.command_counter == num_resamples)).item():
+    #     loghelper.logerror(ErrorType.RESAMPLE)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return torch.logical_and((command.time_left <= env.step_dt), (command.command_counter == num_resamples))
 
 
@@ -100,15 +127,40 @@ Root terminations.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def bad_orientation(
     env: ManagerBasedRLEnv, limit_angle: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ) -> torch.Tensor:
     """Terminate when the asset's orientation is too far from the desired orientation limits.
+=======
+# def bad_orientation(
+#     env: ManagerBasedRLEnv, limit_angle: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), 
+#     loghelper : LoggingHelper = LoggingHelper()
+# ) -> torch.Tensor:
+#     """Terminate when the asset's orientation is too far from the desired orientation limits.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
-    This is computed by checking the angle between the projected gravity vector and the z-axis.
+#     This is computed by checking the angle between the projected gravity vector and the z-axis.
+#     """
+#     # extract the used quantities (to enable type-hinting)
+#     asset: RigidObject = env.scene[asset_cfg.name]
+#     # if (torch.acos(-asset.data.projected_gravity_b[:, 2]).abs()).item() > limit_angle:
+#     #     loghelper.logerror(ErrorType.ORIENTATION)
+#     return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
+
+
+def bad_orientation(
+    env: ManagerBasedRLEnv,
+    limit_angle: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    loghelper: LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
     """
-    # extract the used quantities (to enable type-hinting)
+    Terminate when the asset's orientation deviates too far from its original upright pose.
+    Deviation is computed from the initial projected gravity vector.
+    """
     asset: RigidObject = env.scene[asset_cfg.name]
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
@@ -138,6 +190,8 @@ def bad_orientation(
     Deviation is computed from the initial projected gravity vector.
     """
     asset: RigidObject = env.scene[asset_cfg.name]
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     # Use persistent state on the function to store upright baseline
     if not hasattr(bad_orientation, "_baseline_upright"):
@@ -151,13 +205,17 @@ def bad_orientation(
     #     loghelper.logerror(ErrorType.ORIENTATION)
         print("bad orientation")
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return torch.acos(-asset.data.projected_gravity_b[:, 2]).abs() > limit_angle
 
 
 def root_height_below_minimum(
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     env: ManagerBasedRLEnv, minimum_height: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
@@ -175,11 +233,18 @@ def root_height_below_minimum(
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    env: ManagerBasedRLEnv, minimum_height: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    loghelper : LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
+    """Terminate when the asset's root height is below the minimum height.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     Note:
         This is currently only supported for flat terrains, i.e. the minimum height is in the world frame.
     """
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -192,6 +257,11 @@ def root_height_below_minimum(
         # loghelper.logerror(ErrorType.DROP)
         print(f"[DEBUG] Asset {asset_cfg.name} dropped below minimum height: {asset.data.root_pos_w[:, 2].item()} < {minimum_height}")
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    if torch.any(asset.data.root_pos_w[:, 2] < minimum_height):
+        # loghelper.logerror(ErrorType.DROP)
+        print(f"[DEBUG] Asset {asset_cfg.name} dropped below minimum height: {asset.data.root_pos_w[:, 2].item()} < {minimum_height}")
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return asset.data.root_pos_w[:, 2] < minimum_height
 
 
@@ -200,6 +270,7 @@ Joint terminations.
 """
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 def joint_pos_out_of_limit(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
@@ -213,6 +284,11 @@ def joint_pos_out_of_limit(
         env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+def joint_pos_out_of_limit(
+        env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """Terminate when the asset's joint positions are outside of the soft joint limits."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
@@ -228,6 +304,7 @@ def joint_pos_out_of_limit(
 def joint_pos_out_of_manual_limit(
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     env: ManagerBasedRLEnv, bounds: tuple[float, float], asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 =======
     env: ManagerBasedRLEnv, bounds: tuple[float, float], asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
@@ -237,6 +314,10 @@ def joint_pos_out_of_manual_limit(
     env: ManagerBasedRLEnv, bounds: tuple[float, float], asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     loghelper : LoggingHelper = LoggingHelper()
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    env: ManagerBasedRLEnv, bounds: tuple[float, float], asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    loghelper : LoggingHelper = LoggingHelper()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 ) -> torch.Tensor:
     """Terminate when the asset's joint positions are outside of the configured bounds.
 
@@ -250,6 +331,7 @@ def joint_pos_out_of_manual_limit(
     # compute any violations
     out_of_upper_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] > bounds[1], dim=1)
     out_of_lower_limits = torch.any(asset.data.joint_pos[:, asset_cfg.joint_ids] < bounds[0], dim=1)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     return torch.logical_or(out_of_upper_limits, out_of_lower_limits)
@@ -273,11 +355,24 @@ def joint_vel_out_of_limit(
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    if torch.logical_or(out_of_upper_limits, out_of_lower_limits).item():
+    #     loghelper.logerror(ErrorType.JOINT_VIO)
+        print("joint pos violation")
+    
+    return torch.logical_or(out_of_upper_limits, out_of_lower_limits)
+
+
+def joint_vel_out_of_limit(
+        env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """Terminate when the asset's joint velocities are outside of the soft joint limits."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     # compute any violations
     limits = asset.data.soft_joint_vel_limits
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -290,10 +385,16 @@ def joint_vel_out_of_limit(
     #     loghelper.logerror(ErrorType.VEL_VIO)
         print("Joint violation")
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1).item():
+    #     loghelper.logerror(ErrorType.VEL_VIO)
+        print("Joint violation")
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > limits[:, asset_cfg.joint_ids], dim=1)
 
 
 def joint_vel_out_of_manual_limit(
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     env: ManagerBasedRLEnv, max_velocity: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
@@ -305,11 +406,16 @@ def joint_vel_out_of_manual_limit(
     env: ManagerBasedRLEnv, max_velocity: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     loghelper : LoggingHelper = LoggingHelper()
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    env: ManagerBasedRLEnv, max_velocity: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    loghelper : LoggingHelper = LoggingHelper()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 ) -> torch.Tensor:
     """Terminate when the asset's joint velocities are outside the provided limits."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     # compute any violations
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -322,10 +428,16 @@ def joint_vel_out_of_manual_limit(
         print("joint velocity violation")
     #     loghelper.logerror(ErrorType.VEL_VIO)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    if torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1).item():
+        print("joint velocity violation")
+    #     loghelper.logerror(ErrorType.VEL_VIO)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return torch.any(torch.abs(asset.data.joint_vel[:, asset_cfg.joint_ids]) > max_velocity, dim=1)
 
 
 def joint_effort_out_of_limit(
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
@@ -337,6 +449,10 @@ def joint_effort_out_of_limit(
     env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     loghelper : LoggingHelper = LoggingHelper()
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    loghelper : LoggingHelper = LoggingHelper()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 ) -> torch.Tensor:
     """Terminate when effort applied on the asset's joints are outside of the soft joint limits.
 
@@ -348,10 +464,15 @@ def joint_effort_out_of_limit(
     asset: Articulation = env.scene[asset_cfg.name]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    applied_torque = asset.data.applied_torque[:, asset_cfg.joint_ids]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # check if any joint effort is out of limit
     out_of_limits = torch.isclose(
-        asset.data.computed_torque[:, asset_cfg.joint_ids], asset.data.applied_torque[:, asset_cfg.joint_ids]
+        applied_torque, asset.data.joint_effort_limits
     )
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
@@ -367,6 +488,11 @@ def joint_effort_out_of_limit(
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    if torch.any(torch.any(out_of_limits, dim=1)):
+        print(f"joint effort violation: limit {asset.data.joint_effort_limits}:  \n applied torque : {asset.data.applied_torque[:, asset_cfg.joint_ids]} ")
+    #     loghelper.logerror(ErrorType.EFF_VIO)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return torch.any(out_of_limits, dim=1)
 
 
@@ -375,6 +501,7 @@ Contact sensor.
 """
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 def illegal_contact(env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
@@ -388,6 +515,11 @@ def illegal_contact(
         env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg,
         loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+def illegal_contact(
+        env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg,
+        loghelper : LoggingHelper = LoggingHelper()) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """Terminate when the contact force on the sensor exceeds the force threshold."""
     # extract the used quantities (to enable type-hinting)
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
@@ -395,9 +527,12 @@ def illegal_contact(
     # check if any contact force exceeds the threshold
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     if torch.any(
         torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold, dim=1
     ).item():
@@ -405,9 +540,12 @@ def illegal_contact(
         print("Illegal contact")
         
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     return torch.any(
         torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold, dim=1
     )

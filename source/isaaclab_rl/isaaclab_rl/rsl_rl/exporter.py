@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -218,7 +222,10 @@ class _OnnxPolicyExporter(torch.nn.Module):
         self.to("cpu")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.eval()
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         if self.is_recurrent:
             obs = torch.zeros(1, self.rnn.input_size)
             h_in = torch.zeros(self.rnn.num_layers, 1, self.rnn.hidden_size)

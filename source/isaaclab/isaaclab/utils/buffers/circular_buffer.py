@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -126,6 +130,7 @@ class CircularBuffer:
         if data.shape[0] != self.batch_size:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             raise ValueError(f"The input data has '{data.shape[0]}' batch size while expecting '{self.batch_size}'")
 
         # move the data to the device
@@ -138,6 +143,10 @@ class CircularBuffer:
             raise ValueError(f"The input data has {data.shape[0]} environments while expecting {self.batch_size}")
 
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            raise ValueError(f"The input data has {data.shape[0]} environments while expecting {self.batch_size}")
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # at the first call, initialize the buffer size
         if self._buffer is None:
             self._pointer = -1
@@ -145,6 +154,7 @@ class CircularBuffer:
         # move the head to the next slot
         self._pointer = (self._pointer + 1) % self.max_length
         # add the new data to the last layer
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         self._buffer[self._pointer] = data
@@ -157,14 +167,21 @@ class CircularBuffer:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
         self._buffer[self._pointer] = data.to(self._device)
         # Check for batches with zero pushes and initialize all values in batch to first append
+=======
+        self._buffer[self._pointer] = data.to(self._device)
+        # Check for batches with zero pushes and initialize all values in batch to first append
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         if 0 in self._num_pushes.tolist():
             fill_ids = [i for i, x in enumerate(self._num_pushes.tolist()) if x == 0]
             self._num_pushes.tolist().index(0) if 0 in self._num_pushes.tolist() else None
             self._buffer[:, fill_ids, :] = data.to(self._device)[fill_ids]
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # increment number of number of pushes for all batches
         self._num_pushes += 1
 

@@ -52,6 +52,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # Copy the RMW specifications for ROS2
 # https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_ros.html
 COPY docker/.ros/ ${DOCKER_USER_HOME}/.ros/
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
@@ -79,6 +80,11 @@ COPY docker/.ros/ ${DOCKER_USER_HOME}/.ros/
 # Copy the RMW specifications for ROS2
 # https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_ros.html
 # COPY docker/.ros/ ${DOCKER_USER_HOME}/.ros/
+=======
+
+
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # Additional tools and pip install
 RUN apt update && \
     apt upgrade -y && \
@@ -94,8 +100,12 @@ RUN apt update && \
     apt -y autoremove && \
     apt clean && \
 <<<<<<< HEAD
+<<<<<<< HEAD
     rm -rf /var/lib/apt/lists/*
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
     rm -rf /var/lib/apt/lists/*
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    rm -rf /var/lib/apt/lists/*
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

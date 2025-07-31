@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -159,6 +163,7 @@ class ContactSensor(SensorBase):
         self._data.net_forces_w_history[env_ids] = 0.0
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # reset force matrix
         if len(self.cfg.filter_prim_paths_expr) != 0:
             self._data.force_matrix_w[env_ids] = 0.0
@@ -175,6 +180,13 @@ class ContactSensor(SensorBase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        if self.cfg.history_length > 0:
+            self._data.net_forces_w_history[env_ids] = 0.0
+        # reset force matrix
+        if len(self.cfg.filter_prim_paths_expr) != 0:
+            self._data.force_matrix_w[env_ids] = 0.0
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # reset the current air time
         if self.cfg.track_air_time:
             self._data.current_air_time[env_ids] = 0.0
@@ -334,16 +346,20 @@ class ContactSensor(SensorBase):
         # force matrix: (num_envs, num_bodies, num_filter_shapes, 3)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # force matrix history: (num_envs, history_length, num_bodies, num_filter_shapes, 3)
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         if len(self.cfg.filter_prim_paths_expr) != 0:
             num_filters = self.contact_physx_view.filter_count
             self._data.force_matrix_w = torch.zeros(
                 self._num_envs, self._num_bodies, num_filters, 3, device=self._device
             )
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             if self.cfg.history_length > 0:
@@ -356,6 +372,8 @@ class ContactSensor(SensorBase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     def _update_buffers_impl(self, env_ids: Sequence[int]):
         """Fills the buffers of the sensor data."""
@@ -372,6 +390,7 @@ class ContactSensor(SensorBase):
         if self.cfg.history_length > 0:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             self._data.net_forces_w_history[env_ids] = self._data.net_forces_w_history[env_ids].roll(1, dims=1)
 =======
             self._data.net_forces_w_history[env_ids, 1:] = self._data.net_forces_w_history[env_ids, :-1].clone()
@@ -379,6 +398,9 @@ class ContactSensor(SensorBase):
 =======
             self._data.net_forces_w_history[env_ids, 1:] = self._data.net_forces_w_history[env_ids, :-1].clone()
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            self._data.net_forces_w_history[env_ids, 1:] = self._data.net_forces_w_history[env_ids, :-1].clone()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             self._data.net_forces_w_history[env_ids, 0] = self._data.net_forces_w[env_ids]
 
         # obtain the contact force matrix
@@ -391,6 +413,7 @@ class ContactSensor(SensorBase):
             self._data.force_matrix_w[env_ids] = force_matrix_w[env_ids]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             if self.cfg.history_length > 0:
                 self._data.force_matrix_w_history[env_ids] = self._data.force_matrix_w_history[env_ids].roll(1, dims=1)
                 self._data.force_matrix_w_history[env_ids, 0] = self._data.force_matrix_w[env_ids]
@@ -398,6 +421,8 @@ class ContactSensor(SensorBase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # obtain the pose of the sensor origin
         if self.cfg.track_pose:

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -69,6 +73,7 @@ class ContactSensorData:
     Shape is (N, B, M, 3), where N is the number of sensors, B is number of bodies in each sensor
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     and M is the number of filtered bodies.
 
     Note:
@@ -88,6 +93,9 @@ class ContactSensorData:
 =======
     and ``M`` is the number of filtered bodies.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    and ``M`` is the number of filtered bodies.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     Note:
         If the :attr:`ContactSensorCfg.filter_prim_paths_expr` is empty, then this quantity is None.

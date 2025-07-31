@@ -514,6 +514,7 @@ Fixed
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 Added
 ^^^^^
@@ -524,6 +525,11 @@ Added
 ^^^^^
 
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+Added
+^^^^^
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 * Added a new attribute :attr:`articulation_root_prim_path` to the :class:`~isaaclab.assets.ArticulationCfg` class
   to allow explicitly specifying the prim path of the articulation root.
 

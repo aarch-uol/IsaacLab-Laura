@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -191,6 +195,7 @@ def test_frame_transformer_feet_wrt_base(sim):
         # -- ground-truth
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         root_pose_w = scene.articulations["robot"].data.root_pose_w
 =======
         root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
@@ -198,6 +203,9 @@ def test_frame_transformer_feet_wrt_base(sim):
 =======
         root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         feet_pos_w_gt = scene.articulations["robot"].data.body_pos_w[:, feet_indices]
         feet_quat_w_gt = scene.articulations["robot"].data.body_quat_w[:, feet_indices]
         # -- frame transformer
@@ -375,6 +383,7 @@ def test_frame_transformer_robot_body_to_external_cube(sim):
         # -- ground-truth
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         root_pose_w = scene.articulations["robot"].data.root_pose_w
         cube_pos_w_gt = scene.rigid_objects["cube"].data.root_pos_w
         cube_quat_w_gt = scene.rigid_objects["cube"].data.root_quat_w
@@ -388,6 +397,11 @@ def test_frame_transformer_robot_body_to_external_cube(sim):
         cube_pos_w_gt = scene.rigid_objects["cube"].data.root_state_w[:, :3]
         cube_quat_w_gt = scene.rigid_objects["cube"].data.root_state_w[:, 3:7]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
+        cube_pos_w_gt = scene.rigid_objects["cube"].data.root_state_w[:, :3]
+        cube_quat_w_gt = scene.rigid_objects["cube"].data.root_state_w[:, 3:7]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # -- frame transformer
         source_pos_w_tf = scene.sensors["frame_transformer"].data.source_pos_w
         source_quat_w_tf = scene.sensors["frame_transformer"].data.source_quat_w
@@ -476,6 +490,7 @@ def test_frame_transformer_offset_frames(sim):
         # -- ground-truth
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         cube_pos_w_gt = scene["cube"].data.root_pos_w
         cube_quat_w_gt = scene["cube"].data.root_quat_w
 =======
@@ -486,6 +501,10 @@ def test_frame_transformer_offset_frames(sim):
         cube_pos_w_gt = scene["cube"].data.root_state_w[:, :3]
         cube_quat_w_gt = scene["cube"].data.root_state_w[:, 3:7]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        cube_pos_w_gt = scene["cube"].data.root_state_w[:, :3]
+        cube_quat_w_gt = scene["cube"].data.root_state_w[:, 3:7]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # -- frame transformer
         source_pos_w_tf = scene.sensors["frame_transformer"].data.source_pos_w
         source_quat_w_tf = scene.sensors["frame_transformer"].data.source_quat_w
@@ -579,6 +598,7 @@ def test_frame_transformer_all_bodies(sim):
         # -- ground-truth
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         root_pose_w = scene.articulations["robot"].data.root_pose_w
 =======
         root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
@@ -586,6 +606,9 @@ def test_frame_transformer_all_bodies(sim):
 =======
         root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        root_pose_w = scene.articulations["robot"].data.root_state_w[:, :7]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         bodies_pos_w_gt = scene.articulations["robot"].data.body_pos_w
         bodies_quat_w_gt = scene.articulations["robot"].data.body_quat_w
 

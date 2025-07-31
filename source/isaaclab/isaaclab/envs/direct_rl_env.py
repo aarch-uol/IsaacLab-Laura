@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -339,6 +343,7 @@ class DirectRLEnv(gym.Env):
         if self.cfg.action_noise_model:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             action = self._action_noise_model(action)
 =======
             action = self._action_noise_model.apply(action)
@@ -346,6 +351,9 @@ class DirectRLEnv(gym.Env):
 =======
             action = self._action_noise_model.apply(action)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            action = self._action_noise_model.apply(action)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # process actions
         self._pre_physics_step(action)
@@ -404,6 +412,7 @@ class DirectRLEnv(gym.Env):
         if self.cfg.observation_noise_model:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             self.obs_buf["policy"] = self._observation_noise_model(self.obs_buf["policy"])
 =======
             self.obs_buf["policy"] = self._observation_noise_model.apply(self.obs_buf["policy"])
@@ -411,6 +420,9 @@ class DirectRLEnv(gym.Env):
 =======
             self.obs_buf["policy"] = self._observation_noise_model.apply(self.obs_buf["policy"])
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            self.obs_buf["policy"] = self._observation_noise_model.apply(self.obs_buf["policy"])
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # return observations, rewards, resets and extras
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras

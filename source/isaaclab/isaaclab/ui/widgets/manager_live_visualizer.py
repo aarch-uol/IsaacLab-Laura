@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -20,6 +24,7 @@ from typing import TYPE_CHECKING
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import omni.kit.app
 import omni.log
 =======
@@ -30,6 +35,10 @@ import omni.kit.app
 import carb
 import omni.kit.app
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+import carb
+import omni.kit.app
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 from isaacsim.core.api.simulation_context import SimulationContext
 
 from isaaclab.managers import ManagerBase
@@ -47,13 +56,17 @@ if TYPE_CHECKING:
 class ManagerLiveVisualizerCfg:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     """Configuration for the :class:`ManagerLiveVisualizer` class."""
+=======
+    "Configuration for ManagerLiveVisualizer"
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     debug_vis: bool = False
-    """Flag used to set status of the live visualizers on startup. Defaults to False, which means closed."""
-
+    """Flag used to set status of the live visualizers on startup. Defaults to closed."""
     manager_name: str = MISSING
     """Manager name that corresponds to the manager of interest in the ManagerBasedEnv and ManagerBasedRLEnv"""
+<<<<<<< HEAD
 
 =======
 =======
@@ -68,6 +81,8 @@ class ManagerLiveVisualizerCfg:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     term_names: list[str] | dict[str, list[str]] | None = None
     """Specific term names specified in a Manager config that are chosen to be plotted. Defaults to None.
 
@@ -77,6 +92,7 @@ class ManagerLiveVisualizerCfg:
 
 
 class ManagerLiveVisualizer(UiVisualizerBase):
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     """A interface object used to transfer data from a manager to a UI widget.
@@ -94,12 +110,17 @@ class ManagerLiveVisualizer(UiVisualizerBase):
     """A interface object used to transfer data from a manager to a UI widget. This class handles the creation of UI
     Widgets for selected terms given a ManagerLiveVisualizerCfg.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    """A interface object used to transfer data from a manager to a UI widget. This class handles the creation of UI
+    Widgets for selected terms given a ManagerLiveVisualizerCfg.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     """
 
     def __init__(self, manager: ManagerBase, cfg: ManagerLiveVisualizerCfg = ManagerLiveVisualizerCfg()):
         """Initialize ManagerLiveVisualizer.
 
         Args:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             manager: The manager with terms to be plotted. The manager must have a :meth:`get_active_iterable_terms` method.
@@ -109,6 +130,9 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
             manager: The manager with terms to be plotted. The manager must have a get_active_iterable_terms method.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            manager: The manager with terms to be plotted. The manager must have a get_active_iterable_terms method.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             cfg: The configuration file used to select desired manager terms to be plotted.
         """
 
@@ -132,6 +156,7 @@ class ManagerLiveVisualizer(UiVisualizerBase):
                     else:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                         omni.log.error(
 =======
                         carb.log_err(
@@ -139,6 +164,9 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
                         carb.log_err(
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                        carb.log_err(
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                             f"ManagerVisualizer Failure: ManagerTerm ({term_name}) does not exist in"
                             f" Manager({self.cfg.manager_name})"
                         )
@@ -155,6 +183,7 @@ class ManagerLiveVisualizer(UiVisualizerBase):
                                 else:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     omni.log.error(
 =======
                                     carb.log_err(
@@ -162,10 +191,14 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
                                     carb.log_err(
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                                    carb.log_err(
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                                         f"ManagerVisualizer Failure: ManagerTerm ({term_name}) does not exist in"
                                         f" Group({group})"
                                     )
                         else:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                             omni.log.error(
@@ -175,10 +208,14 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
                             carb.log_err(
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                            carb.log_err(
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                                 f"ManagerVisualizer Failure: Group ({group}) does not exist in"
                                 f" Manager({self.cfg.manager_name})"
                             )
                 else:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                     omni.log.error(
@@ -188,6 +225,9 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
                     carb.log_err(
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                    carb.log_err(
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                         f"ManagerVisualizer Failure: Manager({self.cfg.manager_name}) does not utilize grouping of"
                         " terms."
                     )
@@ -200,6 +240,7 @@ class ManagerLiveVisualizer(UiVisualizerBase):
     def get_vis_frame(self) -> omni.ui.Frame:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         """Returns the UI Frame object tied to this visualizer."""
 =======
         """Getter for the UI Frame object tied to this visualizer."""
@@ -207,10 +248,14 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
         """Getter for the UI Frame object tied to this visualizer."""
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        """Getter for the UI Frame object tied to this visualizer."""
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return self._vis_frame
 
     @property
     def get_vis_window(self) -> omni.ui.Window:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         """Returns the UI Window object tied to this visualizer."""
@@ -220,6 +265,9 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
         """Getter for the UI Window object tied to this visualizer."""
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        """Getter for the UI Window object tied to this visualizer."""
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return self._vis_window
 
     #
@@ -249,6 +297,7 @@ class ManagerLiveVisualizer(UiVisualizerBase):
         else:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             omni.log.warn(f"Environment index is out of range (0, {self._manager.num_envs - 1})")
 =======
             carb.log_warn(f"Environment index is out of range (0,{self._manager.num_envs})")
@@ -256,6 +305,9 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 =======
             carb.log_warn(f"Environment index is out of range (0,{self._manager.num_envs})")
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            carb.log_warn(f"Environment index is out of range (0,{self._manager.num_envs})")
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     def _set_vis_frame_impl(self, frame: omni.ui.Frame):
         """Updates the assigned frame that can be used for visualizations.
@@ -326,16 +378,28 @@ class ManagerLiveVisualizer(UiVisualizerBase):
                         with frame:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                             # create line plot for single or multi-variable signals
+=======
+                            # create line plot for single or multivariable signals
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                             len_term_shape = len(numpy.array(term).shape)
                             if len_term_shape <= 2:
-                                plot = LiveLinePlot(y_data=[[elem] for elem in term], plot_height=150, show_legend=True)
+                                plot = LiveLinePlot(
+                                    y_data=[[elem] for elem in term],
+                                    plot_height=150,
+                                    show_legend=True,
+                                )
                                 self._term_visualizers.append(plot)
                             # create an image plot for 2d and greater data (i.e. mono and rgb images)
                             elif len_term_shape == 3:
-                                image = ImagePlot(image=numpy.array(term), label=name)
+                                image = ImagePlot(
+                                    image=numpy.array(term),
+                                    label=name,
+                                )
                                 self._term_visualizers.append(image)
                             else:
+<<<<<<< HEAD
                                 omni.log.warn(
 =======
 =======
@@ -362,6 +426,9 @@ class ManagerLiveVisualizer(UiVisualizerBase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                                carb.log_warn(
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                                     f"ManagerLiveVisualizer: Term ({name}) is not a supported data type for"
                                     " visualization."
                                 )

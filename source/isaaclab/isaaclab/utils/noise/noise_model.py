@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -140,6 +144,7 @@ class NoiseModel:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     def __call__(self, data: torch.Tensor) -> torch.Tensor:
 =======
     def apply(self, data: torch.Tensor) -> torch.Tensor:
@@ -147,6 +152,9 @@ class NoiseModel:
 =======
     def apply(self, data: torch.Tensor) -> torch.Tensor:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def apply(self, data: torch.Tensor) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """Apply the noise to the data.
 
         Args:
@@ -172,12 +180,15 @@ class NoiseModelWithAdditiveBias(NoiseModel):
         self._bias = torch.zeros((num_envs, 1), device=self._device)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         self._num_components: int | None = None
         self._sample_bias_per_component = noise_model_cfg.sample_bias_per_component
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     def reset(self, env_ids: Sequence[int] | None = None):
         """Reset the noise model.
@@ -196,6 +207,7 @@ class NoiseModelWithAdditiveBias(NoiseModel):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     def __call__(self, data: torch.Tensor) -> torch.Tensor:
 =======
     def apply(self, data: torch.Tensor) -> torch.Tensor:
@@ -203,6 +215,9 @@ class NoiseModelWithAdditiveBias(NoiseModel):
 =======
     def apply(self, data: torch.Tensor) -> torch.Tensor:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def apply(self, data: torch.Tensor) -> torch.Tensor:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """Apply bias noise to the data.
 
         Args:
@@ -211,6 +226,7 @@ class NoiseModelWithAdditiveBias(NoiseModel):
         Returns:
             The data with the noise applied. Shape is the same as the input data.
         """
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         # if sample_bias_per_component, on first apply, expand bias to match last dim of data
@@ -227,3 +243,6 @@ class NoiseModelWithAdditiveBias(NoiseModel):
 =======
         return super().apply(data) + self._bias
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        return super().apply(data) + self._bias
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

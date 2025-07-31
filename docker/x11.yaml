@@ -36,9 +36,12 @@ services:
       read_only: true
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
   isaac-lab-harry:
     environment:
@@ -57,8 +60,12 @@ services:
       source: /etc/localtime
       target: /etc/localtime
 <<<<<<< HEAD
+<<<<<<< HEAD
       read_only: true
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
       read_only: true
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+      read_only: true
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

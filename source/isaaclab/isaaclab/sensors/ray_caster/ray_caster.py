@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -127,6 +131,7 @@ class RayCaster(SensorBase):
             env_ids = slice(None)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             num_envs_ids = self._view.count
         else:
             num_envs_ids = len(env_ids)
@@ -147,6 +152,10 @@ class RayCaster(SensorBase):
         # resample the drift
         self.drift[env_ids] = self.drift[env_ids].uniform_(*self.cfg.drift_range)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        # resample the drift
+        self.drift[env_ids] = self.drift[env_ids].uniform_(*self.cfg.drift_range)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     """
     Implementation.
@@ -249,11 +258,14 @@ class RayCaster(SensorBase):
         self.drift = torch.zeros(self._view.count, 3, device=self.device)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.ray_cast_drift = torch.zeros(self._view.count, 3, device=self.device)
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # fill the data buffer
         self._data.pos_w = torch.zeros(self._view.count, 3, device=self._device)
         self._data.quat_w = torch.zeros(self._view.count, 4, device=self._device)
@@ -277,6 +289,7 @@ class RayCaster(SensorBase):
         quat_w = quat_w.clone()
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # apply drift to ray starting position in world frame
 =======
         # apply drift
@@ -284,6 +297,9 @@ class RayCaster(SensorBase):
 =======
         # apply drift
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        # apply drift
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         pos_w += self.drift[env_ids]
         # store the poses
         self._data.pos_w[env_ids] = pos_w
@@ -307,6 +323,7 @@ class RayCaster(SensorBase):
             # log the warning
             omni.log.warn(msg)
         # ray cast based on the sensor poses
+<<<<<<< HEAD
         if self.cfg.ray_alignment == "world":
             # apply horizontal drift to ray starting position in ray caster frame
             pos_w[:, 0:2] += self.ray_cast_drift[env_ids, 0:2]
@@ -325,10 +342,14 @@ class RayCaster(SensorBase):
         # ray cast based on the sensor poses
         if self.cfg.attach_yaw_only:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        if self.cfg.attach_yaw_only:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             # only yaw orientation is considered and directions are not rotated
             ray_starts_w = quat_apply_yaw(quat_w.repeat(1, self.num_rays), self.ray_starts[env_ids])
             ray_starts_w += pos_w.unsqueeze(1)
             ray_directions_w = self.ray_directions[env_ids]
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         elif self.cfg.ray_alignment == "base":
@@ -340,10 +361,14 @@ class RayCaster(SensorBase):
 =======
         else:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        else:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             # full orientation is considered
             ray_starts_w = quat_apply(quat_w.repeat(1, self.num_rays), self.ray_starts[env_ids])
             ray_starts_w += pos_w.unsqueeze(1)
             ray_directions_w = quat_apply(quat_w.repeat(1, self.num_rays), self.ray_directions[env_ids])
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         else:
@@ -353,6 +378,8 @@ class RayCaster(SensorBase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # ray cast and store the hits
         # TODO: Make this work for multiple meshes?
         self._data.ray_hits_w[env_ids] = raycast_mesh(
@@ -364,6 +391,7 @@ class RayCaster(SensorBase):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # apply vertical drift to ray starting position in ray caster frame
         self._data.ray_hits_w[env_ids, :, 2] += self.ray_cast_drift[env_ids, 2].unsqueeze(-1)
 
@@ -371,6 +399,8 @@ class RayCaster(SensorBase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     def _set_debug_vis_impl(self, debug_vis: bool):
         # set visibility of markers
         # note: parent only deals with callbacks. not their visibility

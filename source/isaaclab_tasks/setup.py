@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -31,6 +35,7 @@ INSTALL_REQUIRES = [
     "torchvision>=0.14.1",  # ensure compatibility with torch 1.13.1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "protobuf>=3.20.2,!=5.26.0",
 =======
     # 5.26.0 introduced a breaking change, so we restricted it for now.
@@ -42,6 +47,11 @@ INSTALL_REQUIRES = [
     # See issue https://github.com/tensorflow/tensorboard/issues/6808 for details.
     "protobuf>=3.20.2, < 5.0.0",
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    # 5.26.0 introduced a breaking change, so we restricted it for now.
+    # See issue https://github.com/tensorflow/tensorboard/issues/6808 for details.
+    "protobuf>=3.20.2, < 5.0.0",
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # basic logger
     "tensorboard",
     # automate

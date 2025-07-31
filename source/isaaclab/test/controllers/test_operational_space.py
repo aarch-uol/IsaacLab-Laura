@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -1421,6 +1425,7 @@ def _update_states(
     # Compute current pose of the end-effector
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     root_pose_w = robot.data.root_pose_w
     ee_pose_w = robot.data.body_pose_w[:, ee_frame_idx]
 =======
@@ -1431,6 +1436,10 @@ def _update_states(
     root_pose_w = robot.data.root_state_w[:, 0:7]
     ee_pose_w = robot.data.body_state_w[:, ee_frame_idx, 0:7]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    root_pose_w = robot.data.root_state_w[:, 0:7]
+    ee_pose_w = robot.data.body_state_w[:, ee_frame_idx, 0:7]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     ee_pos_b, ee_quat_b = subtract_frame_transforms(
         root_pose_w[:, 0:3], root_pose_w[:, 3:7], ee_pose_w[:, 0:3], ee_pose_w[:, 3:7]
     )

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -67,6 +71,7 @@ FRAME_MARKER_CFG = VisualizationMarkersCfg(
             scale=(0.5, 0.5, 0.5),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         ),
         "connecting_line": sim_utils.CylinderCfg(
             radius=0.002,
@@ -79,6 +84,9 @@ FRAME_MARKER_CFG = VisualizationMarkersCfg(
 =======
         )
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        )
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     }
 )
 """Configuration for the frame marker."""

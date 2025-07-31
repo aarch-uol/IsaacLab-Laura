@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,6 +41,7 @@ INSTALL_REQUIRES = [
     # reinforcement learning
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "gymnasium==1.2.0",
 =======
     "gymnasium",
@@ -44,6 +49,9 @@ INSTALL_REQUIRES = [
 =======
     "gymnasium",
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    "gymnasium",
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # procedural-generation
     "trimesh",
     "pyglet<2",
@@ -54,6 +62,7 @@ INSTALL_REQUIRES = [
     # make sure this is consistent with isaac sim version
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "pillow==11.2.1",
 =======
     "pillow==11.0.0",
@@ -61,6 +70,9 @@ INSTALL_REQUIRES = [
 =======
     "pillow==11.0.0",
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    "pillow==11.0.0",
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     # livestream
     "starlette==0.45.3",
     # testing

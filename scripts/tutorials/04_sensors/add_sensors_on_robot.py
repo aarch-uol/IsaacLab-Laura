@@ -98,23 +98,28 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     """Run the simulator."""
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Define simulation stepping
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     sim_dt = sim.get_physics_dt()
     sim_time = 0.0
     count = 0
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Simulate physics
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     while simulation_app.is_running():
-        # Reset
         if count % 500 == 0:
-            # reset counter
             count = 0
+<<<<<<< HEAD
             # reset the scene entities
             # root state
             # we offset the root state by the origin since the states are written in simulation world frame
@@ -129,10 +134,13 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
         if count % 500 == 0:
             count = 0
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             root_state = scene["robot"].data.default_root_state.clone()
             root_state[:, :3] += scene.env_origins
             scene["robot"].write_root_pose_to_sim(root_state[:, :7])
             scene["robot"].write_root_velocity_to_sim(root_state[:, 7:])
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             # set joint positions with some noise
@@ -140,6 +148,8 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             joint_pos, joint_vel = (
                 scene["robot"].data.default_joint_pos.clone(),
                 scene["robot"].data.default_joint_vel.clone(),
@@ -148,24 +158,21 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
             scene["robot"].write_joint_state_to_sim(joint_pos, joint_vel)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             # clear internal buffers
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             scene.reset()
             print("[INFO]: Resetting robot state...")
-        # Apply default actions to the robot
-        # -- generate actions/commands
         targets = scene["robot"].data.default_joint_pos
-        # -- apply action to the robot
         scene["robot"].set_joint_position_target(targets)
-        # -- write data to sim
         scene.write_data_to_sim()
-        # perform step
         sim.step()
-        # update sim-time
         sim_time += sim_dt
         count += 1
-        # update buffers
         scene.update(sim_dt)
 
+<<<<<<< HEAD
         # print information from the sensors
 =======
 =======
@@ -184,6 +191,8 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         print("-------------------------------")
         print(scene["camera"])
         print("Received shape of rgb   image: ", scene["camera"].data.output["rgb"].shape)
@@ -201,18 +210,18 @@ def main():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Initialize the simulation context
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     sim_cfg = sim_utils.SimulationCfg(dt=0.005, device=args_cli.device)
     sim = sim_utils.SimulationContext(sim_cfg)
-    # Set main camera
     sim.set_camera_view(eye=[3.5, 3.5, 3.5], target=[0.0, 0.0, 0.0])
-    # design scene
     scene_cfg = SensorsSceneCfg(num_envs=args_cli.num_envs, env_spacing=2.0)
     scene = InteractiveScene(scene_cfg)
-    # Play the simulator
     sim.reset()
-    # Now we are ready!
     print("[INFO]: Setup complete...")
+<<<<<<< HEAD
     # Run the simulator
 =======
 =======
@@ -228,10 +237,13 @@ def main():
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     run_simulator(sim, scene)
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     # run the main function
@@ -243,4 +255,7 @@ if __name__ == "__main__":
 =======
     main()
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    main()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     simulation_app.close()

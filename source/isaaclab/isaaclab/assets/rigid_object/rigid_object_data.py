@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -73,6 +77,7 @@ class RigidObjectData:
         # Initialize the lazy buffers.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # -- link frame w.r.t. world frame
         self._root_link_pose_w = TimestampedBuffer()
         self._root_link_vel_w = TimestampedBuffer()
@@ -97,6 +102,12 @@ class RigidObjectData:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        self._root_state_w = TimestampedBuffer()
+        self._root_link_state_w = TimestampedBuffer()
+        self._root_com_state_w = TimestampedBuffer()
+        self._body_acc_w = TimestampedBuffer()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     def update(self, dt: float):
         """Updates the data for the rigid object.
@@ -136,6 +147,7 @@ class RigidObjectData:
     """
 
     ##
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     # Root state properties.
@@ -223,6 +235,13 @@ class RigidObjectData:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    # Properties.
+    ##
+
+    @property
+    def root_state_w(self):
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """Root state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame. Shape is (num_instances, 13).
 
         The position and orientation are of the rigid body's actor frame. Meanwhile, the linear and angular
@@ -230,20 +249,32 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         if self._root_state_w.timestamp < self._sim_timestamp:
             self._root_state_w.data = torch.cat((self.root_link_pose_w, self.root_com_vel_w), dim=-1)
             self._root_state_w.timestamp = self._sim_timestamp
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
+        if self._root_state_w.timestamp < self._sim_timestamp:
+            # read data from simulation
+            pose = self._root_physx_view.get_transforms().clone()
+            pose[:, 3:7] = math_utils.convert_quat(pose[:, 3:7], to="wxyz")
+            velocity = self._root_physx_view.get_velocities()
+            # set the buffer data and timestamp
+            self._root_state_w.data = torch.cat((pose, velocity), dim=-1)
+            self._root_state_w.timestamp = self._sim_timestamp
         return self._root_state_w.data
 
     @property
-    def root_link_state_w(self) -> torch.Tensor:
+    def root_link_state_w(self):
         """Root state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame. Shape is (num_instances, 13).
 
         The position, quaternion, and linear/angular velocity are of the rigid body root frame relative to the
-        world. The orientation is provided in (w, x, y, z) format.
+        world.
         """
         if self._root_link_state_w.timestamp < self._sim_timestamp:
+<<<<<<< HEAD
             self._root_link_state_w.data = torch.cat((self.root_link_pose_w, self.root_link_vel_w), dim=-1)
 =======
 =======
@@ -267,6 +298,8 @@ class RigidObjectData:
         world.
         """
         if self._root_link_state_w.timestamp < self._sim_timestamp:
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             # read data from simulation
             pose = self._root_physx_view.get_transforms().clone()
             pose[:, 3:7] = math_utils.convert_quat(pose[:, 3:7], to="wxyz")
@@ -279,14 +312,18 @@ class RigidObjectData:
             # set the buffer data and timestamp
             self._root_link_state_w.data = torch.cat((pose, velocity), dim=-1)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             self._root_link_state_w.timestamp = self._sim_timestamp
 
         return self._root_link_state_w.data
 
     @property
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     def root_com_state_w(self) -> torch.Tensor:
@@ -300,6 +337,10 @@ class RigidObjectData:
     def root_com_state_w(self):
         """Root center of mass state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame. Shape is (num_instances, 13).
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def root_com_state_w(self):
+        """Root center of mass state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame. Shape is (num_instances, 13).
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         The position, quaternion, and linear/angular velocity are of the rigid body's center of mass frame
         relative to the world. Center of mass frame is the orientation principle axes of inertia.
@@ -307,16 +348,28 @@ class RigidObjectData:
         if self._root_com_state_w.timestamp < self._sim_timestamp:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             self._root_com_state_w.data = torch.cat((self.root_com_pose_w, self.root_com_vel_w), dim=-1)
             self._root_com_state_w.timestamp = self._sim_timestamp
+=======
+            # read data from simulation (pose is of link)
+            pose = self._root_physx_view.get_transforms().clone()
+            pose[:, 3:7] = math_utils.convert_quat(pose[:, 3:7], to="wxyz")
+            velocity = self._root_physx_view.get_velocities()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
+            # adjust pose to center of mass
+            pos, quat = math_utils.combine_frame_transforms(
+                pose[:, :3], pose[:, 3:7], self.com_pos_b[:, 0, :], self.com_quat_b[:, 0, :]
+            )
+            pose = torch.cat((pos, quat), dim=-1)
+            # set the buffer data and timestamp
+            self._root_com_state_w.data = torch.cat((pos, quat, velocity), dim=-1)
+            self._root_com_state_w.timestamp = self._sim_timestamp
         return self._root_com_state_w.data
 
-    ##
-    # Body state properties.
-    ##
-
     @property
+<<<<<<< HEAD
     def body_link_pose_w(self) -> torch.Tensor:
         """Body link pose ``[pos, quat]`` in simulation world frame. Shape is (num_instances, 1, 7).
 
@@ -382,20 +435,29 @@ class RigidObjectData:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def body_state_w(self):
+        """State of all bodies `[pos, quat, lin_vel, ang_vel]` in simulation world frame. Shape is (num_instances, 1, 13).
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         The position and orientation are of the rigid bodies' actor frame. Meanwhile, the linear and angular
         velocities are of the rigid bodies' center of mass frame.
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return self.root_state_w.view(-1, 1, 13)
 
     @property
-    def body_link_state_w(self) -> torch.Tensor:
-        """State of all bodies ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame.
+    def body_link_state_w(self):
+        """State of all bodies `[pos, quat, lin_vel, ang_vel]` in simulation world frame.
         Shape is (num_instances, 1, 13).
 
         The position, quaternion, and linear/angular velocity are of the body's link frame relative to the world.
+<<<<<<< HEAD
         The orientation is provided in (w, x, y, z) format.
 =======
 =======
@@ -413,10 +475,13 @@ class RigidObjectData:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """
         return self.root_link_state_w.view(-1, 1, 13)
 
     @property
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     def body_com_state_w(self) -> torch.Tensor:
@@ -429,10 +494,15 @@ class RigidObjectData:
     def body_com_state_w(self):
         """State of all bodies `[pos, quat, lin_vel, ang_vel]` in simulation world frame.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def body_com_state_w(self):
+        """State of all bodies `[pos, quat, lin_vel, ang_vel]` in simulation world frame.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         Shape is (num_instances, num_bodies, 13).
 
         The position, quaternion, and linear/angular velocity are of the body's center of mass frame relative to the
         world. Center of mass frame is assumed to be the same orientation as the link rather than the orientation of the
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         principle inertia. The orientation is provided in (w, x, y, z) format.
@@ -442,25 +512,34 @@ class RigidObjectData:
 =======
         principle inertia.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        principle inertia.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """
         return self.root_com_state_w.view(-1, 1, 13)
 
     @property
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     def body_com_acc_w(self) -> torch.Tensor:
         """Acceleration of all bodies ``[lin_acc, ang_acc]`` in the simulation world frame.
         Shape is (num_instances, 1, 6).
+=======
+    def body_acc_w(self):
+        """Acceleration of all bodies. Shape is (num_instances, 1, 6).
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
-        This quantity is the acceleration of the rigid bodies' center of mass frame relative to the world.
+        This quantity is the acceleration of the rigid bodies' center of mass frame.
         """
-        if self._body_com_acc_w.timestamp < self._sim_timestamp:
-            self._body_com_acc_w.data = self._root_physx_view.get_accelerations().unsqueeze(1)
-            self._body_com_acc_w.timestamp = self._sim_timestamp
-
-        return self._body_com_acc_w.data
+        if self._body_acc_w.timestamp < self._sim_timestamp:
+            # note: we use finite differencing to compute acceleration
+            self._body_acc_w.data = self._root_physx_view.get_accelerations().unsqueeze(1)
+            self._body_acc_w.timestamp = self._sim_timestamp
+        return self._body_acc_w.data
 
     @property
+<<<<<<< HEAD
     def body_com_pose_b(self) -> torch.Tensor:
         """Center of mass pose ``[pos, quat]`` of all bodies in their respective body's link frames.
         Shape is (num_instances, 1, 7).
@@ -504,10 +583,14 @@ class RigidObjectData:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def projected_gravity_b(self):
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """Projection of the gravity direction on base frame. Shape is (num_instances, 3)."""
         return math_utils.quat_apply_inverse(self.root_link_quat_w, self.GRAVITY_VEC_W)
 
     @property
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     def heading_w(self) -> torch.Tensor:
@@ -517,6 +600,9 @@ class RigidObjectData:
 =======
     def heading_w(self):
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    def heading_w(self):
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """Yaw heading of the base frame (in radians). Shape is (num_instances,).
 
         Note:
@@ -528,9 +614,12 @@ class RigidObjectData:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     ##
     # Derived properties.
     ##
@@ -644,9 +733,12 @@ class RigidObjectData:
         return self.root_link_state_w[:, 10:13]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     @property
     def root_link_lin_vel_b(self) -> torch.Tensor:
         """Root link linear velocity in base frame. Shape is (num_instances, 3).
@@ -668,9 +760,12 @@ class RigidObjectData:
     @property
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     def root_com_pos_w(self) -> torch.Tensor:
         """Root center of mass position in simulation world frame. Shape is (num_instances, 3).
 
@@ -724,9 +819,12 @@ class RigidObjectData:
 
     @property
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     def root_com_lin_vel_b(self) -> torch.Tensor:
         """Root center of mass linear velocity in base frame. Shape is (num_instances, 3).
 
@@ -746,58 +844,69 @@ class RigidObjectData:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     ##
     # Sliced properties.
     ##
+=======
+    @property
+    def body_pos_w(self) -> torch.Tensor:
+        """Positions of all bodies in simulation world frame. Shape is (num_instances, 1, 3).
+
+        This quantity is the position of the rigid bodies' actor frame.
+        """
+        return self.body_state_w[..., :3]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
-    def root_link_pos_w(self) -> torch.Tensor:
-        """Root link position in simulation world frame. Shape is (num_instances, 3).
+    def body_quat_w(self) -> torch.Tensor:
+        """Orientation (w, x, y, z) of all bodies in simulation world frame. Shape is (num_instances, 1, 4).
 
-        This quantity is the position of the actor frame of the root rigid body relative to the world.
+        This quantity is the orientation of the rigid bodies' actor frame.
         """
-        return self.root_link_pose_w[:, :3]
+        return self.body_state_w[..., 3:7]
 
     @property
-    def root_link_quat_w(self) -> torch.Tensor:
-        """Root link orientation (w, x, y, z) in simulation world frame. Shape is (num_instances, 4).
+    def body_vel_w(self) -> torch.Tensor:
+        """Velocity of all bodies in simulation world frame. Shape is (num_instances, 1, 6).
 
-        This quantity is the orientation of the actor frame of the root rigid body.
+        This quantity contains the linear and angular velocities of the rigid bodies' center of mass frame.
         """
-        return self.root_link_pose_w[:, 3:7]
+        return self.body_state_w[..., 7:13]
 
     @property
-    def root_link_lin_vel_w(self) -> torch.Tensor:
-        """Root linear velocity in simulation world frame. Shape is (num_instances, 3).
+    def body_lin_vel_w(self) -> torch.Tensor:
+        """Linear velocity of all bodies in simulation world frame. Shape is (num_instances, 1, 3).
 
-        This quantity is the linear velocity of the root rigid body's actor frame relative to the world.
+        This quantity is the linear velocity of the rigid bodies' center of mass frame.
         """
-        return self.root_link_vel_w[:, :3]
+        return self.body_state_w[..., 7:10]
 
     @property
-    def root_link_ang_vel_w(self) -> torch.Tensor:
-        """Root link angular velocity in simulation world frame. Shape is (num_instances, 3).
+    def body_ang_vel_w(self) -> torch.Tensor:
+        """Angular velocity of all bodies in simulation world frame. Shape is (num_instances, 1, 3).
 
-        This quantity is the angular velocity of the actor frame of the root rigid body relative to the world.
+        This quantity is the angular velocity of the rigid bodies' center of mass frame.
         """
-        return self.root_link_vel_w[:, 3:6]
+        return self.body_state_w[..., 10:13]
 
     @property
-    def root_com_pos_w(self) -> torch.Tensor:
-        """Root center of mass position in simulation world frame. Shape is (num_instances, 3).
+    def body_lin_acc_w(self) -> torch.Tensor:
+        """Linear acceleration of all bodies in simulation world frame. Shape is (num_instances, 1, 3).
 
-        This quantity is the position of the actor frame of the root rigid body relative to the world.
+        This quantity is the linear acceleration of the rigid bodies' center of mass frame.
         """
-        return self.root_com_pose_w[:, :3]
+        return self.body_acc_w[..., 0:3]
 
     @property
-    def root_com_quat_w(self) -> torch.Tensor:
-        """Root center of mass orientation (w, x, y, z) in simulation world frame. Shape is (num_instances, 4).
+    def body_ang_acc_w(self) -> torch.Tensor:
+        """Angular acceleration of all bodies in simulation world frame. Shape is (num_instances, 1, 3).
 
-        This quantity is the orientation of the actor frame of the root rigid body relative to the world.
+        This quantity is the angular acceleration of the rigid bodies' center of mass frame.
         """
-        return self.root_com_pose_w[:, 3:7]
+        return self.body_acc_w[..., 3:6]
 
+<<<<<<< HEAD
     @property
     def root_com_lin_vel_w(self) -> torch.Tensor:
         """Root center of mass linear velocity in simulation world frame. Shape is (num_instances, 3).
@@ -879,6 +988,11 @@ class RigidObjectData:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    #
+    # Link body properties
+    #
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_link_pos_w(self) -> torch.Tensor:
@@ -888,6 +1002,7 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.body_link_pose_w[..., :3]
 =======
         return self.body_link_state_w[..., :3]
@@ -895,6 +1010,9 @@ class RigidObjectData:
 =======
         return self.body_link_state_w[..., :3]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        return self.body_link_state_w[..., :3]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_link_quat_w(self) -> torch.Tensor:
@@ -904,10 +1022,13 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.body_link_pose_w[..., 3:7]
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return self.body_link_state_w[..., 3:7]
 
     @property
@@ -919,9 +1040,12 @@ class RigidObjectData:
         """
         return self.body_link_state_w[..., 7:13]
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_link_lin_vel_w(self) -> torch.Tensor:
@@ -931,6 +1055,7 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.body_link_vel_w[..., :3]
 =======
         return self.body_link_state_w[..., 7:10]
@@ -938,6 +1063,9 @@ class RigidObjectData:
 =======
         return self.body_link_state_w[..., 7:10]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        return self.body_link_state_w[..., 7:10]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_link_ang_vel_w(self) -> torch.Tensor:
@@ -947,19 +1075,25 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.body_link_vel_w[..., 3:6]
 =======
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return self.body_link_state_w[..., 10:13]
 
     #
     # Center of mass body properties
     #
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_com_pos_w(self) -> torch.Tensor:
@@ -969,14 +1103,19 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.body_com_pose_w[..., :3]
+=======
+        return self.body_com_state_w[..., :3]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_com_quat_w(self) -> torch.Tensor:
-        """Orientation (w, x, y, z) of the principle axis of inertia of all bodies in simulation world frame.
+        """Orientation (w, x, y, z) of the prinicple axies of inertia of all bodies in simulation world frame.
 
         Shape is (num_instances, 1, 4). This quantity is the orientation of the rigid bodies' actor frame.
         """
+<<<<<<< HEAD
         return self.body_com_pose_w[..., 3:7]
 =======
 =======
@@ -989,6 +1128,8 @@ class RigidObjectData:
 
         Shape is (num_instances, 1, 4). This quantity is the orientation of the rigid bodies' actor frame.
         """
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         return self.body_com_state_w[..., 3:7]
 
     @property
@@ -999,9 +1140,12 @@ class RigidObjectData:
         """
         return self.body_com_state_w[..., 7:13]
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_com_lin_vel_w(self) -> torch.Tensor:
@@ -1011,6 +1155,7 @@ class RigidObjectData:
         """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self.body_com_vel_w[..., :3]
 =======
         return self.body_com_state_w[..., 7:10]
@@ -1018,6 +1163,9 @@ class RigidObjectData:
 =======
         return self.body_com_state_w[..., 7:10]
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        return self.body_com_state_w[..., 7:10]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def body_com_ang_vel_w(self) -> torch.Tensor:
@@ -1025,6 +1173,7 @@ class RigidObjectData:
 
         This quantity is the angular velocity of the rigid bodies' center of mass frame.
         """
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         return self.body_com_vel_w[..., 3:6]
@@ -1151,14 +1300,21 @@ class RigidObjectData:
     def body_ang_acc_w(self) -> torch.Tensor:
         """Same as :attr:`body_com_ang_acc_w`."""
         return self.body_com_ang_acc_w
+=======
+        return self.body_com_state_w[..., 10:13]
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     @property
     def com_pos_b(self) -> torch.Tensor:
-        """Same as :attr:`body_com_pos_b`."""
-        return self.body_com_pos_b
+        """Center of mass of all of the bodies in simulation world frame. Shape is (num_instances, 1, 3).
+
+        This quantity is the center of mass location relative to its body frame.
+        """
+        return self._root_physx_view.get_coms().to(self.device)[..., :3].view(-1, 1, 3)
 
     @property
     def com_quat_b(self) -> torch.Tensor:
+<<<<<<< HEAD
         """Same as :attr:`body_com_quat_b`."""
         return self.body_com_quat_b
 =======
@@ -1176,6 +1332,8 @@ class RigidObjectData:
 
     @property
     def com_quat_b(self) -> torch.Tensor:
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         """Orientation (w,x,y,z) of the prinicple axies of inertia of all of the bodies in simulation world frame. Shape is (num_instances, 1, 4).
 
         This quantity is the orientation of the principles axes of inertia relative to its body frame.
@@ -1183,6 +1341,9 @@ class RigidObjectData:
         quat = self._root_physx_view.get_coms().to(self.device)[..., 3:7]
         return math_utils.convert_quat(quat, to="wxyz").view(-1, 1, 4)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

@@ -3,6 +3,7 @@
 # Note: Semantic Versioning is used: https://semver.org/
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.1.8"
 =======
 version = "0.1.4"
@@ -10,6 +11,9 @@ version = "0.1.4"
 =======
 version = "0.1.4"
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+version = "0.1.4"
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 # Description
 title = "Isaac Lab RL"

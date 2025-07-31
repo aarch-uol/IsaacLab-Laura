@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -36,6 +40,7 @@ from isaaclab.sim import build_simulation_context
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.utils.math import (
     combine_frame_transforms,
     default_orientation,
@@ -52,6 +57,9 @@ from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mu
 =======
 from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mul, random_orientation
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+from isaaclab.utils.math import default_orientation, quat_apply_inverse, quat_mul, random_orientation
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 def generate_cubes_scene(
@@ -519,6 +527,7 @@ def test_object_state_properties(sim, num_envs, num_cubes, device, with_offset, 
         # spin the object around Z axis (com)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         cube_object.write_object_velocity_to_sim(spin_twist.repeat(num_envs, num_cubes, 1))
 =======
         cube_object.write_object_com_velocity_to_sim(spin_twist.repeat(num_envs, num_cubes, 1))
@@ -526,6 +535,9 @@ def test_object_state_properties(sim, num_envs, num_cubes, device, with_offset, 
 =======
         cube_object.write_object_com_velocity_to_sim(spin_twist.repeat(num_envs, num_cubes, 1))
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        cube_object.write_object_com_velocity_to_sim(spin_twist.repeat(num_envs, num_cubes, 1))
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         sim.step()
         cube_object.update(sim.cfg.dt)
 
@@ -555,6 +567,7 @@ def test_object_state_properties(sim, num_envs, num_cubes, device, with_offset, 
             # orientation of com will be a constant rotation from link orientation
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             com_quat_b = cube_object.data.object_com_quat_b
 =======
             com_quat_b = cube_object.data.com_quat_b
@@ -562,6 +575,9 @@ def test_object_state_properties(sim, num_envs, num_cubes, device, with_offset, 
 =======
             com_quat_b = cube_object.data.com_quat_b
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            com_quat_b = cube_object.data.com_quat_b
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             com_quat_w = quat_mul(object_link_state_w[..., 3:7], com_quat_b)
             torch.testing.assert_close(com_quat_w, object_com_state_w[..., 3:7])
 
@@ -739,6 +755,7 @@ def test_gravity_vec_w(sim, num_envs, num_cubes, device, gravity_enabled):
         torch.testing.assert_close(object_collection.data.object_acc_w, gravity)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 @pytest.mark.parametrize("num_envs", [1, 3])
@@ -868,3 +885,5 @@ def test_write_object_state_functions_data_consistency(
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

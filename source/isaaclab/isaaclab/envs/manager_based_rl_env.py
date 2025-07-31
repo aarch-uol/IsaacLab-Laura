@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -85,6 +89,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         # initialize the episode length buffer BEFORE loading the managers to use it in mdp functions.
         self.episode_length_buf = torch.zeros(cfg.scene.num_envs, device=cfg.sim.device, dtype=torch.long)
 
@@ -92,6 +97,8 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # initialize the base class to setup the scene.
         super().__init__(cfg=cfg)
         # store the render mode
@@ -100,6 +107,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # initialize data and constants
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         # -- init buffers
         self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
@@ -108,6 +116,10 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # -- init buffers
         self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        # -- init buffers
+        self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         # -- set the framerate of the gym video recorder wrapper so that the playback speed of the produced video matches the simulation
         self.metadata["render_fps"] = 1 / self.step_dt
 
@@ -263,6 +275,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # note: done after reset to get the correct observations for reset envs
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.obs_buf = self.observation_manager.compute(update_history=True)
 =======
         self.obs_buf = self.observation_manager.compute()
@@ -270,6 +283,9 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
 =======
         self.obs_buf = self.observation_manager.compute()
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        self.obs_buf = self.observation_manager.compute()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
         # return observations, rewards, resets and extras
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras

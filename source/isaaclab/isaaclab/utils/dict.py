@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -19,6 +23,7 @@ import json
 import torch
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from collections.abc import Iterable, Mapping, Sized
 =======
 from collections.abc import Iterable, Mapping
@@ -26,6 +31,9 @@ from collections.abc import Iterable, Mapping
 =======
 from collections.abc import Iterable, Mapping
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+from collections.abc import Iterable, Mapping
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 from typing import Any
 
 from .array import TENSOR_TYPE_CONVERSIONS, TENSOR_TYPES
@@ -108,6 +116,7 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
         key_ns = _ns + "/" + key
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         # -- A) if key is present in the object ------------------------------------
         if hasattr(obj, key) or (isinstance(obj, dict) and key in obj):
@@ -124,10 +133,16 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
         if hasattr(obj, key) or isinstance(obj, dict):
             obj_mem = obj[key] if isinstance(obj, dict) else getattr(obj, key)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        # check if key is present in the object
+        if hasattr(obj, key) or isinstance(obj, dict):
+            obj_mem = obj[key] if isinstance(obj, dict) else getattr(obj, key)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             if isinstance(value, Mapping):
                 # recursively call if it is a dictionary
                 update_class_from_dict(obj_mem, value, _ns=key_ns)
                 continue
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -161,10 +176,16 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
                 # check length of value to be safe
                 if len(obj_mem) != len(value) and obj_mem is not None:
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            if isinstance(value, Iterable) and not isinstance(value, str):
+                # check length of value to be safe
+                if len(obj_mem) != len(value) and obj_mem is not None:
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                     raise ValueError(
                         f"[Config]: Incorrect length under namespace: {key_ns}."
                         f" Expected: {len(obj_mem)}, Received: {len(value)}."
                     )
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -173,10 +194,13 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                 if isinstance(obj_mem, tuple):
                     value = tuple(value)
                 else:
                     set_obj = True
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                     # recursively call if iterable contains Mappings
@@ -192,6 +216,11 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
                     for i in range(len(obj_mem)):
                         if isinstance(value[i], dict):
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                    # recursively call if iterable contains dictionaries
+                    for i in range(len(obj_mem)):
+                        if isinstance(value[i], dict):
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                             update_class_from_dict(obj_mem[i], value[i], _ns=key_ns)
                             set_obj = False
                     # do not set value to obj, otherwise it overwrites the cfg class with the dict
@@ -199,15 +228,17 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
                         continue
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
             # -- 3) callable attribute → resolve string --------------
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             elif callable(obj_mem):
                 # update function name
                 value = string_to_callable(value)
-
-            # -- 4) simple scalar / explicit None ---------------------
-            elif value is None or isinstance(value, type(obj_mem)):
+            elif isinstance(value, type(obj_mem)) or value is None:
                 pass
+<<<<<<< HEAD
 
             # -- 5) type mismatch → abort -----------------------------
 =======
@@ -222,11 +253,14 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             else:
                 raise ValueError(
                     f"[Config]: Incorrect type under namespace: {key_ns}."
                     f" Expected: {type(obj_mem)}, Received: {type(value)}."
                 )
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -237,10 +271,14 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
 =======
             # set value
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            # set value
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             if isinstance(obj, dict):
                 obj[key] = value
             else:
                 setattr(obj, key, value)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -249,6 +287,8 @@ def update_class_from_dict(obj, data: dict[str, Any], _ns: str = "") -> None:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         else:
             raise KeyError(f"[Config]: Key not found under namespace: {key_ns}.")
 
@@ -387,12 +427,15 @@ def replace_slices_with_strings(data: dict) -> dict:
         return {k: replace_slices_with_strings(v) for k, v in data.items()}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     elif isinstance(data, list):
         return [replace_slices_with_strings(v) for v in data]
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     elif isinstance(data, slice):
         return f"slice({data.start},{data.stop},{data.step})"
     else:
@@ -412,12 +455,15 @@ def replace_strings_with_slices(data: dict) -> dict:
         return {k: replace_strings_with_slices(v) for k, v in data.items()}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     elif isinstance(data, list):
         return [replace_strings_with_slices(v) for v in data]
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     elif isinstance(data, str) and data.startswith("slice("):
         return string_to_slice(data)
     else:

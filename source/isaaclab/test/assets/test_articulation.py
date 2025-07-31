@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -1579,6 +1583,7 @@ def test_body_root_state(sim, num_articulations, device, with_offset):
             # orientation
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             com_quat_b = articulation.data.body_com_quat_b
 =======
             com_quat_b = articulation.data.com_quat_b
@@ -1586,6 +1591,9 @@ def test_body_root_state(sim, num_articulations, device, with_offset):
 =======
             com_quat_b = articulation.data.com_quat_b
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            com_quat_b = articulation.data.com_quat_b
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             com_quat_w = math_utils.quat_mul(body_link_state_w[..., 3:7], com_quat_b)
             torch.testing.assert_close(com_quat_w, body_com_state_w[..., 3:7])
             torch.testing.assert_close(com_quat_w[:, 0, :], root_com_state_w[..., 3:7])
@@ -1757,26 +1765,41 @@ def test_body_incoming_joint_wrench_b_single_joint(sim, num_articulations, devic
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    def test_setting_articulation_root_prim_path(self):
+        """Test that the articulation root prim path can be set explicitly."""
+        with build_simulation_context(device="cuda:0", add_ground_plane=False, auto_add_lighting=True) as sim:
+            sim._app_control_on_stop_handle = None
+            # Create articulation
+            articulation_cfg = generate_articulation_cfg(articulation_type="humanoid")
+            print(articulation_cfg.spawn.usd_path)
+            articulation_cfg.articulation_root_prim_path = "/torso"
+            articulation, _ = generate_articulation(articulation_cfg, 1, "cuda:0")
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
-@pytest.mark.parametrize("device", ["cuda:0", "cpu"])
-def test_setting_articulation_root_prim_path(sim, device):
-    """Test that the articulation root prim path can be set explicitly."""
-    sim._app_control_on_stop_handle = None
-    # Create articulation
-    articulation_cfg = generate_articulation_cfg(articulation_type="humanoid")
-    print(articulation_cfg.spawn.usd_path)
-    articulation_cfg.articulation_root_prim_path = "/torso"
-    articulation, _ = generate_articulation(articulation_cfg, 1, device)
+            # Check that boundedness of articulation is correct
+            self.assertEqual(ctypes.c_long.from_address(id(articulation)).value, 1)
 
-    # Check that boundedness of articulation is correct
-    assert ctypes.c_long.from_address(id(articulation)).value == 1
+            # Play sim
+            sim.reset()
+            # Check if articulation is initialized
+            self.assertTrue(articulation._is_initialized)
 
-    # Play sim
-    sim.reset()
-    # Check if articulation is initialized
-    assert articulation._is_initialized
+    def test_setting_invalid_articulation_root_prim_path(self):
+        """Test that the articulation root prim path can be set explicitly."""
+        with build_simulation_context(device="cuda:0", add_ground_plane=False, auto_add_lighting=True) as sim:
+            sim._app_control_on_stop_handle = None
+            # Create articulation
+            articulation_cfg = generate_articulation_cfg(articulation_type="humanoid")
+            print(articulation_cfg.spawn.usd_path)
+            articulation_cfg.articulation_root_prim_path = "/non_existing_prim_path"
+            articulation, _ = generate_articulation(articulation_cfg, 1, "cuda:0")
 
+            # Check that boundedness of articulation is correct
+            self.assertEqual(ctypes.c_long.from_address(id(articulation)).value, 1)
 
+<<<<<<< HEAD
 @pytest.mark.parametrize("device", ["cuda:0", "cpu"])
 def test_setting_invalid_articulation_root_prim_path(sim, device):
     """Test that the articulation root prim path can be set explicitly."""
@@ -1917,6 +1940,11 @@ def test_write_joint_state_data_consistency(sim, num_articulations, device, grav
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            # Play sim
+            with pytest.raises(RuntimeError):
+                sim.reset()
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 if __name__ == "__main__":

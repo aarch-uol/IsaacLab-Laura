@@ -95,12 +95,16 @@ import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chills.tasks
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 import chills.tasks
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+import chills.tasks
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 # global variable to keep track of the data generation statistics
 num_recorded = 0

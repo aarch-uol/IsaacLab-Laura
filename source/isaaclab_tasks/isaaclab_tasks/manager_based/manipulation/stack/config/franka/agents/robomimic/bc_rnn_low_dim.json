@@ -4,6 +4,7 @@
         "name": "bc_rnn_low_dim_franka_stack",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         "validate": false,
         "logging": {
             "terminal_output_to_txt": true,
@@ -21,6 +22,14 @@
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        "validate": true,
+        "logging": {
+            "terminal_output_to_txt": true,
+            "log_tb": true,
+            "log_wandb": true,
+            "wandb_proj_name": "stack_task"
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         },
         "save": {
             "enabled": true,
@@ -48,6 +57,7 @@
         "hdf5_normalize_obs": false,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         "hdf5_filter_key": null,
         "hdf5_validation_filter_key": null,
 =======
@@ -58,6 +68,10 @@
         "hdf5_filter_key": "train",
         "hdf5_validation_filter_key": "valid",
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        "hdf5_filter_key": "train",
+        "hdf5_validation_filter_key": "valid",
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
         "seq_length": 10,
         "dataset_keys": [
             "actions"
@@ -75,6 +89,7 @@
                 "learning_rate": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     "initial": 0.001,
 =======
                     "initial": 0.0001,
@@ -82,6 +97,9 @@
 =======
                     "initial": 0.0001,
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                    "initial": 0.0001,
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
                     "decay_factor": 0.1,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"

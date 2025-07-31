@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
@@ -16,6 +17,13 @@
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 """Script to replay demonstrations with Isaac Lab environments."""
 
 """Launch Isaac Sim Simulator first."""
@@ -85,6 +93,7 @@ import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chills.tasks
 
@@ -93,6 +102,10 @@ import chills.tasks
 import chills.tasks
 
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+import chills.tasks
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 is_paused = False
 
@@ -160,6 +173,7 @@ def main():
     if args_cli.task is not None:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         env_name = args_cli.task.split(":")[-1]
 =======
         env_name = args_cli.task
@@ -167,6 +181,9 @@ def main():
 =======
         env_name = args_cli.task
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+        env_name = args_cli.task
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     if env_name is None:
         raise ValueError("Task/env name was not specified nor found in the dataset.")
 
@@ -181,6 +198,7 @@ def main():
     # create environment from loaded config
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
 =======
     env = gym.make(env_name, cfg=env_cfg).unwrapped
@@ -188,6 +206,9 @@ def main():
 =======
     env = gym.make(env_name, cfg=env_cfg).unwrapped
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    env = gym.make(env_name, cfg=env_cfg).unwrapped
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     teleop_interface = Se3Keyboard(pos_sensitivity=0.1, rot_sensitivity=0.1)
     teleop_interface.add_callback("N", play_cb)

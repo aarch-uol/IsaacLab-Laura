@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -180,6 +184,7 @@ def body_projected_gravity_b(
     gravity_dir = asset.data.GRAVITY_VEC_W.unsqueeze(1)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return math_utils.quat_apply_inverse(body_quat, gravity_dir).view(env.num_envs, -1)
 =======
     return math_utils.quat_rotate_inverse(body_quat, gravity_dir).view(env.num_envs, -1)
@@ -187,6 +192,9 @@ def body_projected_gravity_b(
 =======
     return math_utils.quat_rotate_inverse(body_quat, gravity_dir).view(env.num_envs, -1)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    return math_utils.quat_rotate_inverse(body_quat, gravity_dir).view(env.num_envs, -1)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 """
@@ -313,6 +321,7 @@ def imu_orientation(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntit
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def imu_projected_gravity(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("imu")) -> torch.Tensor:
     """Imu sensor orientation w.r.t the env.scene.origin.
 
@@ -332,6 +341,8 @@ def imu_projected_gravity(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = Scen
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 def imu_ang_vel(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("imu")) -> torch.Tensor:
     """Imu sensor angular velocity w.r.t. environment origin expressed in the sensor frame.
 
@@ -662,6 +673,7 @@ def generated_commands(env: ManagerBasedRLEnv, command_name: str) -> torch.Tenso
     return env.command_manager.get_command(command_name)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 """
@@ -681,3 +693,5 @@ def remaining_time_s(env: ManagerBasedRLEnv) -> torch.Tensor:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

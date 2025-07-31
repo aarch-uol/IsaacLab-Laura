@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -51,6 +55,10 @@ ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 =======
 ENV NVIDIA_DRIVER_CAPABILITIES=all
@@ -87,7 +95,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt -y autoremove && apt clean autoclean && \
     rm -rf /var/lib/apt/lists/*
 
-# for singularity usage, have to create the directories that will binded
+# for singularity usage, have to create the directories that will be bind-mounted
 RUN mkdir -p ${ISAACSIM_ROOT_PATH}/kit/cache && \
     mkdir -p ${DOCKER_USER_HOME}/.cache/ov && \
     mkdir -p ${DOCKER_USER_HOME}/.cache/pip && \
@@ -114,6 +122,7 @@ RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # HACK: Remove install of quadprog dependency
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip uninstall -y quadprog
 
@@ -122,6 +131,9 @@ RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip uninstall -y quadprog
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
 # aliasing isaaclab.sh and python for convenience
+=======
+# aliasing isaaclab.sh and python for convenience and setting shell options
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 RUN echo "export ISAACLAB_PATH=${ISAACLAB_PATH}" >> ${HOME}/.bashrc && \
     echo "alias isaaclab=${ISAACLAB_PATH}/isaaclab.sh" >> ${HOME}/.bashrc && \
     echo "alias python=${ISAACLAB_PATH}/_isaac_sim/python.sh" >> ${HOME}/.bashrc && \
@@ -134,6 +146,11 @@ RUN echo "export ISAACLAB_PATH=${ISAACLAB_PATH}" >> ${HOME}/.bashrc && \
     echo "export TZ=$(date +%Z)" >> ${HOME}/.bashrc && \
     echo "shopt -s histappend" >> /root/.bashrc && \
     echo "PROMPT_COMMAND='history -a'" >> /root/.bashrc
+
+# install nightly torch and tensorflow packages
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    ${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip install --upgrade --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 && \
+    ${ISAACLAB_PATH}/_isaac_sim/python.sh -m pip install tensorflow scikit-learn
 
 # make working directory as the Isaac Lab directory
 # this is the default directory when the container is run

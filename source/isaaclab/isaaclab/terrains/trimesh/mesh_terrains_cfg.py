@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,10 +8,14 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import warnings
@@ -18,6 +23,8 @@ import warnings
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 from dataclasses import MISSING
 from typing import Literal
 
@@ -27,6 +34,7 @@ from isaaclab.utils import configclass
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from ..sub_terrain_cfg import SubTerrainBaseCfg
 =======
 from ..terrain_generator_cfg import SubTerrainBaseCfg
@@ -34,6 +42,9 @@ from ..terrain_generator_cfg import SubTerrainBaseCfg
 =======
 from ..terrain_generator_cfg import SubTerrainBaseCfg
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+from ..terrain_generator_cfg import SubTerrainBaseCfg
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 """
 Different trimesh terrain configurations.
@@ -66,6 +77,7 @@ class MeshPyramidStairsTerrainCfg(SubTerrainBaseCfg):
     """The width of the square platform at the center of the terrain. Defaults to 1.0."""
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     platform_height: float = -1.0
     """The height of the platform.  Defaults to -1.0.
 
@@ -74,6 +86,8 @@ class MeshPyramidStairsTerrainCfg(SubTerrainBaseCfg):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     holes: bool = False
     """If True, the terrain will have holes in the steps. Defaults to False.
 
@@ -226,22 +240,19 @@ class MeshRepeatedObjectsTerrainCfg(SubTerrainBaseCfg):
     """The object curriculum parameters at the start of the curriculum."""
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     object_params_end: ObjectCfg = MISSING
     """The object curriculum parameters at the end of the curriculum."""
 
-    max_height_noise: float | None = None
-    """"This parameter is deprecated, but stated here to support backward compatibility"""
-
-    abs_height_noise: tuple[float, float] = (0.0, 0.0)
-    """The minimum and maximum amount of additive noise for the height of the objects. Default is set to 0.0, which is no noise."""
-
-    rel_height_noise: tuple[float, float] = (1.0, 1.0)
-    """The minimum and maximum amount of multiplicative noise for the height of the objects. Default is set to 1.0, which is no noise."""
-
+    max_height_noise: float = 0.0
+    """The maximum amount of noise to add to the height of the objects (in m). Defaults to 0.0."""
     platform_width: float = 1.0
     """The width of the cylindrical platform at the center of the terrain. Defaults to 1.0."""
 
+<<<<<<< HEAD
     def __post_init__(self):
         if self.max_height_noise is not None:
             warnings.warn(
@@ -265,6 +276,8 @@ class MeshRepeatedObjectsTerrainCfg(SubTerrainBaseCfg):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 @configclass
 class MeshRepeatedPyramidsTerrainCfg(MeshRepeatedObjectsTerrainCfg):

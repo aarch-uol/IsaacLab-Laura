@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -350,6 +354,7 @@ def test_repeated_objects_terrain(
             platform_width=1.5,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             abs_height_noise=(-0.5, 0.5),
 =======
             max_height_noise=0.5,
@@ -357,6 +362,9 @@ def test_repeated_objects_terrain(
 =======
             max_height_noise=0.5,
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            max_height_noise=0.5,
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             object_params_start=mesh_gen.MeshRepeatedPyramidsTerrainCfg.ObjectCfg(
                 num_objects=40, height=0.05, radius=0.6, max_yx_angle=0.0, degrees=True
             ),
@@ -370,6 +378,7 @@ def test_repeated_objects_terrain(
             platform_width=1.5,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             abs_height_noise=(-0.5, 0.5),
 =======
             max_height_noise=0.5,
@@ -377,6 +386,9 @@ def test_repeated_objects_terrain(
 =======
             max_height_noise=0.5,
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            max_height_noise=0.5,
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             object_params_start=mesh_gen.MeshRepeatedBoxesTerrainCfg.ObjectCfg(
                 num_objects=40, height=0.05, size=(0.6, 0.6), max_yx_angle=0.0, degrees=True
             ),
@@ -390,6 +402,7 @@ def test_repeated_objects_terrain(
             platform_width=1.5,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             abs_height_noise=(-0.5, 0.5),
 =======
             max_height_noise=0.5,
@@ -397,6 +410,9 @@ def test_repeated_objects_terrain(
 =======
             max_height_noise=0.5,
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+            max_height_noise=0.5,
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
             object_params_start=mesh_gen.MeshRepeatedCylindersTerrainCfg.ObjectCfg(
                 num_objects=40, height=0.05, radius=0.6, max_yx_angle=0.0, degrees=True
             ),

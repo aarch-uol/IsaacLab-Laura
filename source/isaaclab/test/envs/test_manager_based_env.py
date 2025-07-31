@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -33,12 +37,15 @@ import pytest
 from isaaclab.envs import ManagerBasedEnv, ManagerBasedEnvCfg
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
 
@@ -51,6 +58,7 @@ class EmptyManagerCfg:
 
 
 @configclass
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 class EmptyObservationWithHistoryCfg:
@@ -73,6 +81,8 @@ class EmptyObservationWithHistoryCfg:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 class EmptySceneCfg(InteractiveSceneCfg):
     """Configuration for an empty scene."""
 
@@ -107,6 +117,7 @@ def get_empty_base_env_cfg(device: str = "cuda:0", num_envs: int = 1, env_spacin
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def get_empty_base_env_cfg_with_history(device: str = "cuda:0", num_envs: int = 1, env_spacing: float = 1.0):
     """Generate base environment config based on device"""
 
@@ -137,6 +148,8 @@ def get_empty_base_env_cfg_with_history(device: str = "cuda:0", num_envs: int = 
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 @pytest.mark.parametrize("device", ["cuda:0", "cpu"])
 def test_initialization(device):
     """Test initialization of ManagerBasedEnv."""
@@ -160,6 +173,7 @@ def test_initialization(device):
         obs, ext = env.step(action=act)
     # close the environment
     env.close()
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -230,3 +244,5 @@ def test_observation_history_changes_only_after_step(device):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2

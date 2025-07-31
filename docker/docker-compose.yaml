@@ -61,6 +61,7 @@ x-default-isaac-lab-volumes: &default-isaac-lab-volumes
     source: isaac-lab-data
     target: ${DOCKER_ISAACLAB_PATH}/data_storage
 <<<<<<< HEAD
+<<<<<<< HEAD
     # This volume is used to store the history of the bash shell
   - type: bind
     source: .isaac-lab-docker-history
@@ -72,6 +73,13 @@ x-default-isaac-lab-volumes: &default-isaac-lab-volumes
     target: /usr/share/nvidia/nvoptix.bin
     read_only: true
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    # pull in nvoptix 
+  - type: bind
+    source: /usr/share/nvidia/nvoptix.bin
+    target: /usr/share/nvidia/nvoptix.bin
+    read_only: true
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 x-default-isaac-lab-environment: &default-isaac-lab-environment
   - ISAACSIM_PATH=${DOCKER_ISAACLAB_PATH}/_isaac_sim
@@ -100,12 +108,17 @@ services:
         - ISAACLAB_PATH_ARG=${DOCKER_ISAACLAB_PATH}
         - DOCKER_USER_HOME_ARG=${DOCKER_USER_HOME}
 <<<<<<< HEAD
+<<<<<<< HEAD
     image: isaac-lab-base${DOCKER_NAME_SUFFIX-}
     container_name: isaac-lab-base${DOCKER_NAME_SUFFIX-}
 =======
     image: isaac-lab-base
     container_name: isaac-lab-base
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    image: isaac-lab-base
+    container_name: isaac-lab-base
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     environment: *default-isaac-lab-environment
     volumes: *default-isaac-lab-volumes
     network_mode: host
@@ -115,12 +128,18 @@ services:
     stdin_open: true
     tty: true
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     devices:
     - /dev/hidraw0:/dev/hidraw0
     - /dev/hidraw1:/dev/hidraw1
     - /dev/hidraw2:/dev/hidraw2
+<<<<<<< HEAD
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
   # This service adds a ROS2 Humble
   # installation on top of the base image
@@ -138,6 +157,7 @@ services:
         # with the .env.base file
         - ROS2_APT_PACKAGE=${ROS2_APT_PACKAGE:-NONE}
 <<<<<<< HEAD
+<<<<<<< HEAD
         # Make sure that the correct Docker Name Suffix is being passed to the dockerfile, to know which base image to
         # start from.
         - DOCKER_NAME_SUFFIX=${DOCKER_NAME_SUFFIX-}
@@ -147,6 +167,10 @@ services:
     image: isaac-lab-ros2
     container_name: isaac-lab-ros2
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    image: isaac-lab-ros2
+    container_name: isaac-lab-ros2
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     environment: *default-isaac-lab-environment
     volumes: *default-isaac-lab-volumes
     network_mode: host
@@ -155,6 +179,7 @@ services:
     entrypoint: bash
     stdin_open: true
     tty: true
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 volumes:
@@ -167,6 +192,16 @@ volumes:
     volumes:
 
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    devices:
+    - /dev/hidraw0:/dev/hidraw0
+    - /dev/hidraw1:/dev/hidraw1
+    - /dev/hidraw2:/dev/hidraw2
+ 
+
+volumes:
+
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
   # isaac-sim
   isaac-cache-kit:
   isaac-cache-ov:

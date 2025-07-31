@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -17,6 +21,7 @@ from isaaclab.utils import configclass
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from ..sub_terrain_cfg import SubTerrainBaseCfg
 =======
 from ..terrain_generator_cfg import SubTerrainBaseCfg
@@ -24,6 +29,9 @@ from ..terrain_generator_cfg import SubTerrainBaseCfg
 =======
 from ..terrain_generator_cfg import SubTerrainBaseCfg
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+from ..terrain_generator_cfg import SubTerrainBaseCfg
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 from . import hf_terrains
 
 

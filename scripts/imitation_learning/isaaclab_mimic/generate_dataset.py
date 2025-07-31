@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2024-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -84,12 +88,16 @@ from isaaclab_mimic.datagen.utils import get_env_name_from_dataset, setup_output
 import isaaclab_tasks  # noqa: F401
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chills.tasks
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 import chills.tasks
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+import chills.tasks
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 def main():
@@ -97,6 +105,7 @@ def main():
 
     # Setup output paths and get env name
     output_dir, output_file_name = setup_output_paths(args_cli.output_file)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     task_name = args_cli.task
@@ -109,6 +118,9 @@ def main():
 =======
     env_name = args_cli.task or get_env_name_from_dataset(args_cli.input_file)
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+    env_name = args_cli.task or get_env_name_from_dataset(args_cli.input_file)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
     # Configure environment
     env_cfg, success_term = setup_env_config(

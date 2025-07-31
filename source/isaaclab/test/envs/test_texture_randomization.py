@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -30,11 +34,14 @@ import torch
 import unittest
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from unittest.mock import patch
 =======
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 import omni.usd
 
@@ -145,6 +152,7 @@ class EventCfg:
 @configclass
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 class EventCfgFallback:
     """Configuration for events that tests the fallback mechanism."""
 
@@ -179,6 +187,8 @@ class EventCfgFallback:
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 class CartpoleEnvCfg(ManagerBasedEnvCfg):
     """Configuration for the cartpole environment."""
 
@@ -201,6 +211,7 @@ class CartpoleEnvCfg(ManagerBasedEnvCfg):
         self.sim.dt = 0.005  # sim step every 5ms: 200Hz
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 @configclass
@@ -230,6 +241,8 @@ class CartpoleEnvCfgFallback(ManagerBasedEnvCfg):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 class TestTextureRandomization(unittest.TestCase):
     """Test for texture randomization"""
 
@@ -266,6 +279,7 @@ class TestTextureRandomization(unittest.TestCase):
 
                 env.close()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     def test_texture_randomization_fallback(self):
@@ -312,6 +326,8 @@ class TestTextureRandomization(unittest.TestCase):
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
     def test_texture_randomization_failure_replicate_physics(self):
         """Test texture randomization failure when replicate physics is set to True."""
         # create a new stage

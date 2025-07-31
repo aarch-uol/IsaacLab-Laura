@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
@@ -7,6 +8,9 @@
 =======
 # Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -99,48 +103,53 @@ def test_render_cfg():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    def test_render_cfg_presets(self):
+        """Test that the simulation context is created with the correct render cfg preset with overrides."""
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
-def test_render_cfg_presets():
-    """Test that the simulation context is created with the correct render cfg preset with overrides."""
+        # carb setting dictionary overrides
+        carb_settings = {"/rtx/raytracing/subpixel/mode": 3, "/rtx/pathtracing/maxSamplesPerLaunch": 999999}
+        # user-friendly setting overrides
+        dlss_mode = ("/rtx/post/dlss/execMode", 5)
 
-    # carb setting dictionary overrides
-    carb_settings = {"/rtx/raytracing/subpixel/mode": 3, "/rtx/pathtracing/maxSamplesPerLaunch": 999999}
-    # user-friendly setting overrides
-    dlss_mode = ("/rtx/post/dlss/execMode", 5)
+        rendering_modes = ["performance", "balanced", "quality", "xr"]
 
-    rendering_modes = ["performance", "balanced", "quality", "xr"]
+        for rendering_mode in rendering_modes:
+            # grab groundtruth preset settings
+            preset_filename = f"apps/rendering_modes/{rendering_mode}.kit"
+            with open(preset_filename) as file:
+                preset_dict = toml.load(file)
+            preset_dict = dict(flatdict.FlatDict(preset_dict, delimiter="."))
 
-    for rendering_mode in rendering_modes:
-        # grab groundtruth preset settings
-        preset_filename = f"apps/rendering_modes/{rendering_mode}.kit"
-        with open(preset_filename) as file:
-            preset_dict = toml.load(file)
-        preset_dict = dict(flatdict.FlatDict(preset_dict, delimiter="."))
+            render_cfg = RenderCfg(
+                rendering_mode=rendering_mode,
+                dlss_mode=dlss_mode[1],
+                carb_settings=carb_settings,
+            )
 
-        render_cfg = RenderCfg(
-            rendering_mode=rendering_mode,
-            dlss_mode=dlss_mode[1],
-            carb_settings=carb_settings,
-        )
+            cfg = SimulationCfg(render=render_cfg)
 
-        cfg = SimulationCfg(render=render_cfg)
+            SimulationContext(cfg)
 
-        SimulationContext(cfg)
+            carb_settings_iface = carb.settings.get_settings()
+            for key, val in preset_dict.items():
+                setting_name = "/" + key.replace(".", "/")  # convert to carb setting format
 
-        carb_settings_iface = carb.settings.get_settings()
-        for key, val in preset_dict.items():
-            setting_name = "/" + key.replace(".", "/")  # convert to carb setting format
+                if setting_name in carb_settings:
+                    # grab groundtruth from carb setting dictionary overrides
+                    setting_gt = carb_settings[setting_name]
+                elif setting_name == dlss_mode[0]:
+                    # grab groundtruth from user-friendly setting overrides
+                    setting_gt = dlss_mode[1]
+                else:
+                    # grab groundtruth from preset
+                    setting_gt = val
 
-            if setting_name in carb_settings:
-                # grab groundtruth from carb setting dictionary overrides
-                setting_gt = carb_settings[setting_name]
-            elif setting_name == dlss_mode[0]:
-                # grab groundtruth from user-friendly setting overrides
-                setting_gt = dlss_mode[1]
-            else:
-                # grab groundtruth from preset
-                setting_gt = val
+                setting_val = get_carb_setting(carb_settings_iface, setting_name)
 
+<<<<<<< HEAD
             setting_val = get_carb_setting(carb_settings_iface, setting_name)
 
             assert setting_gt == setting_val
@@ -195,6 +204,9 @@ def test_render_cfg_presets():
 >>>>>>> abfba5273e (Fresh start, no history)
 =======
 >>>>>>> abfba5273e35ca74eb713aa9a0404a6fad7fd5a5
+=======
+                self.assertEqual(setting_gt, setting_val)
+>>>>>>> e9462be776417c5794982ad017c44c19fac790a2
 
 
 @pytest.mark.skip(reason="Timeline not stopped")

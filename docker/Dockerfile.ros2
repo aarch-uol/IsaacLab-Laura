@@ -5,7 +5,9 @@ FROM isaac-lab-base AS ros2
 
 # Which ROS2 apt package to install
 ARG ROS2_APT_PACKAGE
-
+RUN add-apt-repository --remove ppa:ondrej/php || true && \
+    rm /etc/apt/sources.list.d/*sury* || true && \
+    apt-get update
 # ROS2 Humble Apt installations
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -15,7 +17,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     add-apt-repository universe && \
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo jammy) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get update && apt-get install -y \
     ros-humble-${ROS2_APT_PACKAGE} \
     ros-humble-vision-msgs \
     # Install both FastRTPS and CycloneDDS

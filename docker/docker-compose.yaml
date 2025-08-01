@@ -44,6 +44,9 @@ x-default-isaac-lab-volumes: &default-isaac-lab-volumes
     source: ../docs
     target: ${DOCKER_ISAACLAB_PATH}/docs
   - type: bind
+    source: ../ros2
+    target: ${DOCKER_ISAACLAB_PATH}/ros2
+  - type: bind
     source: ../tools
     target: ${DOCKER_ISAACLAB_PATH}/tools
     # The effect of these volumes is twofold:
@@ -155,5 +158,6 @@ volumes:
   isaac-docs:
   # isaac-lab
   isaac-lab-docs:
+  isaac-lan-ros2:
   isaac-lab-logs:
   isaac-lab-data:

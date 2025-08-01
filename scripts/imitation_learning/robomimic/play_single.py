@@ -152,7 +152,7 @@ def rollout(policy, env, success_term, horizon, device, logging, traj_logging):
       #  print_table(["Step", "Variance", "Collision dist", "Safety violation"], [i, uncertainty_dict['variance'].data[-1], dist, collision_exp])
         logging.write_to_log([i, obs["joint_pos"][-1][-2].item() ,uncertainty_dict['variance'].data[-1], dist, collision_exp])
       
-        traj_logging.add_data(i, obs["eef_pos"][0])
+        traj_logging.add_data(i, obs["eef_pos"][0], obs["joint_vel"][0][-1])
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
             return True, traj

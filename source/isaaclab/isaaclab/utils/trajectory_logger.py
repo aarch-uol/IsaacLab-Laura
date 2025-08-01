@@ -6,9 +6,11 @@ class TrajectoryLogger:
         self.x =[]
         self.y = []
         self.z = []
+        self.vel = []
 
-    def add_data(self, step: int,  ee_pos: torch):
+    def add_data(self, step: int,  ee_pos: torch, ee_vel: torch ):
         ee_pos = ee_pos.cpu().numpy()
+        ee_vel = ee_vel.cpu().numpy()
        # print(ee_pos)
         with open(self.filename, "a") as f:
             f.write(str(step))
@@ -16,4 +18,6 @@ class TrajectoryLogger:
             for point in ee_pos:
                 f.write(str(point))
                 f.write(' : ')
+            f.write(str(ee_vel))
+            f.write(' : ')
             f.write(',\n')

@@ -62,9 +62,13 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
+import time
 import copy
+import random
+import os
 import gymnasium as gym
 import torch
+from collections import deque
 
 import robomimic.utils.file_utils as FileUtils
 import robomimic.utils.torch_utils as TorchUtils
@@ -74,6 +78,7 @@ if args_cli.enable_pinocchio:
 
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+
 
 from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers, ensemble_uncertainty
 
@@ -163,7 +168,7 @@ def rollout(policy, env, success_term, horizon, device):
     return False, traj
 
 
-def rollout_ensemble(ensemble, env, success_term, horizon, device):
+def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -183,8 +188,13 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device):
     
     #print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
 
-    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[])
-
+    traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], 
+                uncertainties=[], min_actions=[], max_actions=[])
+    
+    joints_to_check = [0, 1, 2, 3, 4, 5, 6]
+    unsafe_windows_detected = {joint_num: 0 for joint_num in joints_to_check}
+    windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_check} 
+    
     for i in range(horizon):
         # Prepare observations
         obs = copy.deepcopy(obs_dict["policy"])
@@ -212,12 +222,29 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device):
         traj["obs"].append(obs)
         traj["sub_obs"].append(sub_obs)
         
+
         # Calculate uncertainty using the ensemble
         metrics = ensemble_uncertainty(ensemble, obs)
-        # Get the variance and mean action
-        uncertainty = metrics['variance']
-        actions = metrics['mean']
-      
+        # Get the std and mean action
+        uncertainty = metrics['std']
+        #actions = metrics['mean']
+        #actions = metrics['min_std_action']
+        actions = metrics['median']
+        # Add the uncertainty to all joint windows
+        for joint_num, unc in enumerate(uncertainty):
+            windows[joint_num].append(unc)
+
+        for joint_num in joints_to_check:
+            unc_threshold = parameters[joint_num]['unc_threshold']
+            peaks = sum(1 for curr_unc in windows[joint_num] if curr_unc > unc_threshold)
+            if peaks > parameters[joint_num]['max_peaks']:
+                unsafe_windows_detected[joint_num] += 1
+        
+        safety_triggered = False
+        for joint_num in [0, 1, 2, 3, 4, 5, 6]:
+            if unsafe_windows_detected[joint_num] > parameters[joint_num]['max_peaks']:
+                safety_triggered = safety() 
+
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
             actions = (
@@ -225,7 +252,7 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device):
             ) / 2 + args_cli.norm_factor_min
 
         actions = actions.to(device=device).view(1, env.action_space.shape[1])
-
+        
         # Apply actions
         obs_dict, _, terminated, truncated, _ = env.step(actions)
         obs = obs_dict["policy"]
@@ -235,7 +262,8 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device):
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)
         traj['uncertainties'].append(uncertainty)
-
+        traj['max_actions'].append(metrics['max'])
+        traj['min_actions'].append(metrics['min'])
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -245,6 +273,10 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device):
 
     return False, traj
 
+
+def safety():
+    #print(f"I'm Uncertain. {random.randint(0, 100)}")
+    return True
 
 def rollout_transformer(policy, env, success_term, horizon, device):
     """Perform a single rollout of the policy in the environment, supporting sequence-based models."""
@@ -398,19 +430,8 @@ def rollout_transformer(policy, env, success_term, horizon, device):
 
 
 # ./isaaclab.sh -p scripts/imitation_learning/robomimic/play.py --device cuda --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --num_rollouts 10 --checkpoint logs/docs/Models/bc/model2/Isaac-Stack-Cube-Franka-IK-Rel-v0/bc_rnn_low_dim_franka_stack/20250715152538/models/model_epoch_2000.pth --headless
-# stack cube task:
-# Successful trials: 37, out of 50 trials
-# Success rate: 0.74
 
-# Dropout as a Bayesian Approximation:
-# Representing Model Uncertainty in Deep Learning
-# Yarin Gal YG279@CAM.AC.UK
-# Zoubin Ghahramani ZG201@CAM.AC.UK
-# University of Cambridge
 
-# High-Quality Prediction Intervals for Deep Learning:
-# A Distribution-Free, Ensembled Approach
-# Tim Pearce 1 2 Mohamed Zaki 1 Alexandra Brintrup 1 Andy Neely 1
 
 # ./isaaclab.sh -p scripts/imitation_learning/robomimic/train.py \
 # --task Isaac-Stack-Cube-Franka-IK-Rel-v0 --algo bc \
@@ -516,6 +537,11 @@ def main():
         'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model14/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_3000.pth',
     ])
 
+    single = load_ensemble(device, ensemble_paths=[ 
+        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model0/BC-RNN-GMM-Ensemble/20250728121319/models/model_epoch_3000.pth'
+        for _ in range(15)
+    ])
+
     # load the pick place ensemble - 60% success rate ensemble
     # ensemble = load_ensemble(device, ensemble_paths=[ 
     #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
@@ -535,14 +561,78 @@ def main():
     #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
     # ])
 
+    
+    parameters = {
+        'stack_cube': {
+            'unc_threshold': 0.1,
+            'max_peaks': 20,
+            'window_size': 40
+        }, 
+        'pick_place': {
+            6: {
+                'unc_threshold': 0.05,
+                'max_peaks': 15,
+                'window_size': 30
+            },
+            5: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10
+            },
+
+            4: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10
+            },
+            3: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10
+            },
+            2: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10
+            },
+            1: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10
+            },
+            0: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10
+            }
+
+        }
+    }
+
     task = "pick_place" # stack_cube or pick_place
-    model_name = f"model0"
+    model_name = f"ensemble"
     #uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
-    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties4.txt"
-    success_rate_path = f"docs/training_data/pick_place/uncertainty_rollout_pick_place/Dev-IK-Rel-v0-{args_cli.model_name}-success-rate.txt"
+    # ensemble is at uncertainties7.txt and single is at uncertainties8.txt
+    number = 10
+    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties{number}.txt"
+    actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/actions{number}.txt"
+    min_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/min_actions{number}.txt"
+    max_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/max_actions{number}.txt"
+    rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt"
+    
+    try:
+        os.remove(rollout_log_path)
+    except FileNotFoundError as filenotfounderror:
+        pass
     
     # clear uncertainties file
     with open(uncertainties_path, 'w') as file:
+        pass
+    with open(actions_path, 'w') as file:
+        pass
+    with open(min_actions_path, 'w') as file:
+        pass
+    with open(max_actions_path, 'w') as file:
         pass
     # clear rollout logger file
     with open(loghelper.namefile, 'w') as file:
@@ -555,12 +645,27 @@ def main():
        # loghelper.startEpoch(trial)
         #terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
         #terminated, traj = rollout_transformer(policy, env, success_term, args_cli.horizon, device)
-        terminated, traj = rollout_ensemble(ensemble, env, success_term, args_cli.horizon, device)
+        terminated, traj = rollout_ensemble(ensemble, env, success_term, args_cli.horizon, device, parameters[task])
+        # save the uncertainties
         with open(uncertainties_path, 'a') as file:
             for i, var in enumerate(traj['uncertainties']):
                 line = " ".join([str(v.item()) for v in var]) + f" {terminated}\n"
                 file.write(f"{str(i)} {line}")
-                
+        # save the actions
+        with open(actions_path, 'a') as file:
+            for i, var in enumerate(traj['actions']):
+                line = " ".join([str(v) for v in var[0]]) + f" {terminated}\n"
+                file.write(f"{str(i)} {line}")
+        # save the max actions
+        with open(max_actions_path, 'a') as file:
+            for i, var in enumerate(traj['max_actions']):
+                line = " ".join([str(v.item()) for v in var[0]]) + f" {terminated}\n"
+                file.write(f"{str(i)} {line}")
+        # save the min actions
+        with open(min_actions_path, 'a') as file:
+            for i, var in enumerate(traj['min_actions']):
+                line = " ".join([str(v.item()) for v in var[0]]) + f" {terminated}\n"
+                file.write(f"{str(i)} {line}")
             
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
@@ -570,10 +675,9 @@ def main():
     print(f"Success rate: {results.count(True) / len(results)}")
     print(f"Trial Results: {results}\n")
 
-    # with open(success_rate_path, 'a') as file:
-    #     file.write(f"{results.count(True) / len(results)}\n")
 
     env.close()
+
 
 
 if __name__ == "__main__":

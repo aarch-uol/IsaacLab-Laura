@@ -3,6 +3,7 @@
 import argparse
 import copy
 import gymnasium as gym
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -27,14 +28,30 @@ def ensemble_uncertainty(ensemble, obs):
     outputs = [torch.from_numpy(policy(obs)) for policy in ensemble]
     outputs = torch.stack(outputs)
 
-    mean = torch.mean(outputs, dim=0)
+    mean_action = torch.mean(outputs, dim=0)
+    median_action = torch.median(outputs, dim=0).values
+    
+
+    min_action = torch.min(outputs, dim=0)
+    max_action = torch.max(outputs, dim=0)
+
     std = torch.std(outputs, dim=0)
-    variance = torch.sqrt(std)
+    variance = std.pow(2)
+
+
+    # std per policy (overall std across joints for each policy's action)
+    per_policy_std = torch.std(outputs, dim=1)  # shape: [num_policies]
+    min_std_index = torch.argmin(per_policy_std)
+    min_std_action = outputs[min_std_index]  # Shape: [action_dim]
 
     return {
-        'mean': mean,
+        'mean': mean_action,
+        'median': median_action,
+        'min': min_action,
+        'max': max_action,
         'std': std,
-        'variance': variance
+        'variance': variance,
+        'min_std_action': min_std_action
     }
 
 def MC_dropout_uncertainty(policy, obs, niters=50):
@@ -44,7 +61,7 @@ def MC_dropout_uncertainty(policy, obs, niters=50):
     mean = torch.mean(actions, dim=0)
     std = torch.std(actions, dim=0)
     variance = torch.sqrt(std)
-    
+
     return {
         'mean': mean,
         'std': std,

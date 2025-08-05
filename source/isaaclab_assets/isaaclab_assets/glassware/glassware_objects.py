@@ -23,7 +23,7 @@ class Chem_Assets:
                 init_state=RigidObjectCfg.InitialStateCfg(pos=pos,rot=rot),
                 spawn=UsdFileCfg(
                     usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/conical_flask.usd",
-                    scale=(1, 1, 1),
+                    scale=(1.5, 1.5, 1.5),
                     rigid_props=self.cube_properties,
                     visible=True,
                     copy_from_source = False,

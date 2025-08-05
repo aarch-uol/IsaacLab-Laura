@@ -20,7 +20,7 @@ class ErrorType(Enum):
 class LoggingHelper:
     def __init__(self, logname : str= "docs/rollout_logger.txt"):
         self.namefile = logname
-        self.step : int =0
+        self.step : int = 0
         self.epochnum : int = 0
     
     def startEpoch(self):
@@ -45,3 +45,11 @@ class LoggingHelper:
         with open(self.namefile, "a") as f:
             f.write(f"S:{self.step}\n")
         self.step +=1
+    
+    def log_object_goal_distance(self, distance):
+        with open(self.namefile, "a") as f:
+            f.write(f"G:{distance.item()}\n")
+
+    def log_end_effector_distance_to_object(self, distance):
+        with open(self.namefile, "a") as f:
+            f.write(f"E:{distance.item()}\n")

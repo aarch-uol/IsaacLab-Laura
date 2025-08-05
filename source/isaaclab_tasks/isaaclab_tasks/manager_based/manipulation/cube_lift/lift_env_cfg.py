@@ -129,6 +129,11 @@ class ObservationsCfg():
         """Observations for policy group."""
         def set_loghelper(self, loghelper: LoggingHelper):
             self.logstep.params["loghelper"] = loghelper
+    
+        object_goal_distance = ObsTerm(func=mdp.object_goal_norm_error)
+        print(object_goal_distance)
+        end_effector_distance_to_object = ObsTerm(func=mdp.end_effector_distance_to_object)
+        object_released = ObsTerm(mdp.object_released)
         logstep = ObsTerm(func = mdp.logstep)
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)

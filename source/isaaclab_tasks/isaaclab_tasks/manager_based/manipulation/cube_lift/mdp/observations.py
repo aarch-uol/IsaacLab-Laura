@@ -111,9 +111,9 @@ def object_grasped(
 
 def object_released(
     env: ManagerBasedRLEnv,
-    robot_cfg: SceneEntityCfg,
-    ee_frame_cfg: SceneEntityCfg,
-    object_cfg: SceneEntityCfg,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     diff_threshold: float = 0.06,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     gripper_threshold: float = 0.035,
@@ -139,6 +139,7 @@ def object_released(
     if grasped[0]:
      #   print(f"Observed Object grasped : {grasped.item()}")
         loghelper.logsubtask(LogType.GRASP)
+    
     return grasped
 
 def is_object_lifted(
@@ -238,8 +239,41 @@ def object_goal_norm_error(
     des_pos_b = command[:, :3]
    # print(f"desired position : {des_pos_b}, actual position : {object_pos_b}")
     error = torch.norm(des_pos_b - object_pos_b, dim=1)
-    #print("norm position error : ", error)
+    
+    loghelper.log_object_goal_distance(error)
+
     return error 
+
+def end_effector_distance_to_object(
+    env: ManagerBasedRLEnv,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    loghelper: LoggingHelper = LoggingHelper()
+) -> torch.Tensor:
+    robot: RigidObject = env.scene[robot_cfg.name]
+    object: RigidObject = env.scene[object_cfg.name]
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+
+    # Object position in robot frame
+    object_pos_w = object.data.root_pos_w[:, :3]
+    obj_pos_rel_robot, _ = subtract_frame_transforms(
+        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
+    )
+
+    # End-effector position in world
+    ee_pos_w = ee_frame.data.target_pos_w[:, 0, :]
+    ee_pos_rel_robot, _ = subtract_frame_transforms(
+        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], ee_pos_w
+    )
+
+    dist = torch.norm(ee_pos_rel_robot - obj_pos_rel_robot, dim=1)
+    
+    loghelper.log_end_effector_distance_to_object(dist)
+
+    return dist
+
+    
 
 def robot_pose(
     env: ManagerBasedRLEnv,
@@ -248,6 +282,10 @@ def robot_pose(
     robot: Articulation = env.scene[robot_cfg.name]
     print(robot.data.joint_pos)
     return torch.tensor([0.04])
+
+
+
+
 
 def position_command_error(
     env: ManagerBasedRLEnv,

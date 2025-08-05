@@ -1,10 +1,14 @@
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 
+import argparse
+
 from isaaclab.utils.logging_helper import LoggingHelper
 
-def get_subtask_timesteps():
+
+def process_rollout_logger(rollout_log_path):
     """
     for each rollout, return the timesteps that each subtask was completed
     """
@@ -14,13 +18,33 @@ def get_subtask_timesteps():
         'LIFT': '2',
         'FINISH': '4'
     }
-    with open(LoggingHelper().namefile, 'r') as file:
-        lines = file.readlines()
+    
+    # Check if rollout log data for this rollout already exists, if so use it. If not, it means we are 
+    # running a new rollout so get the log data from the original path and then copy it over to save it.
+    try:
+        with open(rollout_log_path, 'r') as file:
+            print(f"Reading rollout log data from {rollout_log_path}")
+            lines = file.readlines()
+    except FileNotFoundError as filenotfounderror:
+        with open(LoggingHelper().namefile, 'r') as file:
+            print(f"Using original rollout logging path at {LoggingHelper().namefile}")
+            raw_content = file.read()
+            file.seek(0)
+            lines = file.readlines()
+            with open(rollout_log_path, 'w') as file:
+                file.write(raw_content)
 
-    rollouts = [] 
-    rollout_number = 0
+    
+
+    object_goal_distances = []
+    end_effector_distances_to_object = []
+    subtask_rollouts = [] 
+
+    rollout_number = -1
     current_timestep = -1
     for line in lines:
+        if rollout_number > args.num_rollouts:
+            break
         line = line.strip().split(':')
         
         if line[0] == 'X':
@@ -31,43 +55,56 @@ def get_subtask_timesteps():
             current_timestep += 1
     
         # APPR subtask was completed successfully
-        if line[0] == subtask_codes['APPR'] and line[2] == 'TRUE' and 'APPR' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
-            rollouts.append([rollout_number, 'APPR', current_timestep])
+        if line[0] == subtask_codes['APPR'] and line[2] == 'TRUE' and 'APPR' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
+            subtask_rollouts.append([rollout_number, 'APPR', current_timestep])
 
-        if line[0] == subtask_codes['GRASP'] and line[2] == 'TRUE' and 'GRASP' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
-            rollouts.append([rollout_number, 'GRASP', current_timestep])
+        if line[0] == subtask_codes['GRASP'] and line[2] == 'TRUE' and 'GRASP' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
+            subtask_rollouts.append([rollout_number, 'GRASP', current_timestep])
         
-        if line[0] == subtask_codes['LIFT'] and line[2] == 'TRUE' and 'LIFT' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
-            rollouts.append([rollout_number, 'LIFT', current_timestep])
+        if line[0] == subtask_codes['LIFT'] and line[2] == 'TRUE' and 'LIFT' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
+            subtask_rollouts.append([rollout_number, 'LIFT', current_timestep])
 
-        if line[0] == subtask_codes['FINISH'] and line[2] == 'TRUE' and 'FINISH' not in [subtask_name for rol_num, subtask_name, _ in rollouts if rol_num == rollout_number]:
-            rollouts.append([rollout_number, 'FINISH', current_timestep])
+        if line[0] == subtask_codes['FINISH'] and line[2] == 'TRUE' and 'FINISH' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
+            subtask_rollouts.append([rollout_number, 'FINISH', current_timestep])
 
+        if line[0] == 'G':
+            object_goal_distance = float(line[1])
+            object_goal_distances.append([rollout_number, object_goal_distance, current_timestep])
+        if line[0] == 'E':  
+            end_effector_distance_to_object = float(line[1])
+            end_effector_distances_to_object.append([rollout_number, end_effector_distance_to_object, current_timestep])
+            
+        
     # fix incorrect rollout numbers
-    prev_rollout_number = 1
-    rollout_number = 1
-    for i, rollout in enumerate(rollouts):
-        og_rollout_num = rollout[0]
-        if rollout[0] != prev_rollout_number:
-            rollout_number += 1
-        rollout[0] = rollout_number
-        prev_rollout_number = og_rollout_num
+    for rollouts in [subtask_rollouts, object_goal_distances, end_effector_distances_to_object]:
+        prev_rollout_number = 0
+        rollout_number = 0
+        for rollout in rollouts:
+            og_rollout_num = rollout[0]
+            if rollout[0] != prev_rollout_number:
+                rollout_number += 1
+            rollout[0] = rollout_number
+            prev_rollout_number = og_rollout_num
     
 
-    subtask_timesteps = {(rol_num, subtask) : timestep for rol_num, subtask, timestep in rollouts}
-    print(subtask_timesteps)
+    #subtask_timesteps = {(rol_num, timestep) : subtask for rol_num, subtask, timestep in rollouts}
+    subtask_timesteps = {(rol_num, subtask) : timestep for rol_num, subtask, timestep in subtask_rollouts}
+    object_goal_distances = {(rol_num, timestep) : dist for rol_num, dist, timestep in object_goal_distances}
+    end_effector_distances_to_object = {(rol_num, timestep) : dist for rol_num, dist, timestep in end_effector_distances_to_object}
 
-    return subtask_timesteps
+    #print(subtask_timesteps)
+    # print(object_goal_distances)
+    return subtask_timesteps, object_goal_distances, end_effector_distances_to_object
     
 
 
-def load_uncertainties_file(file):
+def load_traj_file(file):
     rollouts = []
     rollout = []
     labels = []
     all_uncertainties = []
     all_timesteps = []
-
+    print(f"Loading traj file at {file}")
     with open(file, 'r') as file:
         lines = file.readlines()
         for line in lines:
@@ -82,6 +119,9 @@ def load_uncertainties_file(file):
                     rollout = []
                 labels.append(True if label == 'True' else False)
 
+                if len(rollouts) >= args.num_rollouts:
+                    break
+
             if timestep % 1 == 0:
                 rollout.append((timestep, uncertainties))
                 all_timesteps.append(timestep)
@@ -92,29 +132,42 @@ def load_uncertainties_file(file):
         rollouts.append(rollout)
 
     return rollouts, labels, all_uncertainties, all_timesteps
+    # return rollouts[:args.num_rollouts], labels[:args.num_rollouts], all_uncertainties[:args.num_rollouts], all_timesteps[:args.num_rollouts]
 
 
-def plot_rollouts(rollouts, labels, results_path, parameters, duration=400, joints_to_plot=[_ for _ in range(7)]):
+def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, graph_params,
+                  subtask_timesteps, object_goal_distances, end_effector_distances_to_object, 
+                  duration=800, joints_to_plot=[_ for _ in range(7)]):
     # define a window for each joint
-    windows = {joint_num: deque(maxlen=parameters['window_size']) for joint_num in joints_to_plot} 
+    windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_plot} 
   
 
-    successful_rollout_means, failed_rollout_means = [], []
+    successful_rollout_means = {joint_num: [] for joint_num in joints_to_plot} 
+    failed_rollout_means = {joint_num: [] for joint_num in joints_to_plot}
     num_joints = 7
     for i, rollout in enumerate(rollouts):
+        if i % 50 == 0:
+            print(f"Progress: {i} rollouts")
         rollout_timesteps = [t for t, _ in rollout]
         rollout_uncertainties = [unc for _, unc in rollout]
 
         # define a set of unsafe timesteps for the current rollout
-        unsafe_timesteps = []
 
         # transpose the list of uncertainties so each sublist is for one joint
         rollout_uncertainties_per_joint = list(zip(*rollout_uncertainties))
 
-        plt.figure(figsize=(10, 6))
-        plt.ylim(bottom=0)
-        plt.ylim(top=1.0)
         for joint_num in range(num_joints):
+            unsafe_timesteps = []
+
+            fig, ax1 = plt.subplots(figsize=(10, 6))
+            ax2 = ax1.twinx()
+            ax2.set_ylabel('Object Goal Distance')
+            # Plot uncertainties on the first y-axis
+            ax1.set_ylim(0, graph_params[joint_num]['y_lim'])
+            ax1.set_xlabel('Timestep')
+            ax1.set_ylabel('Uncertainty Value')
+            ax1.grid(True)
+
             if joint_num in joints_to_plot:
                 rollout_timesteps_to_plot = list(rollout_timesteps[:duration])
                 rollout_uncertainties_per_joint_to_plot = list(rollout_uncertainties_per_joint[joint_num][:duration])
@@ -128,30 +181,50 @@ def plot_rollouts(rollouts, labels, results_path, parameters, duration=400, join
                 while len(rollout_uncertainties_per_joint_to_plot) < duration:
                     rollout_uncertainties_per_joint_to_plot.append(0)
 
-                plotted_line = plt.plot(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot, alpha=0.3, label=f"Joint {joint_num}")
+                plotted_line = ax1.plot(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot, alpha=0.3, label=f"Joint {joint_num}")
                 mean = np.mean(rollout_uncertainties_per_joint_to_plot)
                 mean = [mean for _ in range(len(rollout_timesteps_to_plot))]
-                plt.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', alpha=0.4, color=plotted_line[0].get_color()) 
+                unc_threshold_plot = [parameters[joint_num]['unc_threshold'] for _ in range(len(rollout_timesteps_to_plot))]
 
+                # plot subtasks
+                # for subtask in ['APPR', 'GRASP', 'LIFT', 'FINISH']:
+                #     try:
+                #         rt = subtask_timesteps[(i, subtask)]
+                #         if rt < duration: 
+                #             ax1.scatter(rt, 0, zorder=4, label=f"{subtask} Completion")
+                #     except KeyError:
+                #         continue
+
+
+                ax1.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', alpha=0.4, color=plotted_line[0].get_color()) 
+                ax1.plot(rollout_timesteps_to_plot, unc_threshold_plot, label=f"Uncertainty Threshold", linestyle='--', alpha=0.4, color='red')
+                # plot object to goal distances at each timestep
+                # object_goal_distances_to_plot = [object_goal_distances.get((i, t-1), np.NaN) for t in rollout_timesteps_to_plot]
+                # ax2.plot(rollout_timesteps_to_plot, object_goal_distances_to_plot, label=f"Object Goal Distance",  color='purple')
+                # plot end effector to object distances at each timestep
+                #end_effector_distances_to_object_to_plot = [end_effector_distances_to_object.get((i, t-1), np.NaN) for t in rollout_timesteps_to_plot]
+                #ax2.plot(rollout_timesteps_to_plot, end_effector_distances_to_object_to_plot, label=f"EE Object Distance",  color='orange')
+                
                 if labels[i] == True:
-                    successful_rollout_means.append(mean)
+                    successful_rollout_means[joint_num].append(mean)
                 else:
-                    failed_rollout_means.append(mean)
+                    failed_rollout_means[joint_num].append(mean)
 
-               
+                rolling_mean_uncs_list = []
+                rolling_mean_uncs = 0
                 # simulate the real-time window (uncertainty values come in one timestep at a time...)
                 for timestep, unc in zip(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot):
-                    #windows[joint_num].append((timestep, unc))
+                    rolling_mean_uncs += unc / len(rollout_timesteps)
+                    rolling_mean_uncs_list.append(rolling_mean_uncs)
                     windows[joint_num].append((timestep, unc))
-                    unc_threshold = parameters['unc_threshold']
+                    unc_threshold = parameters[joint_num]['unc_threshold']
                     peaks = sum(1 for _, curr_unc in windows[joint_num] if curr_unc > unc_threshold)
-                    if peaks > parameters['max_peaks']:
+                    if peaks > parameters[joint_num]['max_peaks']:
                         #print(f"number of peaks in window: {peaks} for rollout {i}")
                         # backtrack to get the timesteps for the entire window - so it says something like "there is danger in this window"
                         for unsafe_timestep, unsafe_uncertainty in windows[joint_num]:
                             unsafe_timesteps.append((unsafe_timestep, unsafe_uncertainty))
-            
-
+                #plt.plot(rollout_timesteps_to_plot, rolling_mean_uncs_list[:duration], label='Rolling Mean Uncertainty', linestyle='--', alpha=0.4)
                 # plot the unsafe windows 
                 # Extract x and y
                 unsafe_x = [t for t, _ in unsafe_timesteps]
@@ -160,48 +233,55 @@ def plot_rollouts(rollouts, labels, results_path, parameters, duration=400, join
                 # sort by timestep to ensure proper line order
                 unsafe_sorted = sorted(zip(unsafe_x, unsafe_y))
                 unsafe_x, unsafe_y = zip(*unsafe_sorted) if unsafe_sorted else ([], [])
-                detected_unsafe_windows = int(len(unsafe_x)/parameters['window_size'])
-                # plt.plot(unsafe_x, unsafe_y, color='red', linewidth=1, linestyle='-', zorder=2, label=f"Detected Unsafe Window (Joint {joint_num}). Total unsafe windows detected: {detected_unsafe_windows}")
+                detected_unsafe_windows = int(len(unsafe_x)/parameters[joint_num]['window_size'])
+                ax1.plot(unsafe_x, unsafe_y, color='red', alpha=0.4, linewidth=1, linestyle='-', zorder=2, label=f"Detected Unsafe Window (Joint {joint_num}). Total unsafe windows detected: {detected_unsafe_windows}")
                 
-                for window_size in [10, 50, 100]:
-                    # Plot average uncertainty over each window
-                    window_avg_timesteps = []
-                    window_avg_values = []
-                    # temp_window = deque(maxlen=parameters[window_size])
-                    temp_window = deque(maxlen=window_size)
-                    for timestep, unc in zip(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot):
-                        temp_window.append((timestep, unc))
-                        # if len(temp_window) == parameters[window_size]:
-                        if len(temp_window) == window_size:
-                            # avg_unc = sum(u for _, u in temp_window) / parameters[window_size]
-                            avg_unc = sum(u for _, u in temp_window) / window_size
-                            end_timestep = temp_window[-1][0]
-                            window_avg_timesteps.append(end_timestep)
-                            window_avg_values.append(avg_unc)
+                # for window_size in [10]:
+                #     # Plot average uncertainty over each window
+                #     window_avg_timesteps = []
+                #     window_avg_values = []
+                #     # temp_window = deque(maxlen=parameters[window_size])
+                #     temp_window = deque(maxlen=window_size)
+                #     for timestep, unc in zip(rollout_timesteps_to_plot, rollout_uncertainties_per_joint_to_plot):
+                #         temp_window.append((timestep, unc))
+                #         # if len(temp_window) == parameters[window_size]:
+                #         if len(temp_window) == window_size:
+                #             # avg_unc = sum(u for _, u in temp_window) / parameters[window_size]
+                #             avg_unc = sum(u for _, u in temp_window) / window_size
+                #             end_timestep = temp_window[-1][0]
+                #             window_avg_timesteps.append(end_timestep)
+                #             window_avg_values.append(avg_unc)
 
-                    plt.plot(window_avg_timesteps, window_avg_values, zorder=3, label=f"Sliding Window Avg (Joint {joint_num}) for Window Size {window_size}")
+                #     plt.plot(window_avg_timesteps, window_avg_values, zorder=3, label=f"Sliding Window Avg (Joint {joint_num}) for Window Size {window_size}")
+
 
                 # Reset the original window buffer
                 windows[joint_num].clear()
 
-        title = f"Uncertainty for joint {joint_num} for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
-        plt.title(title)
-        plt.xlabel('Timestep')
-        plt.ylabel('Uncertainty Value')
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.savefig(f"{results_path}{title}.png")
-        plt.close()
+            title = f"Uncertainty for joint {joint_num} for: Rollout {i}, Model: {model_arch}, Task: {task}, {'Success' if labels[i] == True else 'Failure'}"
+            # plt.title(title)
+            # plt.xlabel('Timestep')
+            # plt.ylabel('Uncertainty Value')
+            fig.suptitle(title)
+            lines, labels1 = ax1.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax1.legend(lines + lines2, labels1 + labels2, loc='upper right')
+            
+            # plt.legend()
+            # plt.grid(True)
+            # plt.tight_layout()
+            #plt.savefig(f"{results_path}Joint{joint_num}/{title}.png")
+            fig.savefig(f"{results_path}Joint{joint_num}/{title}.png")
+            plt.close()
 
     for joint_num in range(num_joints):
 
         if joint_num in joints_to_plot:
-            success_current_joint_means = [mean[joint_num] for mean in successful_rollout_means]
-            failed_current_joint_means = [mean[joint_num] for mean in failed_rollout_means]
+            success_current_joint_means = [mean[joint_num] for mean in successful_rollout_means[joint_num]]
+            failed_current_joint_means = [mean[joint_num] for mean in failed_rollout_means[joint_num]]
             
-            current_joint_successful_mean = sum(success_current_joint_means) / len(success_current_joint_means)
-            current_joint_failed_mean = sum(failed_current_joint_means) / len(failed_current_joint_means)
+            current_joint_successful_mean = sum(success_current_joint_means) / len(success_current_joint_means) if len(success_current_joint_means) != 0 else 0
+            current_joint_failed_mean = sum(failed_current_joint_means) / len(failed_current_joint_means) if len(failed_current_joint_means) != 0 else 0
 
             print("======================")
             print(f"Average mean over all successful rollouts for joint {joint_num}: {current_joint_successful_mean}")
@@ -209,11 +289,11 @@ def plot_rollouts(rollouts, labels, results_path, parameters, duration=400, join
             print("======================")
             
             plt.figure(figsize=(10, 6))
-            plt.ylim(bottom=0)
-            plt.ylim(top=0.5)
-
+            # plt.ylim(bottom=0)
+            plt.ylim(top=0.1)
+        
             plt.bar(['Success', 'Failure'], [current_joint_successful_mean, current_joint_failed_mean], 
-                    label=["{:.4f}".format(current_joint_successful_mean), "{:.4f}".format(current_joint_failed_mean)], color=['green', 'red'])
+                    label=["{:.9f}".format(current_joint_successful_mean), "{:.9f}".format(current_joint_failed_mean)], color=['green', 'red'])
             title = f"Average Mean Over All Successful Rollouts for Joint {joint_num}"
             plt.title(title)
             plt.xlabel('Task Result')
@@ -221,49 +301,50 @@ def plot_rollouts(rollouts, labels, results_path, parameters, duration=400, join
             plt.legend()
             plt.grid(True)
             plt.tight_layout()
-            plt.savefig(f"{results_path}{title}.png")
+            plt.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
             plt.close()
 
 
+def plot_trajectory(traj_info, results_path):
+    for i, (rollout_actions, rollout_max_actions, rollout_min_actions) in enumerate(zip(traj_info['actions'], traj_info['max'], traj_info['min'])):
+        timesteps = [t for t, _ in rollout_actions]
+        actions = np.array([a for _, a in rollout_actions])
+        max_actions = np.array([a for _, a in rollout_max_actions])
+        min_actions = np.array([a for _, a in rollout_min_actions])
 
-def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
-    num_joints = 7
-    label_idx = 0
-    success_uncertainties = [[] for _ in range(num_joints)]
-    failure_uncertainties = [[] for _ in range(num_joints)]
-    used_timesteps = []
+        #print(actions.shape, max_actions.shape, min_actions.shape)
+        
+        for joint_num in range(7):
+        
+            title = f"Trajectory for Rollout {i}, Joint {joint_num}"
+            plt.figure(figsize=(10, 6))
+            current_joint_actions = actions[:, joint_num]
+            current_joint_max_actions = max_actions[:, joint_num]
+            current_joint_min_actions = min_actions[:, joint_num]
 
-    for i, (timestep, uncertainties) in enumerate(zip(all_timesteps, all_uncertainties)):
-        # Use the current rollout label
-        if i > 0 and all_timesteps[i] < all_timesteps[i - 1]:
-            label_idx += 1  # New rollout started
 
-        label = labels[label_idx]
-        used_timesteps.append(timestep)
+            plt.fill_between(
+                timesteps,
+                current_joint_min_actions,
+                current_joint_max_actions,
+                color='blue',
+                alpha=0.1,
+                label='Action Range'
+            )
 
-        for joint_num in range(num_joints):
-            if label:
-                success_uncertainties[joint_num].append(uncertainties[joint_num])
-                failure_uncertainties[joint_num].append(np.nan)
-            else:
-                success_uncertainties[joint_num].append(np.nan)
-                failure_uncertainties[joint_num].append(uncertainties[joint_num])
+            plt.plot(timesteps, current_joint_max_actions, label=f"Max Trajectory", color='blue', alpha=0.1)
+            plt.plot(timesteps, current_joint_actions, label=f"Mean Trajectory", color='blue')
+            plt.plot(timesteps, current_joint_min_actions, label=f"Min Trajectory",  color='blue', alpha=0.1)
 
-    # Plot
-    for joint_num in range(num_joints):
-        plt.figure(figsize=(10, 6))
-        plt.plot(used_timesteps, success_uncertainties[joint_num], label="Task Success", color='green')
-        plt.plot(used_timesteps, failure_uncertainties[joint_num], label="Task Failure", color='red')
+            plt.tight_layout()
+            plt.legend()
+            plt.grid(True)
+            plt.xlabel('Timestep')
+            plt.ylabel('Joint Position')
+            plt.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
+            plt.close()
+        
 
-        plt.title(f"Uncertainties for Joint {joint_num}")
-        plt.xlabel('Timestep')
-        plt.ylabel('Uncertainty Value')
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-
-        plt.savefig(f"./docs/training_data/uncertainty_joint_{joint_num}_plot_stack_cube.png")
-        plt.close()
 
 
 # model_arch = "BC_RNN_GMM"
@@ -272,13 +353,6 @@ def plot_joint_uncertainty(all_timesteps, all_uncertainties, labels):
 
 # uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
 
-model_arch = "BC_RNN_GMM"
-task = "pick_place" # stack_cube or pick_place
-model_name = f"ensemble"
-#uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
-
-uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/uncertainties3.txt"
-results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/" 
 
 # uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/video_plots/uncertainties.txt"
 # results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/Isaac-Stack-Cube-Franka-IK-Rel-v0/video_plots" 
@@ -292,20 +366,126 @@ parameters = {
         'window_size': 40
     }, 
     'pick_place': {
-        'unc_threshold': 0.05,
-        'max_peaks': 10,
-        'window_size': 60
+        6: {
+            'unc_threshold': 0.05,
+            'max_peaks': 15,
+            'window_size': 30
+        },
+        5: {
+            'unc_threshold': 0.02,
+            'max_peaks': 2,
+            'window_size': 10
+        },
+
+        4: {
+            'unc_threshold': 0.02,
+            'max_peaks': 2,
+            'window_size': 10
+        },
+        3: {
+            'unc_threshold': 0.02,
+            'max_peaks': 2,
+            'window_size': 10
+        },
+        2: {
+            'unc_threshold': 0.02,
+            'max_peaks': 2,
+            'window_size': 10
+        },
+        1: {
+            'unc_threshold': 0.02,
+            'max_peaks': 2,
+            'window_size': 10
+        },
+        0: {
+            'unc_threshold': 0.02,
+            'max_peaks': 2,
+            'window_size': 10
+        }
+
     }
 }
 
+graph_params = {
+    'pick_place' : {
+        6: {
+            'y_lim' : 1.0
+        },
+        5 : {
+            'y_lim': 0.1
+        },
+        4 :{
+            'y_lim' : 0.1
+        },
+        3: {
+            'y_lim' : 0.1
+        },
+        2: {
+            'y_lim' : 0.1
+        },
+        1: {
+            'y_lim' : 0.1
+        },
+        0: {
+            'y_lim' : 0.1
+        }
+    }
+}
 
-subtask_timesteps = get_subtask_timesteps()
+parser = argparse.ArgumentParser()
+parser.add_argument('--num_rollouts', type=int, default=999999, help='The number of rollouts to plot the uncertainties for.')
 
-rollouts, labels, all_uncertainties, all_timesteps = load_uncertainties_file(uncertainties_path)
-plot_rollouts(rollouts, labels, results_path, parameters[task], duration=800, joints_to_plot=[6])
-
-
+args = parser.parse_args()
 
 
+model_arch = "BC_RNN_GMM"
+task = "pick_place" # stack_cube or pick_place
+model_name = f"ensemble"
+#uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
 
-# plot another graph that says something like - "for the window at timestep x, the average uncertainty inside the window was y"
+
+
+number = 10
+uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties{number}.txt"
+actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/actions{number}.txt"
+min_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/min_actions{number}.txt"
+max_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/max_actions{number}.txt"
+rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt"
+
+rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt" # remove the '.txt' and add rollout_log.txt
+uncertainty_results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/"
+trajectory_results_path = f"{uncertainty_results_path}"
+
+# loghelper.namefile = rollout_log_path
+
+# clear joint paths
+for joint_num in range(7):
+    joint_num_dir_path = f"{uncertainty_results_path}Joint{joint_num}/"
+    for joint_num_dir_file in os.listdir(joint_num_dir_path):
+        os.remove(f"{joint_num_dir_path}/{joint_num_dir_file}")
+
+subtask_timesteps, object_goal_distances, end_effector_distances_to_object  = process_rollout_logger(rollout_log_path)
+
+rollouts_uncertainties, labels, all_uncertainties, all_timesteps = load_traj_file(uncertainties_path)
+rollouts_actions, _, _, _ = load_traj_file(actions_path)
+rollouts_max_actions, _, _, _ = load_traj_file(max_actions_path)
+rollouts_min_actions, _, _, _ = load_traj_file(min_actions_path)
+
+traj_info = {
+    'actions': rollouts_actions,
+    'max': rollouts_max_actions,
+    'min': rollouts_min_actions
+}
+
+
+plot_rollouts_uncertainties(rollouts_uncertainties, labels, uncertainty_results_path,
+              parameters[task], graph_params[task], 
+              subtask_timesteps, object_goal_distances, end_effector_distances_to_object,
+              duration=800, joints_to_plot=[0, 1, 2, 3, 4, 5, 6]
+            )
+
+
+plot_trajectory(traj_info, trajectory_results_path)
+
+# for each joint, at each timestep get:
+# uncertainties, joint positions (mean, med...), max joint position from the ensemble, min 

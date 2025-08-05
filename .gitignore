@@ -72,3 +72,8 @@ docs/training_runs
 
 # Tests
 tests/
+
+# ROS2 demo
+ros2/src/ros_tutorials/
+ros2/install/
+source/isaaclab/isaaclab/ros2/install

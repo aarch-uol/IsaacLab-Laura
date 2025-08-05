@@ -74,6 +74,12 @@ from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dro
 from isaaclab.utils.pretty_printer import print_table, LogRollout
 from isaaclab.utils import TrajectoryLogger
 from isaaclab.safety.safety_logic import SafetyLogic
+from isaaclab.ros2 import MinimalSubscriber
+import rclpy
+import threading
+import time 
+
+
 
 def rollout(policy, env, success_term, horizon, device, logging, traj_logging):
     """Perform a single rollout of the policy in the environment.
@@ -196,7 +202,10 @@ def main():
     print("policy : ", type(policy), " value : " ,  policy)
     # Run policy
 
- 
+    #listen to rosnode?
+   
+   
+    
     results = []
     for trial in range(args_cli.num_rollouts):
         filename = "BC_RNN_TEST_RUN_" + str(trial)
@@ -215,9 +224,35 @@ def main():
 
     env.close()
 
+def run_ros2_node():
+    """
+    Initializes rclpy and spins the ROS2 node.
+    This function is designed to be run in a separate thread.
+    """
+    print("Initializing ROS2...")
+    rclpy.init(args=None)
+    node = MinimalSubscriber()
+    try:
+        # Spin the node to process callbacks. This is a blocking call.
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        node.get_logger().info('ROS2 Subscriber Node interrupted by keyboard.')
+    except Exception as e:
+        node.get_logger().error(f'An error occurred in ROS2 node: {e}')
+    finally:
+        # Clean up the node and shutdown rclpy when done
+        node.destroy_node()
+        rclpy.shutdown()
+        print("ROS2 shutdown complete.")
 
 if __name__ == "__main__":
     # run the main function
+    ros2_thread = threading.Thread(target=run_ros2_node)
+    ros2_thread.daemon = True
+    ros2_thread.start()
+
+    # Give the ROS2 thread a moment to initialize
+    time.sleep(2)
     main()
     # close sim app
     simulation_app.close()

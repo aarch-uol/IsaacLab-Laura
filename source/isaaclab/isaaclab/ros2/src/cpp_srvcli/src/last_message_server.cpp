@@ -1,10 +1,10 @@
 #include "rclcpp/rclcpp.hpp"
-#include "example_interfaces/srv/add_two_ints.hpp"
+#include "example_interfaces/srv/last_message.hpp"
 
 #include <memory>
 
-void add(const std::shared_ptr<example_interfaces::srv::AddTwoInts::Request> request,
-          std::shared_ptr<example_interfaces::srv::AddTwoInts::Response>      response)
+void add(const std::shared_ptr<example_interfaces::srv::LastMessage::Request> request,
+          std::shared_ptr<example_interfaces::srv::LastMessage::Response>      response)
 {
   response->sum = request->a + request->b;
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\na: %ld" " b: %ld",
@@ -16,10 +16,10 @@ int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
 
-  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_two_ints_server");
+  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("last_message_server");
 
-  rclcpp::Service<example_interfaces::srv::AddTwoInts>::SharedPtr service =
-    node->create_service<example_interfaces::srv::AddTwoInts>("add_two_ints", &add);
+  rclcpp::Service<example_interfaces::srv::LastMessage>::SharedPtr service =
+    node->create_service<example_interfaces::srv::LastMessage>("last_message", &add);
 
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Ready to add two ints.");
 

@@ -8,29 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(rosidl_default_generators REQUIRED) 
-
-set(srv_files
-  "srv/GetLatestMessage.srv"
-)
-rosidl_generate_interfaces(${PROJECT_NAME}
-  ${srv_files}
-  DEPENDENCIES std_msgs # Your service uses std_msgs/String, so declare this dependency
-)
-
-include_directories(
-  include
-  ${rclcpp_INCLUDE_DIRS}
-  ${std_msgs_INCLUDE_DIRS}
-  # Include the directory for your generated service headers
-  ${PROJECT_NAME}__rosidl_generator_cpp # This is the generated include path for your custom service
-)
-
-add_executable(server src/add_two_ints_server.cpp)
-ament_target_dependencies(server rclcpp std_msgs ${PROJECT_NAME}__rosidl_generator_cpp)
-
-
+find_package(example_interfaces REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -44,21 +22,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+add_executable(server src/server.cpp)
+ament_target_dependencies(server rclcpp example_interfaces)
 install(TARGETS
   server
   DESTINATION lib/${PROJECT_NAME})
-
-install(
-  DIRECTORY share/${PROJECT_NAME}/srv/
-  DESTINATION share/${PROJECT_NAME}/srv
-)
-ament_export_targets(server HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-  rclcpp
-  std_msgs
-  rosidl_default_runtime # Essential for runtime use of generated interfaces
-)
-
-
-
 ament_package()

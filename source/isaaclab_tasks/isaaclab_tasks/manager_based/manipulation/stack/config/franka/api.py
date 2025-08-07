@@ -129,9 +129,7 @@ class LLMClient:
         - Use SceneEntityCfg("ee_frame") for all `ee_frame_cfg` parameters.
         - Use `threshold` values between `0.05` and `0.1`.
 
-    CRITICAL: Write **exactly** at the end of ObservationsCfg:
-        `policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)`
-        `subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)`
+    At the end of ObservationsCfg Class create an instance for: PolicyCfg and SubtasksCfg each with `enable_corruption`, `concatenate_terms` which are both `False`.
     Note: All ObsTerm functions are sourced from the `mdp` folder.
 
     ### FrankaCubeStack Class Definitions

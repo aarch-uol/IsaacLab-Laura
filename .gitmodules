@@ -1,0 +1,3 @@
+[submodule "source/chills"]
+	path = source/chills
+	url = https://github.com/aarch-uol/IsaacChills

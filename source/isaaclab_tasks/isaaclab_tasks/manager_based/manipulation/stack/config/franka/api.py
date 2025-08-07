@@ -40,21 +40,16 @@ class LLMClient:
 
     This prompt applies to IsaacLab-based simulation code. 
     Your task is to generate a single, valid Python file with no syntax errors. 
-    The output should be minimal, correct, and closely match the structure and content of the given file.
     The content of the output file should only differ by the objects spawned from the given file.
-    This file defines a configuration class for part of a simulation environment.
 
     ### Task description
 
     User description: {user_input}
     Think about which laboratory equipment from the original file would be used to complete the task in the user description.
-    Use this equipment for **objects required**.
     Look at the user description and decide how many tasks have been described, write the number of tasks in a comment under the imports.
 
     ### Imports
 
-    - Extract **only and all of the 12 lines of import statements** that are in the **given file**.
-    - Add them **once at the very top** of your output script.
     - **`PourEnvCfg` is in `lab_env_cfg` file in `stack` folder**.
     - If `pour` in user description, then change import StackEnvCfg to PourEnvCfg.
 
@@ -69,17 +64,16 @@ class LLMClient:
     Success Condition Selection Rules:
         - For objects_stacked (used for any tasks involving stacking object1 onto object2):
             - Use objects_stacked **only** if object_stacked is appropriate for the final subtask.
-            - If there is one task: objects_stacked only param "object_2_cfg": SceneEntityCfg object2.
-            - If there is two tasks: objects_stacked only param "object_2_cfg": SceneEntityCfg object3.
+            - If there is one task: objects_stacked only param `object_2_cfg`: SceneEntityCfg object2.
+            - If there is two tasks: objects_stacked only param `object_2_cfg`: SceneEntityCfg object3.
         - For object_reached_goal (used if stacking isn't applicable for final subtask):
             - Use object_reached_goal **only** if object_near_goal is appropriate for the final subtask.
             - Requires no params
 
-    ### ObsGroup/ObsTerm Definitions
+    ### ObsTerm Definitions
 
     - Create an ObservationsCfg Class.
     - Within the ObservationsCfg Class, create two Classes: PolicyCfg and SubtasksCfg, inheriting from ObsGroup.
-    - At the end of ObservationsCfg Class create an instance for: PolicyCfg and SubtasksCfg **each** with `enable_corruption`, `concatenate_terms` which are both `False`.
     
     Inside the PolicyCfg, define ObsTerms with **only** the following **9** functions and no params:
         IF THERE IS ONLY ONE TASK (`func=`):
@@ -87,22 +81,20 @@ class LLMClient:
         IF THERE ARE TWO TASKS (`func=`):
             - `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs2`, `object_positions_in_world_frame2`, `object_orientations_in_world_frame2`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`
 
-    SUBTASK GENERATION RULES:    
-
+    SUBTASK GENERATION RULES:
     Task Context:
         In SubtasksCfg, create a logical sequence of subtasks using ObsTerm for a robot to complete the user-defined task(s).
         - Single Task → Subtasks use object1 as the main object, object2 as apparatus.
         - Two Tasks → Generate two sequences:
             Task 1: object1 (main), object2 (apparatus)
             Task 2: object1 (main), object3 (apparatus)
+        - The sequence of task 1 must be fully completed before starting the sequence for task 2.
 
     Available Subtask Functions (func=):
-        - Must Include: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2
-        - Optional: pour_object, reorient_object (follows pour_object if used)
-        - Final Subtask (Termination Function): one of:
-            object_stacked → use if stacking object1 onto apparatus
-            object_near_goal → use otherwise
-        - Use reach_object2 for multiple reaches in a task.
+        - Core Subtasks: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2
+        - Optional Subtasks: pour_object, reorient_object (follows pour_object if used)
+        - Final Termination Subtask must include either (ObsTerm(func=)): `object_stacked`, `object_near_goal`.
+        - Use reach_object2 for a second reach in a task.
 
     SUBTASK FUNCTION PARAMETERS:
         - `reach_object` / `reach_object2` requires: `ee_frame_cfg`, `object_cfg`, `threshold`.
@@ -112,20 +104,20 @@ class LLMClient:
         - `pour_object` / `reorient_object` requires: `angle_threshold = 45 / 175`, `ee_frame_cfg`.
 
     Termination Function Rules:
-        - For object_stacked (used for tasks involving placing object1 onto object2):
-            - Use object_stacked **only** if appropriate for the final subtask.
+        - For `object_stacked` (used for tasks involving placing object1 onto apparatus):
+            - Use `object_stacked` **only** if appropriate for the final subtask.
             - Requires params:
-                - `upper_object_cfg` → SceneEntityCfg("object1")
                 - `robot_cfg` → SceneEntityCfg("robot")
+                - `upper_object_cfg` → SceneEntityCfg("object1")
                 - `lower_object_cfg`:
                     - IF ONE TASK → SceneEntityCfg("object2")
                     - IF TWO TASKS → SceneEntityCfg("object3")
-        - For object_near_goal (used if stacking isn't applicable for final subtask):
+        - For `object_near_goal` (used if stacking isn't applicable for final subtask):
             - Requires:
                 - `threshold`
                 - `robot_cfg` → SceneEntityCfg("robot")
                 - `object_cfg` → SceneEntityCfg("object1")
-        - The **termination function must be the final subtask** in the sequence.
+        - **The termination function must be the final subtask for each sequence of subtasks**.
 
     General Parameter Mapping Rules:
         - Use SceneEntityCfg("object1") for any subtask with `"object"` in the name.
@@ -134,26 +126,21 @@ class LLMClient:
         - IF TWO TASKS:
             - For Task 1: use SceneEntityCfg("object2") for `"object2"` subtasks.
             - For Task 2: use SceneEntityCfg("object3") for `"object2"` subtasks.
-        - Use SceneEntityCfg("robot") for all `robot_cfg` parameters.
         - Use SceneEntityCfg("ee_frame") for all `ee_frame_cfg` parameters.
         - Use `threshold` values between `0.05` and `0.1`.
 
+    CRITICAL: Write **exactly** at the end of ObservationsCfg:
+        `policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)`
+        `subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)`
     Note: All ObsTerm functions are sourced from the `mdp` folder.
 
     ### FrankaCubeStack Class Definitions
 
-    Use the `@configclass` decorator for any Classes, as in the given file, including `FrankaCubeStackEnvCfg(StackEnvCfg)`
+    Use the `@configclass` decorator for any Classes, as in the given file.
 
-    Change the inheritance of `FrankaCubeStackEnvCfg` only if the task involves `pour` in the task description:
+    Change the inheritance of `FrankaCubeStackEnvCfg(StackEnvCfg)` only IF the task involves `pour` in the task description:
         - Change `StackEnvCfg` to `PourEnvCfg`.
     If `pour` is not in the task description then keep `StackEnvCfg`.
-
-    In `FrankaCubeStackEnvCfg`:
-        - Include a method called `__post_init__()` that contains `super().__post_init__()`.
-        - **Do not change** the semantic tags for the plane or table.
-        - Include **only and exactly all** of the `actions` and `commands` from the given file.
-        - Use the same robot setup code from the provided file (Franka, with the correct semantic tags).
-    Strictly ensure ObservationsCfg() instance is created.
 
     ### Task Specific Objects
 
@@ -213,7 +200,6 @@ class LLMClient:
     ```plaintext
     REMINDER: ALL object assignments **must use the format `self.scene.object1 = ...`** and **must not include placeholder code like `<glassware>`**.
     REMINDER: Do not use objects_stacked if both objects are **glassware**.
-    REMINDER: `SubtasksCfg` **must include a Termination Function**.
 
     """
 

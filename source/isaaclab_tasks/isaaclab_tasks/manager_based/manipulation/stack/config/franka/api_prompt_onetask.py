@@ -49,12 +49,14 @@ class LLMClient:
     User description: {user_input}
     Think about which laboratory equipment from the original file would be used to complete the task in the user description.
     Use this equipment for **objects required**.
-    Look at the user description and decide how many tasks have been described, write the number of tasks in a comment under the imports.
 
     ### Imports
 
     - Extract **only and all of the 12 lines of import statements** that are in the **given file**.
     - Add them **once at the very top** of your output script.
+    - Every import must start with `isaaclab` or `glassware_files`.
+    - **Do not repeat or invent any import**.
+    - **Do not add extra imports**, even if they seem necessary.
     - **`PourEnvCfg` is in `lab_env_cfg` file in `stack` folder**.
     - If `pour` in user description, then change import StackEnvCfg to PourEnvCfg.
 
@@ -62,11 +64,18 @@ class LLMClient:
 
     - Write **exactly** 4 DoneTerms for:
         - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
-        - Must include one of (Success Term): mdp.objects_stacked function or mdp.object_reached_goal.
+        - Must include one of (Success Term): mdp.objects_stacked function and mdp.object_reached_goal.
         - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
     Strictly Ensure that there are 4 DoneTerms under TerminationsCfg.
 
     Success Condition Selection Rules:
+        - For objects_stacked (used for any tasks involving stacking object1 onto object2):
+            - Use objects_stacked **only** if object_stacked is appropriate for the final subtask.
+            - objects_stacked only param "object_2_cfg": SceneEntityCfg object2.
+            - Use object_reached_goal **only** if object_near_goal is appropriate for the final subtask.
+            - Requires no params
+
+                Success Condition Selection Rules:
         - For objects_stacked (used for any tasks involving stacking object1 onto object2):
             - Use objects_stacked **only** if object_stacked is appropriate for the final subtask.
             - If there is one task: objects_stacked only param "object_2_cfg": SceneEntityCfg object2.
@@ -79,66 +88,45 @@ class LLMClient:
 
     - Create an ObservationsCfg Class.
     - Within the ObservationsCfg Class, create two Classes: PolicyCfg and SubtasksCfg, inheriting from ObsGroup.
-    - At the end of ObservationsCfg Class create an instance for: PolicyCfg and SubtasksCfg **each** with `enable_corruption`, `concatenate_terms` which are both `False`.
-    
-    Inside the PolicyCfg, define ObsTerms with **only** the following **9** functions and no params:
-        IF THERE IS ONLY ONE TASK (`func=`):
-            - `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs`, `object_positions_in_world_frame`, `object_orientations_in_world_frame`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`
-        IF THERE ARE TWO TASKS (`func=`):
-            - `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs2`, `object_positions_in_world_frame2`, `object_orientations_in_world_frame2`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`
+    - Inside the PolicyCfg, define ObsTerms for only the following **9** observation functions and no params: `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs`, 
+    `object_positions_in_world_frame`, `object_orientations_in_world_frame`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`.
 
-    SUBTASK GENERATION RULES:    
+    - In SubtasksCfg, create a logical sequence of subtasks using ObsTerm for a robot to complete the user-defined task.
+    - The following func= values are available for the ObsTerm subtasks: 
+        - Must include: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2
+        - Might include: pour_object, reorient_object (follow pour_object)
+        - Must include one of (Termination Function): object_stacked, object_near_goal.
+    - Use func=reach_object2 instead of func=reach_object if a second reach is needed.
 
-    Task Context:
-        In SubtasksCfg, create a logical sequence of subtasks using ObsTerm for a robot to complete the user-defined task(s).
-        - Single Task → Subtasks use object1 as the main object, object2 as apparatus.
-        - Two Tasks → Generate two sequences:
-            Task 1: object1 (main), object2 (apparatus)
-            Task 2: object1 (main), object3 (apparatus)
-
-    Available Subtask Functions (func=):
-        - Must Include: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2
-        - Optional: pour_object, reorient_object (follows pour_object if used)
-        - Final Subtask (Termination Function): one of:
-            object_stacked → use if stacking object1 onto apparatus
-            object_near_goal → use otherwise
-        - Use reach_object2 for multiple reaches in a task.
-
-    SUBTASK FUNCTION PARAMETERS:
-        - `reach_object` / `reach_object2` requires: `ee_frame_cfg`, `object_cfg`, `threshold`.
-        - `object_grasped` requires: `ee_frame_cfg`, `robot_cfg`, `object_cfg`.
-        - `is_object_lifted` requires: `threshold`, `object_cfg`.
-        - `object_reached_midgoal` requires: `threshold`, `command_name = "object_pose"`.
-        - `pour_object` / `reorient_object` requires: `angle_threshold = 45 / 175`, `ee_frame_cfg`.
+    - The function `object_grasped` should have three params with the names: `ee_frame_cfg`, `robot_cfg` and `object_cfg`.
+    - The function `reach_object`/`reach_object2` should have three params with the names: `ee_frame_cfg`, `object_cfg` and `threshold`.
+    - The function `object_reached_midgoal` should have two params with the names `threshold` and `command_name` : "object_pose".
+    - The function `is_object_lifted` should have two params with the names `threshold` and `object_cfg`.
+    - The functions `pour_object`/`reorient_object` should have two params with the names `angle_threshold` = 45/175 (respectively) and `ee_frame_cfg`.
 
     Termination Function Rules:
-        - For object_stacked (used for tasks involving placing object1 onto object2):
+        - For object_stacked (used for tasks involving stacking object1 onto object2):
             - Use object_stacked **only** if appropriate for the final subtask.
             - Requires params:
-                - `upper_object_cfg` → SceneEntityCfg("object1")
-                - `robot_cfg` → SceneEntityCfg("robot")
-                - `lower_object_cfg`:
-                    - IF ONE TASK → SceneEntityCfg("object2")
-                    - IF TWO TASKS → SceneEntityCfg("object3")
+                - upper_object_cfg → SceneEntity "object1"
+                - lower_object_cfg → SceneEntity "object2"
+                - robot_cfg → SceneEntity "robot"
         - For object_near_goal (used if stacking isn't applicable for final subtask):
             - Requires:
-                - `threshold`
-                - `robot_cfg` → SceneEntityCfg("robot")
-                - `object_cfg` → SceneEntityCfg("object1")
-        - The **termination function must be the final subtask** in the sequence.
+                - threshold
+                - robot_cfg
+                - object_cfg → SceneEntity "object1"
+        - **The most appropriate termination function is the last subtask of the user-defined task**.
 
     General Parameter Mapping Rules:
-        - Use SceneEntityCfg("object1") for any subtask with `"object"` in the name.
-        - IF ONE TASK:
-            - Use SceneEntityCfg("object2") for `"object2"` subtasks.
-        - IF TWO TASKS:
-            - For Task 1: use SceneEntityCfg("object2") for `"object2"` subtasks.
-            - For Task 2: use SceneEntityCfg("object3") for `"object2"` subtasks.
-        - Use SceneEntityCfg("robot") for all `robot_cfg` parameters.
-        - Use SceneEntityCfg("ee_frame") for all `ee_frame_cfg` parameters.
-        - Use `threshold` values between `0.05` and `0.1`.
+    - Use SceneEntity "object1" if the subtask name includes "object".
+    - Use SceneEntity "object2" if the subtask name includes "object2".
+    - Use SceneEntity "robot" only for object_grasped, object_stacked and object_near_goal.
+    - Use SceneEntity "ee_frame" for any ee_frame_cfg parameter.
+    - The threshold value should be between 0.05 and 0.1.
 
-    Note: All ObsTerm functions are sourced from the `mdp` folder.
+    - All of the functions for the ObsTerms and are from the folder mdp.
+    - At the end of ObservationsCfg Class create an instance for: PolicyCfg and SubtasksCfg **each** with `enable_corruption`, `concatenate_terms` which are both `False`.
 
     ### FrankaCubeStack Class Definitions
 
@@ -150,6 +138,7 @@ class LLMClient:
 
     In `FrankaCubeStackEnvCfg`:
         - Include a method called `__post_init__()` that contains `super().__post_init__()`.
+        - Create an instance using self.observations = ObservationsCfg() with comment # Set Observations.
         - **Do not change** the semantic tags for the plane or table.
         - Include **only and exactly all** of the `actions` and `commands` from the given file.
         - Use the same robot setup code from the provided file (Franka, with the correct semantic tags).
@@ -158,13 +147,11 @@ class LLMClient:
     ### Task Specific Objects
 
     - Use **only** objects defined in the original file — do **not invent new ones**.
-    - You are **strictly forbidden** from instantiating **all** glassware or lab equipment.
     - Instantiate only the **Franka robot** and the **objects required** to complete the user-defined task.
     - **Do not use all of the objects from the original file**.
     - The **hot plate** object in the USD file refers to a **magnetic stir plate**.
-    - The “main object” is the one physically moved within the task. You must decide which one that is based on the task description.
+    - The “main object” is the one moved within the task. You must decide which one that is based on the task description.
     - This main object will be a piece of glassware.
-    - **Only include the "main object" for the first task**.
 
     In the output file:
         ***CRITICAL NAMING RULE — FOLLOW EXACTLY*** 
@@ -180,34 +167,29 @@ class LLMClient:
         ```
         Do not include any placeholder code like <glassware> in your final output.
     - Replace <glassware> with the actual object name from the task, and assign it to a standardized scene name like object1.
-
-    IMPORTANT: Do NOT treat all equipment the same. Follow the rules based on the number of tasks in the user description.
-    CRITICAL: Task count = number of tasks described in user description.
-    TASK COUNT CHECK:
-        IF THERE IS ONLY ONE TASK:
-            - Identify the lab equipment that the main object interacts with (this is the target or tool).
-            - Instantiate that equipment and assign it the name object2.
-        IF THERE ARE TWO TASKS:
-            - Identify the lab equipment of Task 1 (the lab equipment performing the task or is the target of the task).
-                - Rename the target object2 using the naming convention self.scene.object2 = glassware.<glassware>.
-            - Identify the lab equipment of Task 2 (the lab equipment performing the task or is the target of the task).
-                - Rename the target object3 using the naming convention self.scene.object3 = glassware.<glassware>.
-            IMPORTANT: Both object2 and object3 **must** be in the output file.
-
+    - Replace the lab equipment that is completing the task or is the target to follow the naming convention for object2 similar to above.
     - If there are two names for an instance, keep only the name involving object1.
-    - Each instantiated object must have a side comment explaining:
-        - Whether it is the main object.
-        - Which task it is used in.
+    - Add a side comment indicating which objects were chosen as the main object and object2 for the task.
 
-    DO NOT:
-    - Do not use object2 for both tasks.
-    - Do not use object3 if there's only one task.
-    - Do not name the target equipment anything other than object2 or object3 depending on task order.
+    ### Robot and Frame Transformations
 
-    REMEMBER:
-    - object1 = main object (the glassware being moved) — always the same, used for all tasks.
-    - object2, object3 = equipment the main object interacts with (assigned by task number).
-    - Count your instantiated objects. There must be no more than 3 total.
+    - Write the `Frame Transformations` from the given file **exactly** at the end of the code.
+    - Do not modify any of the values or change the structure from that block of code.
+    - Do not invent, change, or omit any fields or values.
+    - From that block, one FrameTransformerCfg, with the name `self.scene.ee_frame`, should be created with FrameCfgs for:
+        1. panda_hand
+        2. panda_leftfinger
+        3. panda_rightfinger
+    - With the names (respectively):
+        1. end_effector
+        2. tool_leftfinger
+        3. tool_rightfinger
+    - For each FrameCfg use **the same** values from the original code for:
+        - prim_path
+        - name
+        - offset=OffsetCfg(pos=...)
+    - The `FrameTransformerCfg` uses the  same `prim_path`, `visualizer_cfg`, `debug_vis` and `target_frames` values as the given file.
+    - Keep OffsetCfg property `pos=` for the `panda_hand`, `panda_leftfinger`, and `panda_rightfinger` the same as in the given file.
 
     Given/Original file to reference: {file_content}
     ```plaintext

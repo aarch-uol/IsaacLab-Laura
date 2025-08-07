@@ -187,16 +187,9 @@ def infer_state_machine(
     elif state == PickSmState.APPROACH_ABOVE_OBJECT2:
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
-        if CONICAL == True: 
-            offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.15)  # raise 25 cm 
-            new_offset = wp.transform(offset_pos, offset_rot)
-            # Target pose: above the object using offset
-            above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
-        else:
-            offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.1)  # raise 5 cm 
-            new_offset = wp.transform(offset_pos, offset_rot)
-            ########## changed offset[tid]
-            above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
+        offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
+        new_offset = wp.transform(offset_pos, offset_rot)
+        above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
         # Blend time for smooth approach
         APPROACH_BLEND_TIME = 0.4  # seconds, tune as needed
         alpha = wp.clamp(sm_wait_time[tid] / APPROACH_BLEND_TIME, 0.0, 1.0)
@@ -234,10 +227,10 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(final_object_pose[tid])
         if CONICAL == True:
-            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.075)
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.125)
         else:
             # Apply offset in x-direction (5 cm = 0.05 m)
-            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.075)
+            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.125)
 
         # Reconstruct the transform with new position and same rotation
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)

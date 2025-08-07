@@ -33,12 +33,7 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.scene.plane.semantic_tags = [("class", "ground")]
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True)
-        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
-            asset_name="robot",
-            joint_names=["panda_finger.*"],
-            open_command_expr={"panda_finger_.*": 0.04},
-            close_command_expr={"panda_finger_.*": 0.0},
-        )
+        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(asset_name="robot", joint_names=["panda_finger.*"], open_command_expr={"panda_finger_.*": 0.04}, close_command_expr={"panda_finger_.*": 0.0})
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware

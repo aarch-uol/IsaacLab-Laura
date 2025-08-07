@@ -29,6 +29,19 @@ def object_positions_in_world_frame(
 
     return torch.cat((object_1.data.root_pos_w, object_2.data.root_pos_w), dim=1) 
 
+def object_positions_in_world_frame2(
+    env: ManagerBasedRLEnv,
+    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
+    object_3_cfg: SceneEntityCfg = SceneEntityCfg("object3"),
+) -> torch.Tensor:
+    """The position of the cubes in the world frame."""
+    object_1: RigidObject = env.scene[object_1_cfg.name]
+    object_2: RigidObject = env.scene[object_2_cfg.name]
+    object_3: RigidObject = env.scene[object_3_cfg.name]
+
+    return torch.cat((object_1.data.root_pos_w, object_2.data.root_pos_w, object_3.data.root_pos_w), dim=1) 
+
 
 def object_orientations_in_world_frame(
     env: ManagerBasedRLEnv,
@@ -40,6 +53,19 @@ def object_orientations_in_world_frame(
     object_2: RigidObject = env.scene[object_2_cfg.name]
 
     return torch.cat((object_1.data.root_quat_w, object_2.data.root_quat_w), dim=1) 
+
+def object_orientations_in_world_frame2(
+    env: ManagerBasedRLEnv,
+    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
+    object_3_cfg: SceneEntityCfg = SceneEntityCfg("object3"),
+):
+    """The orientation of the cubes in the world frame."""
+    object_1: RigidObject = env.scene[object_1_cfg.name]
+    object_2: RigidObject = env.scene[object_2_cfg.name]
+    object_3: RigidObject = env.scene[object_3_cfg.name]
+
+    return torch.cat((object_1.data.root_quat_w, object_2.data.root_quat_w, object_3.data.root_quat_w), dim=1)
 
 
 def object_obs(
@@ -88,6 +114,68 @@ def object_obs(
         dim=1,
     )
 
+def object_obs2(
+    env: ManagerBasedRLEnv,
+    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
+    object_3_cfg: SceneEntityCfg = SceneEntityCfg("object3"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+):
+    """
+    Object observations (in world frame):
+        object_1 pos,
+        object_1 quat,
+        object_2 pos,
+        object_2 quat,
+        object_3 pos,
+        object_3 quat,
+        gripper to object_1,
+        gripper to object_2,
+        gripper to object_3,
+        object_1 to object_2,
+        object_1 to object_3,
+        object_2 to object_3,
+    """
+    object_1: RigidObject = env.scene[object_1_cfg.name]
+    object_2: RigidObject = env.scene[object_2_cfg.name]
+    object_3: RigidObject = env.scene[object_3_cfg.name]
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+
+    object_1_pos_w = object_1.data.root_pos_w
+    object_1_quat_w = object_1.data.root_quat_w
+
+    object_2_pos_w = object_2.data.root_pos_w
+    object_2_quat_w = object_2.data.root_quat_w
+
+    object_3_pos_w = object_3.data.root_pos_w
+    object_3_quat_w = object_3.data.root_quat_w
+
+    ee_pos_w = ee_frame.data.target_pos_w[:, 0, :]
+    gripper_to_object_1 = object_1_pos_w - ee_pos_w
+    gripper_to_object_2 = object_2_pos_w - ee_pos_w
+    gripper_to_object_3 = object_3_pos_w - ee_pos_w
+
+    object_1_to_2 = object_1_pos_w - object_2_pos_w
+    object_1_to_3 = object_1_pos_w - object_3_pos_w
+    object_2_to_3 = object_2_pos_w - object_3_pos_w
+
+    return torch.cat(
+        (
+            object_1_pos_w - env.scene.env_origins,
+            object_1_quat_w,
+            object_2_pos_w - env.scene.env_origins,
+            object_2_quat_w,
+            object_3_pos_w - env.scene.env_origins,
+            object_3_quat_w,
+            gripper_to_object_1,
+            gripper_to_object_2,
+            gripper_to_object_3,
+            object_1_to_2,
+            object_1_to_3,
+            object_2_to_3,
+        ),
+        dim=1,
+    )
 
 def ee_frame_pos(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
@@ -112,9 +200,9 @@ def gripper_pos(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityC
 
 def reach_object(
     env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg,
+    ee_frame_cfg: SceneEntityCfg,
     threshold: float = 0.05,
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
@@ -170,7 +258,7 @@ def object_grasped(
 
 def is_object_lifted(
     env: ManagerBasedRLEnv,
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_cfg: SceneEntityCfg,
     threshold : float = 0.05,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
@@ -186,9 +274,9 @@ def is_object_lifted(
 
 def reach_object2(
     env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg,
+    ee_frame_cfg: SceneEntityCfg,
     threshold: float = 0.1,
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
-    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
@@ -210,7 +298,7 @@ def reach_object2(
 
 def pour_object(
     env: ManagerBasedEnv,
-    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    ee_frame_cfg: SceneEntityCfg,
     angle_threshold: int = 45, 
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
@@ -236,7 +324,7 @@ def pour_object(
 
 def reorient_object(
     env: ManagerBasedEnv,
-    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    ee_frame_cfg: SceneEntityCfg,
     angle_threshold: int = 175, 
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
@@ -326,9 +414,9 @@ def object_stacked(
 def object_near_goal(
     env: ManagerBasedRLEnv,
     # command_name: str = "object_pose",
+    robot_cfg: SceneEntityCfg,
+    object_cfg: SceneEntityCfg,
     threshold: float = 0.02,
-    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Termination condition for the object reaching the goal position.
@@ -380,10 +468,10 @@ def object_near_goal(
 
 def object_reached_midgoal(
     env: ManagerBasedRLEnv,
-    command_name: str = "object_pose",
-    threshold: float = 0.02,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    command_name: str = "object_pose",
+    threshold: float = 0.02,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Termination condition for the object reaching the midgoal position.

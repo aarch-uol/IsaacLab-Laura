@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 
 def objects_stacked(
     env: ManagerBasedRLEnv,
+    object_2_cfg: SceneEntityCfg, 
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"), 
     command_name: str = "object_pose",
     xy_threshold: float = 0.1,
     height_threshold: float = 0.006,

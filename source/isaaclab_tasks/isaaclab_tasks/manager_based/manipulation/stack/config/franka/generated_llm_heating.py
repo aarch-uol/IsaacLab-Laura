@@ -15,8 +15,8 @@ from . import glassware_files
 class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
-    object2_dropping = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-    success_term = DoneTerm(func=mdp.objects_stacked, params={"object_2_cfg": SceneEntityCfg("object2")})
+    object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
+    success_term = DoneTerm(func=mdp.objects_stacked)
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
@@ -51,21 +51,30 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         glassware = glassware_files.Glassware()
         self.terminations = TerminationsCfg()
         self.observations = ObservationsCfg()
+
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
+
         # Add semantics to table
         self.scene.table.spawn.semantic_tags = [("class", "table")]
+
         # Add semantics to ground
         self.scene.plane.spawn.semantic_tags = [("class", "ground")]
+
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True)
-        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(asset_name="robot", joint_names=["panda_finger.*"], open_command_expr={"panda_finger_.*": 0.04}, close_command_expr={"panda_finger_.*": 0.0})
+        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
+            asset_name="robot",
+            joint_names=["panda_finger.*"],
+            open_command_expr={"panda_finger_.*": 0.04},
+            close_command_expr={"panda_finger_.*": 0.0},
+        )
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware
-        self.scene.object1 = glassware.sample_vial
-        self.scene.object2 = glassware.hot_plate
+        self.scene.object1 = glassware.beaker  # Main object for heating the solution
+        self.scene.object2 = glassware.hot_plate  # Lab equipment used to heat the solution
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

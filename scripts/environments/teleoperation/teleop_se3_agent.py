@@ -8,13 +8,23 @@
 """Launch Isaac Sim Simulator first."""
 
 import argparse
-from collections.abc import Callable
-
 from isaaclab.app import AppLauncher
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Keyboard teleoperation for Isaac Lab environments.")
-parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
+
+# short hand for parsing the same args 
+from isaaclab.harrys_mods import args_parser
+args_parser(parser, ["task", "num_envs", "sensitivity", "pinocchio"])
+# keeping the new modified --teleop_device cuz ... erm record not in yet?
+
+# short handed these to yeet
+# TODO: Yeet rest of devices into mods cuz they sames??
+# parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
+# parser.add_argument("--task", type=str, default=None, help="Name of the task.")
+# parser.add_argument("--sensitivity", type=float, default=1.0, help="Sensitivity factor.")
+# parser.add_argument("--enable_pinocchio",action="store_true",default=False,help="Enable Pinocchio.",)
+
 parser.add_argument(
     "--teleop_device",
     type=str,
@@ -22,14 +32,7 @@ parser.add_argument(
     choices=["keyboard", "spacemouse", "gamepad", "handtracking"],
     help="Device for interacting with environment",
 )
-parser.add_argument("--task", type=str, default=None, help="Name of the task.")
-parser.add_argument("--sensitivity", type=float, default=1.0, help="Sensitivity factor.")
-parser.add_argument(
-    "--enable_pinocchio",
-    action="store_true",
-    default=False,
-    help="Enable Pinocchio.",
-)
+
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -52,10 +55,10 @@ simulation_app = app_launcher.app
 """Rest everything follows."""
 
 
-import gymnasium as gym
 import torch
-
 import omni.log
+import gymnasium as gym
+from collections.abc import Callable
 
 from isaaclab.devices import Se3Gamepad, Se3GamepadCfg, Se3Keyboard, Se3KeyboardCfg, Se3SpaceMouse, Se3SpaceMouseCfg
 from isaaclab.devices.openxr import remove_camera_configs

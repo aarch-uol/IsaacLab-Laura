@@ -24,9 +24,7 @@ def args_parser(parser, args: list[str] | list[dict]) -> argparse.ArgumentParser
 # Common AppLauncher ARGS
 
 ARGS = { 
-
     # region Common Args
-    
     "task": {
         "flags": ("--task",),
         "kwargs": {"type": str, "default": None, "help": "Task name."}
@@ -40,8 +38,23 @@ ARGS = {
         "kwargs": {"action": "store_true", "default": False, "help": "Enable Pinocchio."}
     },
 
-    # region File Handler :
+    # region Telop :
+    "teleop_device": {
+        "flags": ("--teleop_device",),
+        "kwargs": {"type": str, "default": "keyboard", "help": "Device for interacting with environment.",
+                    "choices" : ["keyboard", "spacemouse", "gamepad", "handtracking"],
+                   }
+    },
+    "sensitivity": {
+        "flags": ("--sensitivity",),
+        "kwargs": {"type": float, "default": 1.0, "help": "Sensitivity factor."}
+    },
 
+    # region File Handler :
+    "dataset_file": {
+        "flags": ("--dataset_file",),
+        "kwargs": {"type": str, "default": "datasets/dataset.hdf5", "help": "Dataset file to be replayed."}
+    },
     "input_file": {
         "flags": ("--input_file",),
         "kwargs": {"type": str, "required": True, "help": "Path to source dataset file."}
@@ -50,37 +63,41 @@ ARGS = {
         "flags": ("--output_file",),
         "kwargs": {"type": str, "required": True, "help": "Path to export output dataset."}
     },
-    "dataset_file": {
-        "flags": ("--dataset_file",),
-        "kwargs": {"type": str, "default": "datasets/dataset.hdf5", "help": "Dataset file to be replayed."}
+
+    # region Record :
+    "num_demos": {
+        "flags": ("--num_demos",),
+        "kwargs": {"type": int, "default": 0, "help": "Number of demonstrations to record. Set to 0 for infinite."}
+    },
+    "num_success_steps": {
+        "flags": ("--num_success_steps",),
+        "kwargs": {"type": int, "default": 10, "help": (
+            "Number of continuous steps with task success for concluding a demo as successful. Default is 10."
+        )}
+    },
+    "step_hz": {
+        "flags": ("--step_hz",),
+        "kwargs": {"type": int, "default": 30, "help": "Environment stepping rate in Hz."}
     },
 
-    # region Telop :
-
-    "teleop_device": {
-        "flags": ("--teleop_device",),
-        "kwargs": {"type": str, "default": "keyboard", "help": "Device for interacting with environment."}
-    },
-    "sensitivity": {
-        "flags": ("--sensitivity",),
-        "kwargs": {"type": float, "default": 1.0, "help": "Sensitivity factor."}
+    # region Annotate :
+    "auto": {
+        "flags": ("--auto",),
+        "kwargs": {"action": "store_true", "default": False, "help": "Automatically annotate subtasks." }
     },
 
-
-
-
-
-
-    "pause_subtask": {
-        "flags": ("--pause_subtask",),
-        "kwargs": {"action": "store_true", "help": "Pause after every subtask (debugging; use with render flag)."}
-    },
+    # region Generate :
     "gen_nums": {
         "flags": ("--generation_num_trials",),
         "kwargs": {"type": int, "default": None, "help": "Number of demos to generate."}
     },
+    "pause_subtask": {
+        "flags": ("--pause_subtask",),
+        "kwargs": {"action": "store_true", "help": "Pause after every subtask (debugging; use with render flag)."}
+    },
 
-    # Additional for replay script:
+
+    # region replay:
     "select_episodes": {
         "flags": ("--select_episodes",),
         "kwargs": {"type": list, "nargs": "+", "default": [], "help": "Empty list replays all eps."}
@@ -92,19 +109,12 @@ ARGS = {
             "Validate if the states, if available, match between loaded from datasets and replayed. Only valid if --num_envs is 1."
         )}
     },
-    "auto": {
-        "flags": ("--auto",),
-        "kwargs": {"action": "store_true", "default": False, "help": "Automatically annotate subtasks." }
-    },
-    "num_demos": {
-        "flags": ("--num_demos",),
-        "kwargs": {"type": int, "default": 0, "help": "Number of demonstrations to record. Set to 0 for infinite."}
-    },
-    "num_success_steps": {
-        "flags": ("--num_success_steps",),
-        "kwargs": {"type": int, "default": 10, "help": (
-            "Number of continuous steps with task success for concluding a demo as successful. Default is 10."
-        )}
+
+
+    # region Consolidate (unused)
+    "generated_output_file": {
+        "flags": ("--generated_output_file",),
+        "kwargs": {"type": str, "default": None, "help": "File path to export generated episodes by mimic."}
     },
     "teleop_env_index": {
         "flags": ("--teleop_env_index",),
@@ -112,12 +122,5 @@ ARGS = {
             "Index of the environment to be used for teleoperation. Set -1 for disabling the teleop robot. Default is 0."
         )}
     },
-    "step_hz": {
-        "flags": ("--step_hz",),
-        "kwargs": {"type": int, "default": 30, "help": "Environment stepping rate in Hz."}
-    },
-    "generated_output_file": {
-        "flags": ("--generated_output_file",),
-        "kwargs": {"type": str, "default": None, "help": "File path to export generated episodes by mimic."}
-    }
+
 }

@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description="Keyboard teleoperation for Isaac L
 
 # short hand for parsing the same args 
 from isaaclab.harrys_mods import args_parser
-args_parser(parser, ["task", "num_envs", "sensitivity", "pinocchio"])
+args_parser(parser, ["task", "teleop_device", "num_envs", "sensitivity", "pinocchio"])
 # keeping the new modified --teleop_device cuz ... erm record not in yet?
 
 # short handed these to yeet
@@ -24,14 +24,8 @@ args_parser(parser, ["task", "num_envs", "sensitivity", "pinocchio"])
 # parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 # parser.add_argument("--sensitivity", type=float, default=1.0, help="Sensitivity factor.")
 # parser.add_argument("--enable_pinocchio",action="store_true",default=False,help="Enable Pinocchio.",)
-
-parser.add_argument(
-    "--teleop_device",
-    type=str,
-    default="keyboard",
-    choices=["keyboard", "spacemouse", "gamepad", "handtracking"],
-    help="Device for interacting with environment",
-)
+# parser.add_argument( "--teleop_device", type=str, help="Device for interacting with environment",
+#     default="keyboard", choices=["keyboard", "spacemouse", "gamepad", "handtracking"])
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)

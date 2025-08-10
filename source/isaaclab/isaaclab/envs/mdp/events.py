@@ -1565,3 +1565,58 @@ def _randomize_prop_by_op(
             f"Unknown operation: '{operation}' for property randomization. Please use 'add', 'scale', or 'abs'."
         )
     return data
+
+
+def cluster_deformable_spheres_around_asset(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor,
+    parent_cfg: SceneEntityCfg,
+    sphere_prefix: str = "sphere_",
+    num_spheres: int = 10,
+    ring_radius: float = 0.03,
+    layer_gap: float = 0.026,
+    rel_center: tuple[float, float, float] = (0.0, 0.0, 0.02),
+    jitter_xy: float = 0.004,
+    jitter_z: float = 0.001,
+    respect_parent_rotation: bool = True,
+):
+    parent = env.scene[parent_cfg.name]
+    p_pos = parent.data.root_pos_w[env_ids]          # [B,3]
+    p_quat = parent.data.root_quat_w[env_ids]        # [B,4]
+    B = len(env_ids)
+    device = p_pos.device
+
+    # Precompute local offsets [N,3]
+    k = torch.arange(num_spheres, device=device)
+    layer = (k // 5).float()
+    seg = (k % 5).float()
+    theta = 2.0 * torch.pi * (seg / 5.0)
+    base_xy = torch.stack([torch.cos(theta), torch.sin(theta)], dim=-1) * ring_radius
+    base_z = layer * layer_gap
+    base = torch.cat([base_xy, base_z[:, None]], dim=-1)
+
+    rel_center = torch.tensor(rel_center, device=device)
+    jitter = torch.randn(num_spheres, 3, device=device) * torch.tensor([jitter_xy, jitter_xy, jitter_z], device=device)
+    local_offsets = base + rel_center + jitter                                  # [N,3]
+    local_offsets = local_offsets.unsqueeze(0).expand(B, num_spheres, 3)        # [B,N,3]
+    if respect_parent_rotation:
+        local_offsets = math_utils.quat_apply(p_quat.unsqueeze(1).expand(-1, num_spheres, -1), local_offsets)
+    world_offsets = p_pos.unsqueeze(1) + local_offsets                           # [B,N,3]
+
+    # For each deformable sphere, transform all its vertices by (pos, quat)
+    for i in range(num_spheres):
+        name = f"{sphere_prefix}{i}"
+        dobj: DeformableObject = env.scene[name]
+
+        # Start from default nodal state (in local/default frame)
+        nodal_state = dobj.data.default_nodal_state_w[env_ids].clone()           # [B,V,4] pos(xyz), w: free(1)/fixed(0)
+        # Compute transform (identity rotation is fine; we only translate here)
+        pos_w = world_offsets[:, i, :]                                           # [B,3]
+        quat_w = torch.tensor([1,0,0,0], device=device).expand(B, 4)             # or use p_quat if you want orientation
+        # Apply transform to *positions only* (keep free vertices)
+        nodal_state[..., :3] = dobj.transform_nodal_pos(nodal_state[..., :3], pos_w, quat_w)
+
+        # Write to sim
+        dobj.write_nodal_state_to_sim(nodal_state, env_ids=env_ids)
+        # Reset internal buffers for the new state
+        dobj.reset(env_ids=env_ids)

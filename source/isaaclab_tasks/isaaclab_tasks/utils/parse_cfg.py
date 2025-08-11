@@ -89,7 +89,7 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
             # obtain the configuration file path
             config_file = os.path.join(mod_path, file_name)
         # load the configuration
-        print(f"[INFO]: Parsing configuration from: {config_file}")
+        # print(f"[INFO]: Parsing configuration from: {config_file}")
         with open(config_file, encoding="utf-8") as f:
             cfg = yaml.full_load(f)
     else:

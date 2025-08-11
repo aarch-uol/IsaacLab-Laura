@@ -25,6 +25,17 @@ import numpy as np
 import torch
 import time
 
+"""
+try:
+    from isaaclab.harrys_mods.utils import DEBUG   # uses False if module exists
+except ImportError:
+    DEBUG = True    
+
+if DEBUG == True:
+"""
+
+DEBUG = False
+
 # --------------------------------------------------------------------------------
 # region Logger
 

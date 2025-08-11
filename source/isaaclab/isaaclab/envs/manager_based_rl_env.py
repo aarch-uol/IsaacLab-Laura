@@ -22,6 +22,11 @@ from .common import VecEnvStepReturn
 from .manager_based_env import ManagerBasedEnv
 from .manager_based_rl_env_cfg import ManagerBasedRLEnvCfg
 
+try:
+    from isaaclab.harrys_mods.utils import DEBUG   # uses False if module exists
+except ImportError:
+    DEBUG = True    
+
 
 class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
     """The superclass for the manager-based workflow reinforcement learning-based environments.
@@ -71,23 +76,18 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
             cfg: The configuration for the environment.
             render_mode: The render mode for the environment. Defaults to None, which
                 is similar to ``"human"``.
+
+        Notes:
+        - Preallocates `episode_length_buf` for MDP functions before init.
+        - Sets `metadata['render_fps']` so Gym video playback matches sim step_dt.
+
         """
-        # -- counter for curriculum
         self.common_step_counter = 0
-
-        # initialize the episode length buffer BEFORE loading the managers to use it in mdp functions.
         self.episode_length_buf = torch.zeros(cfg.scene.num_envs, device=cfg.sim.device, dtype=torch.long)
-
-        # initialize the base class to setup the scene.
         super().__init__(cfg=cfg)
-        # store the render mode
         self.render_mode = render_mode
-
-        # initialize data and constants
-        # -- set the framerate of the gym video recorder wrapper so that the playback speed of the produced video matches the simulation
         self.metadata["render_fps"] = 1 / self.step_dt
-
-        print("[INFO]: Completed setting up the environment...")
+        if DEBUG: print("[INFO]: Completed setting up the environment...")
 
     """
     Properties.
@@ -103,35 +103,33 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         """Maximum episode length in environment steps."""
         return math.ceil(self.max_episode_length_s / self.step_dt)
 
-    """
-    Operations - Setup.
-    """
+    # ---------------------------------------------------------------------------------------------------------
+    # region Operations - Setup.
 
     def load_managers(self):
-        # note: this order is important since observation manager needs to know the command and action managers
-        # and the reward manager needs to know the termination manager
-        # -- command manager
+        """
+        Load managers in the required dependency order.
+
+        Order:
+        1) CommandManager first (obs/actions may query commands)
+        2) super().load_managers() creates Observation/Action managers
+        3) TerminationManager before RewardManager (rewards can depend on terminations)
+        4) CurriculumManager last
+        """
         self.command_manager: CommandManager = CommandManager(self.cfg.commands, self)
-        print("[INFO] Command Manager: ", self.command_manager)
-
-        # call the parent class to load the managers for observations and actions.
         super().load_managers()
-
-        # prepare the managers
-        # -- termination manager
         self.termination_manager = TerminationManager(self.cfg.terminations, self)
-        print("[INFO] Termination Manager: ", self.termination_manager)
-        # -- reward manager
         self.reward_manager = RewardManager(self.cfg.rewards, self)
-        print("[INFO] Reward Manager: ", self.reward_manager)
-        # -- curriculum manager
         self.curriculum_manager = CurriculumManager(self.cfg.curriculum, self)
-        print("[INFO] Curriculum Manager: ", self.curriculum_manager)
 
-        # setup the action and observation spaces for Gym
+        if DEBUG == True:
+            print("[INFO] Command Manager: ", self.command_manager)
+            print("[INFO] Termination Manager: ", self.termination_manager)
+            print("[INFO] Reward Manager: ", self.reward_manager)
+            print("[INFO] Curriculum Manager: ", self.curriculum_manager)
+
+
         self._configure_gym_env_spaces()
-
-        # perform events at the start of the simulation
         if "startup" in self.event_manager.available_modes:
             self.event_manager.apply(mode="startup")
 

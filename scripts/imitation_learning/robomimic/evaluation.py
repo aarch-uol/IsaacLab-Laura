@@ -38,11 +38,10 @@ def ensemble_uncertainty(ensemble, obs):
     std = torch.std(outputs, dim=0)
     variance = std.pow(2)
 
-
     # std per policy (overall std across joints for each policy's action)
-    per_policy_std = torch.std(outputs, dim=1)  # shape: [num_policies]
+    per_policy_std = torch.std(outputs, dim=1) 
     min_std_index = torch.argmin(per_policy_std)
-    min_std_action = outputs[min_std_index]  # Shape: [action_dim]
+    min_std_action = outputs[min_std_index]  
 
     return {
         'mean': mean_action,

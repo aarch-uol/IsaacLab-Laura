@@ -72,3 +72,5 @@ tests/
 
 # Models
 **/*.pth
+
+**/*.txt

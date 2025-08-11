@@ -2,8 +2,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
-
 import argparse
+from scipy.stats import gaussian_kde
 
 from isaaclab.utils.logging_helper import LoggingHelper
 
@@ -187,13 +187,13 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 unc_threshold_plot = [parameters[joint_num]['unc_threshold'] for _ in range(len(rollout_timesteps_to_plot))]
 
                 # plot subtasks
-                # for subtask in ['APPR', 'GRASP', 'LIFT', 'FINISH']:
-                #     try:
-                #         rt = subtask_timesteps[(i, subtask)]
-                #         if rt < duration: 
-                #             ax1.scatter(rt, 0, zorder=4, label=f"{subtask} Completion")
-                #     except KeyError:
-                #         continue
+                for subtask in ['APPR', 'GRASP', 'LIFT', 'FINISH']:
+                    try:
+                        rt = subtask_timesteps[(i, subtask)]
+                        if rt < duration: 
+                            ax1.scatter(rt, 0, zorder=4, label=f"{subtask} Completion")
+                    except KeyError:
+                        continue
 
 
                 ax1.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', alpha=0.4, color=plotted_line[0].get_color()) 
@@ -282,18 +282,81 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             
             current_joint_successful_mean = sum(success_current_joint_means) / len(success_current_joint_means) if len(success_current_joint_means) != 0 else 0
             current_joint_failed_mean = sum(failed_current_joint_means) / len(failed_current_joint_means) if len(failed_current_joint_means) != 0 else 0
+            
+            # mean_diff = 0.3  # try 0.01, 0.05, 0.1 for different overlaps (smaller means more overlap)
+            # std_dev = 0.02
+            # success_data = np.random.normal(loc=0.02, scale=std_dev, size=600)
+            # # success_data =  np.clip(success_data, 0, 1)
+
+            # fail_data = np.random.normal(loc=0.02 + mean_diff, scale=std_dev, size=400)
+            # fail_data = np.clip(fail_data, 0, 1)
+            
+            success_data = success_current_joint_means
+            #fail_data = failed_current_joint_means
+            fail_data = success_current_joint_means
+            fail_data = [f + 0.001 for f in fail_data]
+            # Use the same bin edges for both
+            hist_range = (0, 1)  # adjust based on expected uncertainty range
+            bins = 100  
+
+            f_hist, bin_edges = np.histogram(success_data, bins=bins, range=hist_range, density=True)
+            s_hist, _ = np.histogram(fail_data, bins=bins, range=hist_range, density=True)
+
+            # Convert to probability mass (i.e., area under histogram) by multiplying by bin width
+            bin_width = bin_edges[1] - bin_edges[0]
+            f_prob = f_hist * bin_width
+            s_prob = s_hist * bin_width
+
+            # Now compute Hellinger distance
+            hellinger_distance_hist = (1 / np.sqrt(2)) * np.sqrt(np.sum((np.sqrt(f_prob) - np.sqrt(s_prob))**2))
+            plt.hist(success_current_joint_means, bins=bins, range=hist_range, density=True, alpha=0.3, color='green', label='Success Hist')
+            plt.hist(failed_current_joint_means, bins=bins, range=hist_range, density=True, alpha=0.3, color='red', label='Failure Hist')
+
+
+            # Estimate PDFs using KDE
+            f_kde = gaussian_kde(success_data)
+            s_kde = gaussian_kde(fail_data)
+
+            # Evaluate over a range
+            x_vals = np.linspace(0, graph_params[joint_num]['y_lim'], 100)
+            f_vals = f_kde(x_vals)
+            s_vals = s_kde(x_vals)
+
+            # Normalize
+            f_vals /= np.trapz(f_vals, x_vals)
+            s_vals /= np.trapz(s_vals, x_vals)
+
+            # Compute Hellinger
+            hellinger_distance_kde = (1 / np.sqrt(2)) * np.sqrt(np.trapz((np.sqrt(f_vals) - np.sqrt(s_vals))**2, x_vals))
+
+
+            # Plot KDEs
+            plt.figure(figsize=(10, 6))
+            plt.plot(x_vals, f_vals, label=f"Success KDE\nHellinger distance: {hellinger_distance_kde}", color='green')
+            plt.plot(x_vals, s_vals, label='Failure KDE', color='red')
+            plt.title(f"KDE - Joint {joint_num}")
+            plt.xlabel("Uncertainty")
+            plt.ylabel("Density")
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            plt.savefig(f"{results_path}/Joint{joint_num}/kde_joint_{joint_num}.png")
+            plt.close()
 
             print("======================")
             print(f"Average mean over all successful rollouts for joint {joint_num}: {current_joint_successful_mean}")
             print(f"Average mean over all failed rollouts for joint {joint_num}: {current_joint_failed_mean}")
+            print(f"Hellinger's distance hist between successful and failed rollouts for joint {joint_num}: {hellinger_distance_hist}")
+            print(f"Hellinger's distance kde between successful and failed rollouts for joint {joint_num}: {hellinger_distance_kde}")
             print("======================")
+            
             
             plt.figure(figsize=(10, 6))
             # plt.ylim(bottom=0)
             plt.ylim(top=0.1)
         
             plt.bar(['Success', 'Failure'], [current_joint_successful_mean, current_joint_failed_mean], 
-                    label=["{:.9f}".format(current_joint_successful_mean), "{:.9f}".format(current_joint_failed_mean)], color=['green', 'red'])
+                    label=[f"{'{:.9f}'.format(current_joint_successful_mean)}", "{:.9f}".format(current_joint_failed_mean)], color=['green', 'red'])
             title = f"Average Mean Over All Successful Rollouts for Joint {joint_num}"
             plt.title(title)
             plt.xlabel('Task Result')
@@ -303,6 +366,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             plt.tight_layout()
             plt.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
             plt.close()
+
 
 
 def plot_trajectory(traj_info, results_path):
@@ -360,53 +424,124 @@ def plot_trajectory(traj_info, results_path):
 
 
 parameters = {
-    'stack_cube': {
-        'unc_threshold': 0.1,
-        'max_peaks': 20,
-        'window_size': 40
-    }, 
-    'pick_place': {
-        6: {
-            'unc_threshold': 0.05,
-            'max_peaks': 15,
-            'window_size': 30
-        },
-        5: {
-            'unc_threshold': 0.02,
-            'max_peaks': 2,
-            'window_size': 10
-        },
+        'stack_cube': {
+             6: {
+                'unc_threshold': 0.05,
+                'max_peaks': 15,
+                'window_size': 30,
+                'max_uncertain_windows': 3
+            },
+            5: {
+                'unc_threshold': 0.06,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 1
+            },
 
-        4: {
-            'unc_threshold': 0.02,
-            'max_peaks': 2,
-            'window_size': 10
+            4: {
+                'unc_threshold': 0.04,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            3: {
+                'unc_threshold': 0.04,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            2: {
+                'unc_threshold': 0.04,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            1: {
+                'unc_threshold': 0.04,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            0: {
+                'unc_threshold': 0.04,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            }
         },
-        3: {
-            'unc_threshold': 0.02,
-            'max_peaks': 2,
-            'window_size': 10
-        },
-        2: {
-            'unc_threshold': 0.02,
-            'max_peaks': 2,
-            'window_size': 10
-        },
-        1: {
-            'unc_threshold': 0.02,
-            'max_peaks': 2,
-            'window_size': 10
-        },
-        0: {
-            'unc_threshold': 0.02,
-            'max_peaks': 2,
-            'window_size': 10
+        
+        'pick_place': {
+            6: {
+                'unc_threshold': 0.05,
+                'max_peaks': 15,
+                'window_size': 30,
+                'max_uncertain_windows': 3
+            },
+            5: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 1
+            },
+
+            4: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            3: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            2: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            1: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            },
+            0: {
+                'unc_threshold': 0.02,
+                'max_peaks': 2,
+                'window_size': 10,
+                'max_uncertain_windows': 3
+            }
+
         }
-
-    }
-}
+    }  
 
 graph_params = {
+    'stack_cube' : {
+        6: {
+            'y_lim' : 1.0
+        },
+        5 : {
+            'y_lim': 0.1
+        },
+        4 :{
+            'y_lim' : 0.1
+        },
+        3: {
+            'y_lim' : 0.1
+        },
+        2: {
+            'y_lim' : 0.1
+        },
+        1: {
+            'y_lim' : 0.1
+        },
+        0: {
+            'y_lim' : 0.1
+        }
+    },
     'pick_place' : {
         6: {
             'y_lim' : 1.0
@@ -438,14 +573,14 @@ parser.add_argument('--num_rollouts', type=int, default=999999, help='The number
 args = parser.parse_args()
 
 
+
+
+
 model_arch = "BC_RNN_GMM"
 task = "pick_place" # stack_cube or pick_place
 model_name = f"ensemble"
-#uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
+number = '11'
 
-
-
-number = 10
 uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties{number}.txt"
 actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/actions{number}.txt"
 min_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/min_actions{number}.txt"

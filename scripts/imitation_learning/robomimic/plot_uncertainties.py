@@ -292,9 +292,8 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             # fail_data = np.clip(fail_data, 0, 1)
             
             success_data = success_current_joint_means
-            #fail_data = failed_current_joint_means
-            fail_data = success_current_joint_means
-            fail_data = [f + 0.001 for f in fail_data]
+            fail_data = failed_current_joint_means
+            #fail_data = [f + 0.0005 for f in success_current_joint_means]
             # Use the same bin edges for both
             hist_range = (0, 1)  # adjust based on expected uncertainty range
             bins = 100  
@@ -314,11 +313,11 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
 
 
             # Estimate PDFs using KDE
-            f_kde = gaussian_kde(success_data)
-            s_kde = gaussian_kde(fail_data)
+            f_kde = gaussian_kde(fail_data)
+            s_kde = gaussian_kde(success_data)
 
             # Evaluate over a range
-            x_vals = np.linspace(0, graph_params[joint_num]['y_lim'], 100)
+            x_vals = np.linspace(0, 1, 1000)
             f_vals = f_kde(x_vals)
             s_vals = s_kde(x_vals)
 
@@ -329,13 +328,22 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             # Compute Hellinger
             hellinger_distance_kde = (1 / np.sqrt(2)) * np.sqrt(np.trapz((np.sqrt(f_vals) - np.sqrt(s_vals))**2, x_vals))
 
-
             # Plot KDEs
             plt.figure(figsize=(10, 6))
-            plt.plot(x_vals, f_vals, label=f"Success KDE\nHellinger distance: {hellinger_distance_kde}", color='green')
-            plt.plot(x_vals, s_vals, label='Failure KDE', color='red')
+            plt.plot(x_vals, s_vals, label=f"Success KDE\nHellinger distance: {'{:.3f}'.format(hellinger_distance_kde)}", color='green',
+                 linewidth=2
+            )
+            plt.plot(x_vals, f_vals, label='Failure KDE', color='red', linewidth=2)
+
+            # Threshold to cut off the tail where density is negligible
+            threshold = 1e-3  
+            # Find max x where density is still above threshold for either curve
+            mask = (f_vals > threshold) | (s_vals > threshold)
+            x_max_dynamic = x_vals[mask][-1]  # last x where density is above threshold
+
+            plt.xlim(0, x_max_dynamic)
             plt.title(f"KDE - Joint {joint_num}")
-            plt.xlabel("Uncertainty")
+            plt.xlabel("Mean Uncertainty")
             plt.ylabel("Density")
             plt.legend()
             plt.grid(True)
@@ -562,7 +570,8 @@ graph_params = {
             'y_lim' : 0.1
         },
         0: {
-            'y_lim' : 0.1
+            'y_lim' : 0.1,
+            
         }
     }
 }

@@ -4,6 +4,7 @@ import numpy as np
 from collections import deque
 import argparse
 from scipy.stats import gaussian_kde
+from scipy.interpolate import CubicSpline
 
 from isaaclab.utils.logging_helper import LoggingHelper
 
@@ -233,8 +234,35 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 # sort by timestep to ensure proper line order
                 unsafe_sorted = sorted(zip(unsafe_x, unsafe_y))
                 unsafe_x, unsafe_y = zip(*unsafe_sorted) if unsafe_sorted else ([], [])
-                detected_unsafe_windows = int(len(unsafe_x)/parameters[joint_num]['window_size'])
-                ax1.plot(unsafe_x, unsafe_y, color='red', alpha=0.4, linewidth=1, linestyle='-', zorder=2, label=f"Detected Unsafe Window (Joint {joint_num}). Total unsafe windows detected: {detected_unsafe_windows}")
+                detected_unsafe_windows = int(len(unsafe_x) / parameters[joint_num]['window_size'])
+                with open(f"{results_path}/Joint{joint_num}/predicted_unsafe_timesteps_rollout_{i}.txt", 'w') as file:
+                    for ux in set(unsafe_x):
+                        file.write(f"{ux}\n")
+                with open(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 'a') as file: # create the file if it doesn't exist
+                    pass
+                with open(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 'r') as file:
+                    true_unsafe_timesteps = file.readlines()
+                    if len(true_unsafe_timesteps) > 0:
+                        true_unsafe_timesteps_ranges = [
+                                (int(ut_min.strip()), int(ut_max.strip())) for ut_min, ut_max in 
+                                [ut.split() for ut in true_unsafe_timesteps]
+                        ]
+                        correct = sum(
+                            1 for ut_min, ut_max in true_unsafe_timesteps_ranges 
+                            for pred in set(unsafe_x) 
+                            if ut_min <= pred <= ut_max
+                        )
+                        print(correct)
+                        total =  sum(ut_max - ut_min + 1 for ut_min, ut_max in true_unsafe_timesteps_ranges)
+                        print(f"Accuracy: {correct}/{total}, {'{:.2f}'.format(correct/total * 100)}%")
+
+
+                os.chmod(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 0o666) # set write permissions because i only have sudo permissions inside the docker container
+                
+                # with open(f"{results_path}Joint{joint_num}/unsafe_timesteps.txt", 'w') as file:
+                #     for ux in unsafe_x:
+                #         file.write(f"{ux}\n") 
+                ax1.plot(unsafe_x, unsafe_y, color='red', alpha=0.4, linewidth=1, linestyle='-', zorder=2, label=f"Detected Unsafe Window (Joint {joint_num})")
                 
                 # for window_size in [10]:
                 #     # Plot average uncertainty over each window
@@ -293,7 +321,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             
             success_data = success_current_joint_means
             fail_data = failed_current_joint_means
-            #fail_data = [f + 0.0005 for f in success_current_joint_means]
+            #fail_data = [f + 0.001 for f in success_current_joint_means]
             # Use the same bin edges for both
             hist_range = (0, 1)  # adjust based on expected uncertainty range
             bins = 100  
@@ -317,13 +345,14 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             s_kde = gaussian_kde(success_data)
 
             # Evaluate over a range
-            x_vals = np.linspace(0, 1, 1000)
+            x_vals = np.linspace(0, graph_params[joint_num]['y_lim'], 1000)
             f_vals = f_kde(x_vals)
             s_vals = s_kde(x_vals)
 
             # Normalize
             f_vals /= np.trapz(f_vals, x_vals)
             s_vals /= np.trapz(s_vals, x_vals)
+
 
             # Compute Hellinger
             hellinger_distance_kde = (1 / np.sqrt(2)) * np.sqrt(np.trapz((np.sqrt(f_vals) - np.sqrt(s_vals))**2, x_vals))
@@ -333,9 +362,21 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             plt.plot(x_vals, s_vals, label=f"Success KDE\nHellinger distance: {'{:.3f}'.format(hellinger_distance_kde)}", color='green',
                  linewidth=2
             )
-            plt.plot(x_vals, f_vals, label='Failure KDE', color='red', linewidth=2)
+            plt.plot(x_vals, f_vals, label=f"Failure KDE", color='red', linewidth=2)
 
-            # Threshold to cut off the tail where density is negligible
+            # spline = CubicSpline(x_vals, f_vals)
+            # y_dense = spline(x_vals)
+
+            # first_derv = spline.derivative(nu=1)
+            # second_derv = spline.derivative(nu=2)
+            # stationary_points = first_derv.solve(y=0.0)
+            # maxima_points = [sp for sp in stationary_points if second_derv(sp) < 0]
+            # print(maxima_points)
+            # plt.plot(x_vals, y_dense, label='Spline curve', linestyle='--', zorder=3)
+
+
+
+            #Threshold to cut off the tail where density is negligible
             threshold = 1e-3  
             # Find max x where density is still above threshold for either curve
             mask = (f_vals > threshold) | (s_vals > threshold)
@@ -606,7 +647,9 @@ trajectory_results_path = f"{uncertainty_results_path}"
 for joint_num in range(7):
     joint_num_dir_path = f"{uncertainty_results_path}Joint{joint_num}/"
     for joint_num_dir_file in os.listdir(joint_num_dir_path):
-        os.remove(f"{joint_num_dir_path}/{joint_num_dir_file}")
+        if joint_num_dir_file[:4] != 'true':
+            os.remove(f"{joint_num_dir_path}/{joint_num_dir_file}")
+
 
 subtask_timesteps, object_goal_distances, end_effector_distances_to_object  = process_rollout_logger(rollout_log_path)
 

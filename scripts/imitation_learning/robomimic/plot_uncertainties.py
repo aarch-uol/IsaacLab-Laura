@@ -142,7 +142,10 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                   duration=800, joints_to_plot=[_ for _ in range(7)]):
     # define a window for each joint
     windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_plot} 
-  
+    # Store all scores and labels for each joint over all rollouts
+
+    joint_all_scores = {joint_num: [] for joint_num in joints_to_plot}
+    joint_all_labels = {joint_num: [] for joint_num in joints_to_plot}
     all_scores = []
     all_labels = []
     successful_rollout_means = {joint_num: [] for joint_num in joints_to_plot} 
@@ -259,49 +262,50 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                         total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
                         true_safe_set = total_rollout_timesteps_set - true_unsafe_set
                         pred_safe_set = total_rollout_timesteps_set - pred_unsafe_set
-                        # timesteps from pred set that are in true set
-                        TP = len(pred_unsafe_set & true_unsafe_set)
-                        # timesteps from pred set that are not in true set
-                        FP = len(pred_unsafe_set - true_unsafe_set)
-                        # timesteps from true set that are not in pred set (missing)
-                        FN = len(true_unsafe_set - pred_unsafe_set)
-                        # timesteps not in pred set and also not in true set
-                        TN = len(true_safe_set & pred_safe_set)
+                        # # timesteps from pred set that are in true set
+                        # TP = len(pred_unsafe_set & true_unsafe_set)
+                        # # timesteps from pred set that are not in true set
+                        # FP = len(pred_unsafe_set - true_unsafe_set)
+                        # # timesteps from true set that are not in pred set (missing)
+                        # FN = len(true_unsafe_set - pred_unsafe_set)
+                        # # timesteps not in pred set and also not in true set
+                        # TN = len(true_safe_set & pred_safe_set)
     
-                        precision = TP / (TP + FP) if (TP + FP) > 0 else 0
-                        recall    = TP / (TP + FN) if (TP + FN) > 0 else 0
-                        accuracy  = (TP + TN) / (TP + TN + FP + FN) if (TP + TN + FP + FN) > 0 else 0
+                        # precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+                        # recall    = TP / (TP + FN) if (TP + FN) > 0 else 0
+                        # accuracy  = (TP + TN) / (TP + TN + FP + FN) if (TP + TN + FP + FN) > 0 else 0
                         
-                        TPR = TP / (TP + FN)
-                        FPR = FP / (FP + TN)
+                        # TPR = TP / (TP + FN)
+                        # FPR = FP / (FP + TN)
 
-                        print(f"Results for Joint {joint_num}, Rollout {i}")
-                        print(f"TP: {TP}, FN: {FN}, FP: {FP}, TN: {TN}")
-                        print(f"Precision: {precision:.2%}")
-                        print(f"Recall:    {recall:.2%}")
-                        print(f"TPR:       {TPR:.2%}")
-                        print(f"FPR:       {FPR:.2%}")
-                        print(f"Accuracy:  {accuracy:.2%}")
+                        # print(f"Results for Joint {joint_num}, Rollout {i}")
+                        # print(f"TP: {TP}, FN: {FN}, FP: {FP}, TN: {TN}")
+                        # print(f"Precision: {precision:.2%}")
+                        # print(f"Recall:    {recall:.2%}")
+                        # print(f"TPR:       {TPR:.2%}")
+                        # print(f"FPR:       {FPR:.2%}")
+                        # print(f"Accuracy:  {accuracy:.2%}")
 
                         scores = rollout_uncertainties_per_joint[joint_num]
                         labels_per_ts = [1 if t in true_unsafe_set else 0 for t in rollout_timesteps]
-                        # all_scores.extend(scores)
-                        # all_labels.extend(labels_per_ts)
-                        fpr, tpr, thresholds = roc_curve(labels_per_ts, scores)
-                        roc_auc = auc(fpr, tpr)
+                        joint_all_scores[joint_num].extend(scores)
+                        joint_all_labels[joint_num].extend(labels_per_ts)
+
+                        # fpr, tpr, thresholds = roc_curve(labels_per_ts, scores)
+                        # roc_auc = auc(fpr, tpr)
                         
-                        title = f"ROC Curve for Joint {joint_num}, Rollout {i}"
-                        plt.figure(figsize=(8, 6))
-                        plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
-                        plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
-                        plt.xlabel('False Positive Rate')
-                        plt.ylabel('True Positive Rate')
-                        plt.title(title)
-                        plt.legend(loc='lower right')
-                        plt.grid(True)
-                        plt.tight_layout()
-                        plt.savefig(f"{results_path}/Joint{joint_num}/ROC_Rollout_{i}.png")
-                        plt.close()
+                        # title = f"ROC Curve for Joint {joint_num}, Rollout {i}"
+                        # plt.figure(figsize=(8, 6))
+                        # plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
+                        # plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
+                        # plt.xlabel('False Positive Rate')
+                        # plt.ylabel('True Positive Rate')
+                        # plt.title(title)
+                        # plt.legend(loc='lower right')
+                        # plt.grid(True)
+                        # plt.tight_layout()
+                        # plt.savefig(f"{results_path}/Joint{joint_num}/ROC_Rollout_{i}.png")
+                        # plt.close()
 
 
                 os.chmod(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 0o666) # set write permissions because i only have sudo permissions inside the docker container
@@ -349,6 +353,25 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             fig.savefig(f"{results_path}Joint{joint_num}/{title}.png")
             plt.close()
    
+    for joint_num in joints_to_plot:
+        if len(set(joint_all_labels[joint_num])) < 2:
+            print(f"Skipping Joint {joint_num} — only one class in labels.")
+            continue
+
+        fpr, tpr, thresholds = roc_curve(joint_all_labels[joint_num], joint_all_scores[joint_num])
+        roc_auc = auc(fpr, tpr)
+
+        plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
+        plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(f'ROC Curve — Joint {joint_num} (All Rollouts)')
+        plt.legend(loc='lower right')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(f"{results_path}/Joint{joint_num}/ROC_All_Rollouts.png")
+        plt.close()
 
     for joint_num in range(num_joints):
 

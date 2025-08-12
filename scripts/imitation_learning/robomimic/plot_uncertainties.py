@@ -5,6 +5,7 @@ from collections import deque
 import argparse
 from scipy.stats import gaussian_kde
 from scipy.interpolate import CubicSpline
+from sklearn.metrics import roc_curve, auc
 
 from isaaclab.utils.logging_helper import LoggingHelper
 
@@ -142,7 +143,8 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
     # define a window for each joint
     windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_plot} 
   
-
+    all_scores = []
+    all_labels = []
     successful_rollout_means = {joint_num: [] for joint_num in joints_to_plot} 
     failed_rollout_means = {joint_num: [] for joint_num in joints_to_plot}
     num_joints = 7
@@ -234,7 +236,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 # sort by timestep to ensure proper line order
                 unsafe_sorted = sorted(zip(unsafe_x, unsafe_y))
                 unsafe_x, unsafe_y = zip(*unsafe_sorted) if unsafe_sorted else ([], [])
-                detected_unsafe_windows = int(len(unsafe_x) / parameters[joint_num]['window_size'])
+
                 with open(f"{results_path}/Joint{joint_num}/predicted_unsafe_timesteps_rollout_{i}.txt", 'w') as file:
                     for ux in set(unsafe_x):
                         file.write(f"{ux}\n")
@@ -247,14 +249,59 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                                 (int(ut_min.strip()), int(ut_max.strip())) for ut_min, ut_max in 
                                 [ut.split() for ut in true_unsafe_timesteps]
                         ]
-                        correct = sum(
-                            1 for ut_min, ut_max in true_unsafe_timesteps_ranges 
-                            for pred in set(unsafe_x) 
-                            if ut_min <= pred <= ut_max
-                        )
-                        print(correct)
-                        total =  sum(ut_max - ut_min + 1 for ut_min, ut_max in true_unsafe_timesteps_ranges)
-                        print(f"Accuracy: {correct}/{total}, {'{:.2f}'.format(correct/total * 100)}%")
+
+                        pred_unsafe_set = set(unsafe_x)
+                        true_unsafe_set = set()
+                        for ut_min, ut_max in true_unsafe_timesteps_ranges:
+                            for true_timestep in range(ut_min, ut_max + 1):
+                                true_unsafe_set.add(true_timestep)
+                        
+                        total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
+                        true_safe_set = total_rollout_timesteps_set - true_unsafe_set
+                        pred_safe_set = total_rollout_timesteps_set - pred_unsafe_set
+                        # timesteps from pred set that are in true set
+                        TP = len(pred_unsafe_set & true_unsafe_set)
+                        # timesteps from pred set that are not in true set
+                        FP = len(pred_unsafe_set - true_unsafe_set)
+                        # timesteps from true set that are not in pred set (missing)
+                        FN = len(true_unsafe_set - pred_unsafe_set)
+                        # timesteps not in pred set and also not in true set
+                        TN = len(true_safe_set & pred_safe_set)
+    
+                        precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+                        recall    = TP / (TP + FN) if (TP + FN) > 0 else 0
+                        accuracy  = (TP + TN) / (TP + TN + FP + FN) if (TP + TN + FP + FN) > 0 else 0
+                        
+                        TPR = TP / (TP + FN)
+                        FPR = FP / (FP + TN)
+
+                        print(f"Results for Joint {joint_num}, Rollout {i}")
+                        print(f"TP: {TP}, FN: {FN}, FP: {FP}, TN: {TN}")
+                        print(f"Precision: {precision:.2%}")
+                        print(f"Recall:    {recall:.2%}")
+                        print(f"TPR:       {TPR:.2%}")
+                        print(f"FPR:       {FPR:.2%}")
+                        print(f"Accuracy:  {accuracy:.2%}")
+
+                        scores = rollout_uncertainties_per_joint[joint_num]
+                        labels_per_ts = [1 if t in true_unsafe_set else 0 for t in rollout_timesteps]
+                        # all_scores.extend(scores)
+                        # all_labels.extend(labels_per_ts)
+                        fpr, tpr, thresholds = roc_curve(labels_per_ts, scores)
+                        roc_auc = auc(fpr, tpr)
+                        
+                        title = f"ROC Curve for Joint {joint_num}, Rollout {i}"
+                        plt.figure(figsize=(8, 6))
+                        plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
+                        plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
+                        plt.xlabel('False Positive Rate')
+                        plt.ylabel('True Positive Rate')
+                        plt.title(title)
+                        plt.legend(loc='lower right')
+                        plt.grid(True)
+                        plt.tight_layout()
+                        plt.savefig(f"{results_path}/Joint{joint_num}/ROC_Rollout_{i}.png")
+                        plt.close()
 
 
                 os.chmod(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 0o666) # set write permissions because i only have sudo permissions inside the docker container
@@ -301,6 +348,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             #plt.savefig(f"{results_path}Joint{joint_num}/{title}.png")
             fig.savefig(f"{results_path}Joint{joint_num}/{title}.png")
             plt.close()
+   
 
     for joint_num in range(num_joints):
 
@@ -322,24 +370,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             success_data = success_current_joint_means
             fail_data = failed_current_joint_means
             #fail_data = [f + 0.001 for f in success_current_joint_means]
-            # Use the same bin edges for both
-            hist_range = (0, 1)  # adjust based on expected uncertainty range
-            bins = 100  
-
-            f_hist, bin_edges = np.histogram(success_data, bins=bins, range=hist_range, density=True)
-            s_hist, _ = np.histogram(fail_data, bins=bins, range=hist_range, density=True)
-
-            # Convert to probability mass (i.e., area under histogram) by multiplying by bin width
-            bin_width = bin_edges[1] - bin_edges[0]
-            f_prob = f_hist * bin_width
-            s_prob = s_hist * bin_width
-
-            # Now compute Hellinger distance
-            hellinger_distance_hist = (1 / np.sqrt(2)) * np.sqrt(np.sum((np.sqrt(f_prob) - np.sqrt(s_prob))**2))
-            plt.hist(success_current_joint_means, bins=bins, range=hist_range, density=True, alpha=0.3, color='green', label='Success Hist')
-            plt.hist(failed_current_joint_means, bins=bins, range=hist_range, density=True, alpha=0.3, color='red', label='Failure Hist')
-
-
+            
             # Estimate PDFs using KDE
             f_kde = gaussian_kde(fail_data)
             s_kde = gaussian_kde(success_data)
@@ -395,7 +426,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             print("======================")
             print(f"Average mean over all successful rollouts for joint {joint_num}: {current_joint_successful_mean}")
             print(f"Average mean over all failed rollouts for joint {joint_num}: {current_joint_failed_mean}")
-            print(f"Hellinger's distance hist between successful and failed rollouts for joint {joint_num}: {hellinger_distance_hist}")
+            #print(f"Hellinger's distance hist between successful and failed rollouts for joint {joint_num}: {hellinger_distance_hist}")
             print(f"Hellinger's distance kde between successful and failed rollouts for joint {joint_num}: {hellinger_distance_kde}")
             print("======================")
             

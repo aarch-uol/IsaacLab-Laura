@@ -23,6 +23,7 @@
 **/*.pb
 .venv/
 .venvs/
+robomimic/
 
 # Docker/Singularity
 **/*.sif

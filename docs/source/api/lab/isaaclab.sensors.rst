@@ -1,4 +1,4 @@
-﻿isaaclab.sensors
+isaaclab.sensors
 ================
 
 .. automodule:: isaaclab.sensors

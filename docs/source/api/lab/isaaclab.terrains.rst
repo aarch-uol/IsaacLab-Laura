@@ -1,4 +1,4 @@
-﻿isaaclab.terrains
+isaaclab.terrains
 =================
 
 .. automodule:: isaaclab.terrains

@@ -1,4 +1,4 @@
-﻿isaaclab.devices
+isaaclab.devices
 ================
 
 .. automodule:: isaaclab.devices

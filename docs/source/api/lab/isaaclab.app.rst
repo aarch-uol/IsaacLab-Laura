@@ -1,4 +1,4 @@
-﻿isaaclab.app
+isaaclab.app
 ============
 
 .. automodule:: isaaclab.app

@@ -1,4 +1,4 @@
-﻿isaaclab_mimic.envs
+isaaclab_mimic.envs
 ===================
 
 .. automodule:: isaaclab_mimic.envs

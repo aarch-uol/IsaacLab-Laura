@@ -1,4 +1,4 @@
-﻿isaaclab.managers
+isaaclab.managers
 =================
 
 .. automodule:: isaaclab.managers

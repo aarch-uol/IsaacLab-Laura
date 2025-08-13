@@ -1,4 +1,4 @@
-﻿isaaclab_mimic.datagen
+isaaclab_mimic.datagen
 ======================
 
 .. automodule:: isaaclab_mimic.datagen

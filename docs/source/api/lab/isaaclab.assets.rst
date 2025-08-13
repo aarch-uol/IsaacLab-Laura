@@ -1,4 +1,4 @@
-﻿isaaclab.assets
+isaaclab.assets
 ===============
 
 .. automodule:: isaaclab.assets

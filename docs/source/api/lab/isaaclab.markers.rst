@@ -1,4 +1,4 @@
-﻿isaaclab.markers
+isaaclab.markers
 ================
 
 .. automodule:: isaaclab.markers

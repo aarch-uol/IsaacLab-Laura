@@ -1,4 +1,4 @@
-﻿isaaclab.envs.ui
+isaaclab.envs.ui
 ================
 
 .. automodule:: isaaclab.envs.ui

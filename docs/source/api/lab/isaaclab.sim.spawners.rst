@@ -1,4 +1,4 @@
-﻿isaaclab.sim.spawners
+isaaclab.sim.spawners
 =====================
 
 .. automodule:: isaaclab.sim.spawners

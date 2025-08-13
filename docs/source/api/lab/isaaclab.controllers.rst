@@ -1,4 +1,4 @@
-﻿isaaclab.controllers
+isaaclab.controllers
 ====================
 
 .. automodule:: isaaclab.controllers

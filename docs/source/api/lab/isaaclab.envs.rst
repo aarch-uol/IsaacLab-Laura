@@ -1,4 +1,4 @@
-﻿isaaclab.envs
+isaaclab.envs
 =============
 
 .. automodule:: isaaclab.envs

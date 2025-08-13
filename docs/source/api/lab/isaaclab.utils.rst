@@ -1,4 +1,4 @@
-﻿isaaclab.utils
+isaaclab.utils
 ==============
 
 .. automodule:: isaaclab.utils

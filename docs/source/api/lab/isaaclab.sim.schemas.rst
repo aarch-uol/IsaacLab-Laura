@@ -1,4 +1,4 @@
-﻿isaaclab.sim.schemas
+isaaclab.sim.schemas
 ====================
 
 .. automodule:: isaaclab.sim.schemas

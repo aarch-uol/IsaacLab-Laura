@@ -21,7 +21,8 @@
 **/.pytest_cache/
 **/*.pyc
 **/*.pb
-.chillsVenv/
+.venv/
+.venvs/
 
 # Docker/Singularity
 **/*.sif

@@ -1,4 +1,4 @@
-﻿isaaclab.actuators
+isaaclab.actuators
 ==================
 
 .. automodule:: isaaclab.actuators

@@ -1,4 +1,4 @@
-﻿isaaclab_tasks.utils
+isaaclab_tasks.utils
 ====================
 
 .. automodule:: isaaclab_tasks.utils

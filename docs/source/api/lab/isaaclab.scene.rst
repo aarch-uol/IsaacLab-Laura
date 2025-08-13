@@ -1,4 +1,4 @@
-﻿isaaclab.scene
+isaaclab.scene
 ==============
 
 .. automodule:: isaaclab.scene

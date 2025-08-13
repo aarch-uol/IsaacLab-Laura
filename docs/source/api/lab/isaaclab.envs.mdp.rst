@@ -1,4 +1,4 @@
-﻿isaaclab.envs.mdp
+isaaclab.envs.mdp
 =================
 
 .. automodule:: isaaclab.envs.mdp

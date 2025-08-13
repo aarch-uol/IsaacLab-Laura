@@ -1,4 +1,4 @@
-﻿isaaclab.sensors.patterns
+isaaclab.sensors.patterns
 =========================
 
 .. automodule:: isaaclab.sensors.patterns

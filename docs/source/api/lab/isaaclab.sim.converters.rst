@@ -1,4 +1,4 @@
-﻿isaaclab.sim.converters
+isaaclab.sim.converters
 =======================
 
 .. automodule:: isaaclab.sim.converters

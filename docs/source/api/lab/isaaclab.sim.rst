@@ -1,4 +1,4 @@
-﻿isaaclab.sim
+isaaclab.sim
 ============
 
 .. automodule:: isaaclab.sim

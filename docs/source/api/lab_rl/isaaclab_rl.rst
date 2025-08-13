@@ -1,4 +1,4 @@
-﻿isaaclab_rl
+isaaclab_rl
 ===========
 
 .. automodule:: isaaclab_rl

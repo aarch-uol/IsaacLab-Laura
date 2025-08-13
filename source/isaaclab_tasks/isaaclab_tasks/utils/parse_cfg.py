@@ -14,6 +14,10 @@ import re
 import yaml
 
 from isaaclab.envs import DirectRLEnvCfg, ManagerBasedRLEnvCfg
+try:
+    from isaaclab.harrys_mods.utils import DEBUG   # uses False if module exists
+except ImportError:
+    DEBUG = True    
 
 
 def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | object:
@@ -89,7 +93,7 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
             # obtain the configuration file path
             config_file = os.path.join(mod_path, file_name)
         # load the configuration
-        # print(f"[INFO]: Parsing configuration from: {config_file}")
+        if DEBUG == True: print(f"[INFO]: Parsing configuration from: {config_file}")
         with open(config_file, encoding="utf-8") as f:
             cfg = yaml.full_load(f)
     else:
@@ -106,7 +110,7 @@ def load_cfg_from_registry(task_name: str, entry_point_key: str) -> dict | objec
         else:
             cfg_cls = cfg_entry_point
         # load the configuration
-        print(f"[INFO]: Parsing configuration from: {cfg_entry_point}")
+        if DEBUG == True: print(f"[INFO]: Parsing configuration from: {cfg_entry_point}")
         if callable(cfg_cls):
             cfg = cfg_cls()
         else:

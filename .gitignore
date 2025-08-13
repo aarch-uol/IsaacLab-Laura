@@ -47,6 +47,7 @@ docker/artifacts/
 # Doc Outputs
 **/docs/_build/*
 **/generated/*
+**/robomimic/*
 
 # Isaac-Sim packman
 _isaac_sim*

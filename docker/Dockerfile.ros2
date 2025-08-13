@@ -1,11 +1,7 @@
 
-FROM isaac-lab-base AS harry
+FROM isaac-lab-base AS ros2
 
-ARG USERNAME=harry
-ARG USER_UID=1002
-ARG USER_GID=1002
-
-
+# System deps
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -13,22 +9,12 @@ RUN --mount=type=cache,target=/var/cache/apt \
         tmux \
         hdf5-tools \
         git \
+        acl \
         sudo && \
     apt -y upgrade && \
     apt -y autoremove && \
     apt clean autoclean && \
     rm -rf /var/lib/apt/lists/*
-
-RUN groupadd --gid $USER_GID $USERNAME && \
-    useradd --uid $USER_UID --gid $USER_GID -m $USERNAME && \
-    usermod -aG sudo $USERNAME && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME
-
-# --- Copy Isaac Lab and create symlink to Isaac Sim ---
-COPY ../ ${ISAACLAB_PATH}
-
-WORKDIR ${ISAACLAB_PATH}
-
 
 
 # # Everything past this stage is to install

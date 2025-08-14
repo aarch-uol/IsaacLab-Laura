@@ -514,7 +514,7 @@ def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str]
         logger = PrintLogger(os.path.join(log_dir, "log.txt"))
         sys.stdout = logger
         sys.stderr = logger
-        data_logger = DataLogger(log_dir, config=config, log_tb=config.experiment.logging.log_tb, log_wandb=config.experiment.logging.log_wandb,)
+        data_logger = DataLogger(log_dir, config=config, log_tb=config.experiment.logging.log_tb, log_wandb=config.experiment.logging.log_wandb)
         with open(os.path.join(log_dir, "..", "config.json"), "w") as outfile:
             json.dump(config, outfile, indent=4)
 

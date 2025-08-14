@@ -25,10 +25,16 @@ import time
 # args_cli = parser.parse_args()
 
 def ensemble_uncertainty(ensemble, obs):
+    start_time = time.time()
     outputs = [torch.from_numpy(policy(obs)) for policy in ensemble]
-    outputs = torch.stack(outputs)
 
+    outputs = torch.stack(outputs)
+    
     mean_action = torch.mean(outputs, dim=0)
+    
+    end_time = time.time()
+    time_taken = end_time - start_time
+    
     median_action = torch.median(outputs, dim=0).values
     
 
@@ -50,7 +56,8 @@ def ensemble_uncertainty(ensemble, obs):
         'max': max_action,
         'std': std,
         'variance': variance,
-        'min_std_action': min_std_action
+        'min_std_action': min_std_action,
+        'time_taken': time_taken
     }
 
 def MC_dropout_uncertainty(policy, obs, niters=50):

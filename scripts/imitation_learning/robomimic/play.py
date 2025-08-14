@@ -190,7 +190,8 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
     #print(f"obs_dict type: {type(obs_dict)},\nobs_dict contents:\n {obs_dict}")
 
     traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], 
-                uncertainties=[], min_actions=[], max_actions=[])
+                uncertainties=[], min_actions=[], max_actions=[],
+                time_taken=[])
     
     joints_to_check = [0, 1, 2, 3, 4, 5, 6]
     unsafe_windows_detected = {joint_num: 0 for joint_num in joints_to_check}
@@ -267,6 +268,7 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
         traj['uncertainties'].append(uncertainty)
         traj['max_actions'].append(metrics['max'])
         traj['min_actions'].append(metrics['min'])
+        traj['time_taken'].append(metrics['time_taken'])
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -662,22 +664,33 @@ def main():
         }
     }
 
-    task = "stack_cube" # stack_cube or pick_place
+    model_arch = "BC_RNN_GMM"
+    task = "pick_place" # stack_cube or pick_place
     model_name = f"ensemble"
-    #uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/{model_name}/uncertainties.txt"
-    # ensemble is at uncertainties7.txt and single is at uncertainties8.txt
-    number = '14'
-    uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties{number}.txt"
-    actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/actions{number}.txt"
-    min_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/min_actions{number}.txt"
-    max_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/max_actions{number}.txt"
+    number = 'experiment3'
+
+    results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/run_{number}"
+
+    uncertainties_path = f"{results_path}/uncertainties{number}.txt"
+    actions_path = f"{results_path}/actions{number}.txt"
+    min_actions_path = f"{results_path}/min_actions{number}.txt"
+    max_actions_path = f"{results_path}/max_actions{number}.txt"
+    time_taken_path = f"{results_path}/time_taken{number}.txt"
     rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt"
-    
+
+    rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt" # remove the '.txt' and add rollout_log.txt
+
+    uncertainty_results_path = f"{results_path}/uncertainty_plots"
+    trajectory_results_path = f"{results_path}/trajectory_plots"
+    os.makedirs(uncertainty_results_path, exist_ok=True)
+    os.makedirs(trajectory_results_path, exist_ok=True)
+
     try:
         os.remove(rollout_log_path)
     except FileNotFoundError as filenotfounderror:
         pass
     
+    # clear files
     # clear uncertainties file
     with open(uncertainties_path, 'w') as file:
         pass
@@ -686,6 +699,8 @@ def main():
     with open(min_actions_path, 'w') as file:
         pass
     with open(max_actions_path, 'w') as file:
+        pass
+    with open(time_taken_path, 'w') as file:
         pass
     # clear rollout logger file
     with open(loghelper.namefile, 'w') as file:
@@ -698,7 +713,7 @@ def main():
        # loghelper.startEpoch(trial)
         #terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
         #terminated, traj = rollout_transformer(policy, env, success_term, args_cli.horizon, device)
-        terminated, traj = rollout_ensemble(stack_cube_ensemble, env, success_term, args_cli.horizon, device, parameters[task])
+        terminated, traj = rollout_ensemble(pick_place_ensemble, env, success_term, args_cli.horizon, device, parameters[task])
         # save the uncertainties
         with open(uncertainties_path, 'a') as file:
             for i, var in enumerate(traj['uncertainties']):
@@ -719,6 +734,12 @@ def main():
             for i, var in enumerate(traj['min_actions']):
                 line = " ".join([str(v.item()) for v in var[0]]) + f" {terminated}\n"
                 file.write(f"{str(i)} {line}")
+        # save time taken
+        with open(time_taken_path, 'a') as file:
+            for i, time_taken in enumerate(traj['time_taken']):
+                line = f"{str(time_taken)} {terminated}\n"
+                file.write(f"{str(i)} {line}")
+
             
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")

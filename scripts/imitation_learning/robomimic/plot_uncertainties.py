@@ -100,7 +100,11 @@ def process_rollout_logger(rollout_log_path):
     
 
 
-def load_traj_file(file):
+def load_traj_file(file, pointer=8):
+    """
+    args: pointer - end position of the numeric data to extract from the file. You currently only 
+    need to define this for the time_taken_file
+    """
     rollouts = []
     rollout = []
     labels = []
@@ -112,7 +116,8 @@ def load_traj_file(file):
         for line in lines:
             line = line.strip().split()
             timestep = int(line[0])
-            uncertainties = [float(f) for f in line[1:8]]
+            uncertainties = [float(f) for f in line[1:pointer]]
+            
             label = line[-1]
 
             if timestep == 0: 
@@ -134,7 +139,7 @@ def load_traj_file(file):
         rollouts.append(rollout)
 
     return rollouts, labels, all_uncertainties, all_timesteps
-    # return rollouts[:args.num_rollouts], labels[:args.num_rollouts], all_uncertainties[:args.num_rollouts], all_timesteps[:args.num_rollouts]
+
 
 
 def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, graph_params,
@@ -240,75 +245,75 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 unsafe_sorted = sorted(zip(unsafe_x, unsafe_y))
                 unsafe_x, unsafe_y = zip(*unsafe_sorted) if unsafe_sorted else ([], [])
 
-                with open(f"{results_path}/Joint{joint_num}/predicted_unsafe_timesteps_rollout_{i}.txt", 'w') as file:
-                    for ux in set(unsafe_x):
-                        file.write(f"{ux}\n")
-                with open(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 'a') as file: # create the file if it doesn't exist
-                    pass
-                with open(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 'r') as file:
-                    true_unsafe_timesteps = file.readlines()
-                    if len(true_unsafe_timesteps) > 0:
-                        true_unsafe_timesteps_ranges = [
-                                (int(ut_min.strip()), int(ut_max.strip())) for ut_min, ut_max in 
-                                [ut.split() for ut in true_unsafe_timesteps]
-                        ]
+                # with open(f"{results_path}/Joint{joint_num}/predicted_unsafe_timesteps_rollout_{i}.txt", 'w') as file:
+                #     for ux in set(unsafe_x):
+                #         file.write(f"{ux}\n")
+                try:
+                    with open(f"{results_path}/gold_standard_unsafe_timesteps_rollout_{i}.txt", 'r') as file:
+                        true_unsafe_timesteps = file.readlines()
+                        if len(true_unsafe_timesteps) > 0:
+                            true_unsafe_timesteps_ranges = [
+                                    (int(ut_min.strip()), int(ut_max.strip())) for ut_min, ut_max in 
+                                    [ut.split() for ut in true_unsafe_timesteps]
+                            ]
 
-                        pred_unsafe_set = set(unsafe_x)
-                        true_unsafe_set = set()
-                        for ut_min, ut_max in true_unsafe_timesteps_ranges:
-                            for true_timestep in range(ut_min, ut_max + 1):
-                                true_unsafe_set.add(true_timestep)
-                        
-                        total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
-                        true_safe_set = total_rollout_timesteps_set - true_unsafe_set
-                        pred_safe_set = total_rollout_timesteps_set - pred_unsafe_set
-                        # # timesteps from pred set that are in true set
-                        # TP = len(pred_unsafe_set & true_unsafe_set)
-                        # # timesteps from pred set that are not in true set
-                        # FP = len(pred_unsafe_set - true_unsafe_set)
-                        # # timesteps from true set that are not in pred set (missing)
-                        # FN = len(true_unsafe_set - pred_unsafe_set)
-                        # # timesteps not in pred set and also not in true set
-                        # TN = len(true_safe_set & pred_safe_set)
-    
-                        # precision = TP / (TP + FP) if (TP + FP) > 0 else 0
-                        # recall    = TP / (TP + FN) if (TP + FN) > 0 else 0
-                        # accuracy  = (TP + TN) / (TP + TN + FP + FN) if (TP + TN + FP + FN) > 0 else 0
-                        
-                        # TPR = TP / (TP + FN)
-                        # FPR = FP / (FP + TN)
+                            pred_unsafe_set = set(unsafe_x)
+                            true_unsafe_set = set()
+                            for ut_min, ut_max in true_unsafe_timesteps_ranges:
+                                for true_timestep in range(ut_min, ut_max + 1):
+                                    true_unsafe_set.add(true_timestep)
+                            
+                            total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
+                            true_safe_set = total_rollout_timesteps_set - true_unsafe_set
+                            pred_safe_set = total_rollout_timesteps_set - pred_unsafe_set
+                            # # timesteps from pred set that are in true set
+                            # TP = len(pred_unsafe_set & true_unsafe_set)
+                            # # timesteps from pred set that are not in true set
+                            # FP = len(pred_unsafe_set - true_unsafe_set)
+                            # # timesteps from true set that are not in pred set (missing)
+                            # FN = len(true_unsafe_set - pred_unsafe_set)
+                            # # timesteps not in pred set and also not in true set
+                            # TN = len(true_safe_set & pred_safe_set)
+        
+                            # precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+                            # recall    = TP / (TP + FN) if (TP + FN) > 0 else 0
+                            # accuracy  = (TP + TN) / (TP + TN + FP + FN) if (TP + TN + FP + FN) > 0 else 0
+                            
+                            # TPR = TP / (TP + FN)
+                            # FPR = FP / (FP + TN)
 
-                        # print(f"Results for Joint {joint_num}, Rollout {i}")
-                        # print(f"TP: {TP}, FN: {FN}, FP: {FP}, TN: {TN}")
-                        # print(f"Precision: {precision:.2%}")
-                        # print(f"Recall:    {recall:.2%}")
-                        # print(f"TPR:       {TPR:.2%}")
-                        # print(f"FPR:       {FPR:.2%}")
-                        # print(f"Accuracy:  {accuracy:.2%}")
+                            # print(f"Results for Joint {joint_num}, Rollout {i}")
+                            # print(f"TP: {TP}, FN: {FN}, FP: {FP}, TN: {TN}")
+                            # print(f"Precision: {precision:.2%}")
+                            # print(f"Recall:    {recall:.2%}")
+                            # print(f"TPR:       {TPR:.2%}")
+                            # print(f"FPR:       {FPR:.2%}")
+                            # print(f"Accuracy:  {accuracy:.2%}")
 
-                        scores = rollout_uncertainties_per_joint[joint_num]
-                        labels_per_ts = [1 if t in true_unsafe_set else 0 for t in rollout_timesteps]
-                        joint_all_scores[joint_num].extend(scores)
-                        joint_all_labels[joint_num].extend(labels_per_ts)
+                            scores = rollout_uncertainties_per_joint[joint_num]
+                            labels_per_ts = [1 if t in true_unsafe_set else 0 for t in rollout_timesteps]
+                            joint_all_scores[joint_num].extend(scores)
+                            joint_all_labels[joint_num].extend(labels_per_ts)
 
-                        # fpr, tpr, thresholds = roc_curve(labels_per_ts, scores)
-                        # roc_auc = auc(fpr, tpr)
-                        
-                        # title = f"ROC Curve for Joint {joint_num}, Rollout {i}"
-                        # plt.figure(figsize=(8, 6))
-                        # plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
-                        # plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
-                        # plt.xlabel('False Positive Rate')
-                        # plt.ylabel('True Positive Rate')
-                        # plt.title(title)
-                        # plt.legend(loc='lower right')
-                        # plt.grid(True)
-                        # plt.tight_layout()
-                        # plt.savefig(f"{results_path}/Joint{joint_num}/ROC_Rollout_{i}.png")
-                        # plt.close()
-
-
-                os.chmod(f"{results_path}/Joint{joint_num}/true_unsafe_timesteps_rollout_{i}.txt", 0o666) # set write permissions because i only have sudo permissions inside the docker container
+                            # fpr, tpr, thresholds = roc_curve(labels_per_ts, scores)
+                            # roc_auc = auc(fpr, tpr)
+                            
+                            # title = f"ROC Curve for Joint {joint_num}, Rollout {i}"
+                            # plt.figure(figsize=(8, 6))
+                            # plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
+                            # plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
+                            # plt.xlabel('False Positive Rate')
+                            # plt.ylabel('True Positive Rate')
+                            # plt.title(title)
+                            # plt.legend(loc='lower right')
+                            # plt.grid(True)
+                            # plt.tight_layout()
+                            # plt.savefig(f"{results_path}/Joint{joint_num}/ROC_Rollout_{i}.png")
+                            # plt.close()
+                except FileNotFoundError as filenotfounderror:
+                    with open(f"{results_path}/gold_standard_unsafe_timesteps_rollout_{i}.txt", 'w'):
+                        pass 
+                    os.chmod(f"{results_path}/gold_standard_unsafe_timesteps_rollout_{i}.txt", 0o666) # set write permissions because i only have sudo permissions inside the docker container
                 
                 # with open(f"{results_path}Joint{joint_num}/unsafe_timesteps.txt", 'w') as file:
                 #     for ux in unsafe_x:
@@ -350,7 +355,7 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             # plt.grid(True)
             # plt.tight_layout()
             #plt.savefig(f"{results_path}Joint{joint_num}/{title}.png")
-            fig.savefig(f"{results_path}Joint{joint_num}/{title}.png")
+            fig.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
             plt.close()
    
     for joint_num in joints_to_plot:
@@ -572,7 +577,6 @@ parameters = {
                 'max_uncertain_windows': 3
             }
         },
-        
         'pick_place': {
             6: {
                 'unc_threshold': 0.05,
@@ -677,33 +681,38 @@ parser.add_argument('--num_rollouts', type=int, default=999999, help='The number
 args = parser.parse_args()
 
 
-
-
-
 model_arch = "BC_RNN_GMM"
 task = "pick_place" # stack_cube or pick_place
 model_name = f"ensemble"
-number = '11'
+number = 'experiment2'
 
-uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties{number}.txt"
-actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/actions{number}.txt"
-min_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/min_actions{number}.txt"
-max_actions_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/max_actions{number}.txt"
+results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/run_{number}"
+
+uncertainties_path = f"{results_path}/uncertainties{number}.txt"
+actions_path = f"{results_path}/actions{number}.txt"
+min_actions_path = f"{results_path}/min_actions{number}.txt"
+max_actions_path = f"{results_path}/max_actions{number}.txt"
+time_taken_path = f"{results_path}/time_taken{number}.txt"
 rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt"
 
 rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt" # remove the '.txt' and add rollout_log.txt
-uncertainty_results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/"
-trajectory_results_path = f"{uncertainty_results_path}"
 
+uncertainty_results_path = f"{results_path}/uncertainty_plots"
+trajectory_results_path = f"{results_path}/trajectory_plots"
+os.makedirs(uncertainty_results_path, exist_ok=True)
+os.makedirs(trajectory_results_path, exist_ok=True)
 # loghelper.namefile = rollout_log_path
 
 # clear joint paths
 for joint_num in range(7):
-    joint_num_dir_path = f"{uncertainty_results_path}Joint{joint_num}/"
-    for joint_num_dir_file in os.listdir(joint_num_dir_path):
-        if joint_num_dir_file[:4] != 'true':
-            os.remove(f"{joint_num_dir_path}/{joint_num_dir_file}")
-
+    uncertainty_plots_joint_num_dir_path = f"{uncertainty_results_path}/Joint{joint_num}"
+    trajectory_plots_joint_num_dir_path = f"{trajectory_results_path}/Joint{joint_num}"
+    os.makedirs(uncertainty_plots_joint_num_dir_path, exist_ok=True)
+    os.makedirs(trajectory_plots_joint_num_dir_path, exist_ok=True)
+    for dir_path in [uncertainty_plots_joint_num_dir_path, trajectory_plots_joint_num_dir_path]:
+        for file_name in os.listdir(dir_path):
+            os.remove(os.path.join(dir_path, file_name))
+      
 
 subtask_timesteps, object_goal_distances, end_effector_distances_to_object  = process_rollout_logger(rollout_log_path)
 
@@ -711,11 +720,13 @@ rollouts_uncertainties, labels, all_uncertainties, all_timesteps = load_traj_fil
 rollouts_actions, _, _, _ = load_traj_file(actions_path)
 rollouts_max_actions, _, _, _ = load_traj_file(max_actions_path)
 rollouts_min_actions, _, _, _ = load_traj_file(min_actions_path)
+rollouts_times_taken, _, _, _ = load_traj_file(time_taken_path, pointer=2)
 
 traj_info = {
     'actions': rollouts_actions,
     'max': rollouts_max_actions,
-    'min': rollouts_min_actions
+    'min': rollouts_min_actions,
+    'time_taken': rollouts_times_taken
 }
 
 
@@ -728,5 +739,61 @@ plot_rollouts_uncertainties(rollouts_uncertainties, labels, uncertainty_results_
 
 plot_trajectory(traj_info, trajectory_results_path)
 
-# for each joint, at each timestep get:
-# uncertainties, joint positions (mean, med...), max joint position from the ensemble, min 
+
+# Hellinger distance data for each policy and joint
+# hellinger_data = {
+#     "minstd": {
+#         "joint 0": 0.9515545164079814,
+#         "joint 1": 0.9621043249318753,
+#         "joint 2": 0.9527533890746112,
+#         "joint 3": 0.9429505059792747,
+#         "joint 4": 0.9650761111142897,
+#         "joint 5": 0.9493641817087877,
+#         "joint 6": 0.9219050370756138,
+#     },
+#     "median": {
+#         "joint 0": 0.9254888613310024,
+#         "joint 1": 0.9318249066044189,
+#         "joint 2": 0.9454337442794406,
+#         "joint 3": 0.9507902695862722,
+#         "joint 4": 0.9465258444879787,
+#         "joint 5": 0.9497317568066842,
+#         "joint 6": 0.559237739819455,
+#     },
+#     "mean": {
+#         "joint 0": 0.883771399345651,
+#         "joint 1": 0.9250691897193906,
+#         "joint 2": 0.92959787115467,
+#         "joint 3": 0.9243240153860592,
+#         "joint 4": 0.9499016758179112,
+#         "joint 5": 0.9562868227795528,
+#         "joint 6": 0.8730400182033042,
+#     }
+# }
+
+# joints = list(hellinger_data["minstd"].keys())
+# x = range(len(joints))
+
+# # Extract values for each model
+# minstd_vals = list(hellinger_data["minstd"].values())
+# median_vals = list(hellinger_data["median"].values())
+# mean_vals = list(hellinger_data["mean"].values())
+
+# bar_width = 0.25
+
+# plt.figure(figsize=(10, 6))
+
+# plt.bar([i - bar_width for i in x], minstd_vals, width=bar_width, label='minstd', color='mediumpurple')
+# plt.bar(x, median_vals, width=bar_width, label='median', color='lightgreen')
+# plt.bar([i + bar_width for i in x], mean_vals, width=bar_width, label='mean', color='cadetblue')
+
+# plt.xticks(x, joints)
+# plt.ylabel('Hellinger Distance')
+# plt.title('Hellinger Distance per Joint across Policy Types')
+# plt.legend(loc='lower left')
+# plt.tight_layout()
+# plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+
+# plt.savefig(f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/HD_plot.png")
+
+

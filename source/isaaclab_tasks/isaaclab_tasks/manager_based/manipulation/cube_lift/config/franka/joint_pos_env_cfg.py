@@ -14,6 +14,8 @@ from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 from isaaclab_tasks.manager_based.manipulation.cube_lift import mdp
 from isaaclab_tasks.manager_based.manipulation.cube_lift.lift_env_cfg import CubeEnvCfg
 from isaaclab_assets.glassware.glassware_objects import Chem_Assets
+from chills.envs import Labware
+
 ##
 # Pre-defined configs
 ##
@@ -50,10 +52,11 @@ class FrankaCubeEnvCfg(CubeEnvCfg):
         # Set Cube as object
 
         #what if its now a vial rack  ?
-        glassware = Chem_Assets()
+        # glassware = Chem_Assets()
         # Set each stacking cube deterministically
-        self.scene.object = glassware.beaker(pos=[0.4, 0.0, 0.0203],name="Object")
-        
+        # self.scene.object = glassware.beaker(pos=[0.4, 0.0, 0.0203],name="Object")
+        self.scene.object = Labware.beaker(pos=[0.4, 0.0, 0.0203],prim_name="Object")
+
         
 
         # Listens to the required transforms

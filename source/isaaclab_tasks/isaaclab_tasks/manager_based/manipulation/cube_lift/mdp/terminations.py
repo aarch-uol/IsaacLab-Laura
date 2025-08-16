@@ -19,7 +19,7 @@ from isaaclab.managers import SceneEntityCfg
 
 from isaaclab.sensors import FrameTransformer
 from isaaclab.utils.math import combine_frame_transforms, subtract_frame_transforms
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+# from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
@@ -30,7 +30,7 @@ def object_reached_goal(
     threshold: float = 0.02,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Termination condition for the object reaching the goal position.
 
@@ -52,8 +52,8 @@ def object_reached_goal(
     # distance of the end-effector to the object: (num_envs,)
     distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)
    # print(f"For DEBUG : DISTANCE TO GOAL : {distance}")
-    if(distance.item() < threshold):
-        loghelper.logsubtask(LogType.FINISH)
+    # if(distance.item() < threshold):
+        # loghelper.logsubtask(LogType.FINISH)
     test = distance < threshold
     if (torch.any(test)):
         print("debug : terminations : ", torch.any(test))

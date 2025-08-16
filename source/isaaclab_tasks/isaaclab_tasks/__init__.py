@@ -31,6 +31,7 @@ _BLACKLIST_PKGS = ["utils", ".mdp", "pick_place"]
 import_packages(__name__, _BLACKLIST_PKGS)
 
 try:
+    import chills
     import chills.tasks
 except ImportError:
     pass  

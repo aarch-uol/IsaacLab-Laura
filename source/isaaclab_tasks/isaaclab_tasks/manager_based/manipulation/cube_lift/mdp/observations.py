@@ -14,7 +14,7 @@ from isaaclab.utils.math import subtract_frame_transforms, combine_frame_transfo
 from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import FrameTransformer
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+# from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -24,7 +24,7 @@ def object_position_in_robot_root_frame(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """The position of the object in the robot's root frame."""
     robot: RigidObject = env.scene[robot_cfg.name]
@@ -40,7 +40,7 @@ def obstacle_position_in_robot_root_frame(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("obstacle"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """The position of the object in the robot's root frame."""
     robot: RigidObject = env.scene[robot_cfg.name]
@@ -58,7 +58,7 @@ def reach_object(
     std: float = 0.05,
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
     # extract the used quantities (to enable type-hinting)
@@ -70,9 +70,9 @@ def reach_object(
     ee_w = ee_frame.data.target_pos_w[..., 0, :]
     # Distance of the end-effector to the object: (num_envs,)
     object_ee_distance = torch.norm(cube_pos_w - ee_w, dim=1)
-    if object_ee_distance.item() < std :
+    # if object_ee_distance.item() < std :
     #    print(f"Observed Object Reached : {object_ee_distance.item()}")
-        loghelper.logsubtask(LogType.APPR)
+        # # loghelper.logsubtask(LogType.APPR)
     # if object_ee_distance[0] < std:
     #     print(f"Reached object, dist  :{object_ee_distance.item()}")
     return object_ee_distance < std
@@ -85,7 +85,7 @@ def object_grasped(
     diff_threshold: float = 0.06,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     gripper_threshold: float = 0.005,
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Check if an object is grasped by the specified robot."""
 
@@ -104,9 +104,9 @@ def object_grasped(
     grasped = torch.logical_and(
         grasped, torch.abs(robot.data.joint_pos[:, -2] - gripper_open_val.to(env.device)) > gripper_threshold
     )
-    if grasped[0]:
+    # if grasped[0]:
      #   print(f"Observed Object grasped : {grasped.item()}")
-        loghelper.logsubtask(LogType.GRASP)
+        # loghelper.logsubtask(LogType.GRASP)
     return grasped
 
 def object_released(
@@ -117,7 +117,7 @@ def object_released(
     diff_threshold: float = 0.06,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     gripper_threshold: float = 0.035,
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Check if an object is grasped by the specified robot."""
 
@@ -136,9 +136,9 @@ def object_released(
     grasped = torch.logical_and(
         grasped, torch.abs(robot.data.joint_pos[:, -2] ) > gripper_threshold
     )
-    if grasped[0]:
+    # if grasped[0]:
      #   print(f"Observed Object grasped : {grasped.item()}")
-        loghelper.logsubtask(LogType.GRASP)
+        # loghelper.logsubtask(LogType.GRASP)
     
     return grasped
 
@@ -146,13 +146,13 @@ def is_object_lifted(
     env: ManagerBasedRLEnv,
     obj_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     threshold : float = 0.05,
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ):
     #return true when object z coord above a threshold value 
     object = env.scene[obj_cfg.name]
-    if object.data.root_pos_w[:, 2].item() > threshold : 
+    # if object.data.root_pos_w[:, 2].item() > threshold : 
     #    print(f"Observed Object Lifted : {object.data.root_pos_w[:, 2].item()}")
-        loghelper.logsubtask(LogType.LIFT)
+        # loghelper.logsubtask(LogType.LIFT)
  
     return object.data.root_pos_w[:, 2] > threshold
 
@@ -184,7 +184,7 @@ def object_near_goal(
     threshold: float = 0.02,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Termination condition for the object reaching the goal position.
 
@@ -206,8 +206,8 @@ def object_near_goal(
     des_pos_b = command[:, :3]
    # print(f"desired position : {des_pos_b}, actual position : {object_pos_b}")
     error = torch.norm(des_pos_b - object_pos_b, dim=1)
-    if error<threshold:
-        loghelper.logsubtask(LogType.FINISH)
+    # if error<threshold:
+        # loghelper.logsubtask(LogType.FINISH)
     #print("position error : ", error)
     return error < threshold
 
@@ -217,7 +217,7 @@ def object_goal_norm_error(
     threshold: float = 0.02,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Termination condition for the object reaching the goal position.
 
@@ -240,7 +240,7 @@ def object_goal_norm_error(
    # print(f"desired position : {des_pos_b}, actual position : {object_pos_b}")
     error = torch.norm(des_pos_b - object_pos_b, dim=1)
     
-    loghelper.log_object_goal_distance(error)
+    # loghelper.log_object_goal_distance(error)
 
     return error 
 
@@ -249,7 +249,7 @@ def end_effector_distance_to_object(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
-    loghelper: LoggingHelper = LoggingHelper()
+    # loghelper: LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     robot: RigidObject = env.scene[robot_cfg.name]
     object: RigidObject = env.scene[object_cfg.name]
@@ -269,7 +269,7 @@ def end_effector_distance_to_object(
 
     dist = torch.norm(ee_pos_rel_robot - obj_pos_rel_robot, dim=1)
     
-    loghelper.log_end_effector_distance_to_object(dist)
+    # loghelper.log_end_effector_distance_to_object(dist)
 
     return dist
 
@@ -292,7 +292,7 @@ def position_command_error(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     command_name: str = "object_pose",
-    loghelper : LoggingHelper = LoggingHelper()
+    # # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """The position of the object in the robot's root frame."""
     robot: RigidObject = env.scene[robot_cfg.name]
@@ -308,8 +308,8 @@ def position_command_error(
     #print("position error : ", error)
     return error
 
-def logstep(
-        env: ManagerBasedRLEnv,
-        loghelper : LoggingHelper):
-    loghelper.logstep()
-    return torch.tensor([0])
+# def logstep(
+#         env: ManagerBasedRLEnv,
+#         # loghelper : LoggingHelper):
+#     # loghelper.logstep()
+#     return torch.tensor([0])

@@ -23,7 +23,7 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 import warp as wp
 from . import mdp
-from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
+# from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 
 
@@ -127,14 +127,14 @@ class ObservationsCfg():
     @configclass
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
-        def set_loghelper(self, loghelper: LoggingHelper):
-            self.logstep.params["loghelper"] = loghelper
+        # def set_loghelper(self, loghelper: LoggingHelper):
+        #     self.logstep.params["loghelper"] = loghelper
     
         object_goal_distance = ObsTerm(func=mdp.object_goal_norm_error)
         print(object_goal_distance)
         end_effector_distance_to_object = ObsTerm(func=mdp.end_effector_distance_to_object)
         object_released = ObsTerm(mdp.object_released)
-        logstep = ObsTerm(func = mdp.logstep)
+        # logstep = ObsTerm(func = mdp.logstep)
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
@@ -156,13 +156,13 @@ class ObservationsCfg():
     @configclass
     class SubtaskCfg(ObsGroup):
         """Observations for subtask group."""
-        def set_loghelper(self, loghelper: LoggingHelper):
-            # Inject the logger into any terms that need it
-            self.appr.params["loghelper"] = loghelper
-            self.grasp.params["loghelper"] = loghelper
-            self.lift.params["loghelper"] = loghelper
-           # self.appr_goal.params["loghelper"] = loghelper
-            #self.loghelper = loghelper
+        # def set_loghelper(self, loghelper: LoggingHelper):
+        #     # Inject the logger into any terms that need it
+        #     self.appr.params["loghelper"] = loghelper
+        #     self.grasp.params["loghelper"] = loghelper
+        #     self.lift.params["loghelper"] = loghelper
+        #    # self.appr_goal.params["loghelper"] = loghelper
+        #     #self.loghelper = loghelper
 
 
         appr = ObsTerm(
@@ -221,8 +221,8 @@ class ObservationsCfg():
 class EventCfg:
     """Configuration for events."""
     ## add in log helper funcs 
-    def set_loghelper(self, loghelper: LoggingHelper):    
-        self.reset_all.params["loghelper"] = loghelper
+    # def set_loghelper(self, loghelper: LoggingHelper):    
+    #     self.reset_all.params["loghelper"] = loghelper
     reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
 
     reset_object_position = EventTerm(
@@ -281,11 +281,11 @@ class RewardsCfg:
 @configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
-    def set_loghelper(self, loghelper: LoggingHelper):    
-        self.success.params["loghelper"] = loghelper
-        self.time_out.params["loghelper"] = loghelper
-        self.object_dropping.params["loghelper"] = loghelper
-       # self.loghelper = loghelper
+    # def set_loghelper(self, loghelper: LoggingHelper):    
+    #     self.success.params["loghelper"] = loghelper
+    #     self.time_out.params["loghelper"] = loghelper
+    #     self.object_dropping.params["loghelper"] = loghelper
+    #    # self.loghelper = loghelper
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
@@ -324,7 +324,7 @@ class CurriculumCfg:
 @configclass
 class CubeEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the lifting environment."""
-    loghelper = LoggingHelper()
+    # loghelper = LoggingHelper()
     # Scene settings
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
     # Basic settings
@@ -351,10 +351,10 @@ class CubeEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
         self.viewer.eye = (1.0, 1.0, 1.0)
         self.viewer.lookat = (0.0, 0.0, -0.1)
-        self.terminations.set_loghelper(self.loghelper)
-        self.events.set_loghelper(self.loghelper)
-        self.observations.policy.set_loghelper(self.loghelper)
-        self.observations.subtask_terms.set_loghelper(self.loghelper)
+        # self.terminations.set_loghelper(self.loghelper)
+        # self.events.set_loghelper(self.loghelper)
+        # self.observations.policy.set_loghelper(self.loghelper)
+        # self.observations.subtask_terms.set_loghelper(self.loghelper)
         self.sim.physx.bounce_threshold_velocity = 0.2
         self.sim.physx.bounce_threshold_velocity = 0.01
      #   self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4

@@ -14,8 +14,8 @@ from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 from isaaclab_tasks.manager_based.manipulation.cube_lift import mdp
 from isaaclab_tasks.manager_based.manipulation.cube_lift.lift_env_cfg import CubeEnvCfg
-from isaaclab_assets.glassware.glassware_objects import Chem_Assets
-
+# from isaaclab_assets.glassware.glassware_objects import Chem_Assets
+from chills.envs import Labware
 
 import math
 ##
@@ -72,9 +72,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         self.commands.object_pose.body_name = "panda_hand"
         self.commands.object_pose.body_name = "panda_hand"
 
-        glassware = Chem_Assets()
+        # glassware = Chem_Assets()
         # Set each stacking cube deterministically
-        self.scene.object = glassware.beaker(pos=[0.4, 0.0, 0.0203],name="Object")
+        self.scene.object = Labware.beaker(pos=[0.4, 0.0, 0.0203],prim_name="Object")
         #### everything else leave default
         # self.scene.flask = glassware.flask()
         # self.scene.vial = glassware.vial()

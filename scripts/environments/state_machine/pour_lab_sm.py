@@ -208,8 +208,7 @@ def infer_state_machine(
         # if CONICAL == True:
         #     offset_pos = wp.vec3(offset_pos.x + 0.1, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
         # else:
-        offset_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.15, offset_pos.z + 0.25)  # raise 25 cm 0.05
-        print(offset_pos)
+        offset_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.15, offset_pos.z + 0.25)  # raise 25 cm ## 0.05 for sample vial
         new_offset = wp.transform(offset_pos, offset_rot)
         # Target pose: above the object using offset
         # above_target_pose = wp.transform_multiply(offset[tid], final_object_pose[tid])
@@ -279,7 +278,8 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(des_object_pose[tid])
         pose_rot = wp.transform_get_rotation(des_object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x - 0.2, pose_pos.y - 0.1, pose_pos.z - 0.4)
+        offset_pos = wp.vec3(pose_pos.x + 0.2, pose_pos.y - 0.1, pose_pos.z -0.15)
+        print(offset_pos)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while

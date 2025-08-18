@@ -91,10 +91,13 @@ def objects_stacked(
 
 def object_reached_goal(
     env: ManagerBasedRLEnv,
-    threshold: float = 0.02,
+    threshold: float = 0.05,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     # loghelper : LoggingHelper = LoggingHelper()
+    gripper_open_val: torch.tensor = torch.tensor([0.04]),
+    atol=0.0001,
+    rtol=0.0001,
 ) -> torch.Tensor:
     """Termination condition for the object reaching the goal position.
 
@@ -109,7 +112,7 @@ def object_reached_goal(
     robot: RigidObject = env.scene[robot_cfg.name]
     object: RigidObject = env.scene[object_cfg.name]
     # Desired position in robot base frame
-    des_pos_b = torch.tensor([0.6, 0.0, 0.0203], device=robot.data.root_pos_w.device)
+    des_pos_b = torch.tensor([0.6, -0.2, 0.0203], device=robot.data.root_pos_w.device)
     # Transform desired pos to world frame
     des_pos_w, _ = combine_frame_transforms(
         robot.data.root_state_w[:, :3],        # root position
@@ -119,9 +122,16 @@ def object_reached_goal(
     # Compute distance to object
     distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)  # shape: (num_envs,)
     # Log if any environment meets condition
-    mask = distance < threshold
     # if torch.any(mask):
     #     loghelper.logsubtask(LogType.FINISH)
+    grasp = torch.abs(distance < threshold)
+    grasp = torch.logical_and(
+        torch.isclose(robot.data.joint_pos[:, -1], gripper_open_val.to(env.device), atol=atol, rtol=rtol), grasp
+    )
+    grasp = torch.logical_and(
+        torch.isclose(robot.data.joint_pos[:, -2], gripper_open_val.to(env.device), atol=atol, rtol=rtol), grasp
+    )
     if distance < threshold:
         print("Term function: object_reached_goal")
-    return mask  # or return distance < threshold
+    return grasp
+    

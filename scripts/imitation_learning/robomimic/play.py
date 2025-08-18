@@ -73,6 +73,7 @@ from collections import deque
 
 import robomimic.utils.file_utils as FileUtils
 import robomimic.utils.torch_utils as TorchUtils
+from source.isaaclab_tasks.isaaclab_tasks.manager_based.manipulation.cube_lift.mdp.observations import get_joint_pos
 
 if args_cli.enable_pinocchio:
     import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
@@ -82,7 +83,6 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
 
 from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers, ensemble_uncertainty
-
 
 
 def rollout(policy, env, success_term, horizon, device):
@@ -196,12 +196,16 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
     joints_to_check = [0, 1, 2, 3, 4, 5, 6]
     unsafe_windows_detected = {joint_num: 0 for joint_num in joints_to_check}
     windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_check} 
-    
+    certain_timestep = 1
+    certain_joint_positions = []
+
+    recovery_mode = False
+    recovery_duration = 100 # X timesteps
     for i in range(horizon):
         # Prepare observations
         obs = copy.deepcopy(obs_dict["policy"])
         sub_obs = copy.deepcopy(obs_dict["subtask_terms"])
-       
+        
         for ob in obs:
             obs[ob] = torch.squeeze(obs[ob])
             #print(f"found observation : {obs[ob]}")
@@ -223,58 +227,107 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
 
         traj["obs"].append(obs)
         traj["sub_obs"].append(sub_obs)
-        
+       
+        if recovery_mode:
+            print("Recovery Mode")
+            target_qpos = get_joint_pos(env)
+            # print(target_qpos)
+            # exit()
+            # target_qpos = certain_joint_positions[-certain_timestep][:7].clone().detach().to(device)
+            # target_qpos = torch.tensor([-3.7080e-03, -4.2983e-03,  4.2449e-05,  4.1694e-04, -5.2641e-04, 1.9590e-04, -5.9999e-01]).to(device)
+            for _ in range(recovery_duration):
+                # 1. Get current state
+                # obs_dict, _, terminated, truncated, _ = env.step(torch.zeros_like(action_placeholder))  # Step to update obs
+                # current_qpos = obs_dict["policy"]["joint_pos"][0, :7].clone().detach().to(device)
+                curr
+                # 2. Compute delta
+                delta = target_qpos - current_qpos
+                error_norm = delta.norm().item()
 
-        # Calculate uncertainty using the ensemble
-        metrics = ensemble_uncertainty(ensemble, obs)
-        # Get the std and mean action
-        uncertainty = metrics['std']
-        actions = metrics['mean']
-        #actions = metrics['min_std_action']
-        #actions = metrics['median']
-        # Add the uncertainty to all joint windows
-        for joint_num, unc in enumerate(uncertainty):
-            windows[joint_num].append(unc)
+                print(f"Error norm: {error_norm:.6f}")
 
-        for joint_num in joints_to_check:
-            unc_threshold = parameters[joint_num]['unc_threshold']
-            peaks = sum(1 for curr_unc in windows[joint_num] if curr_unc > unc_threshold)
-            if peaks > parameters[joint_num]['max_peaks']:
-                unsafe_windows_detected[joint_num] += 1
-        
-        safety_triggered = False
-        for joint_num in [0, 1, 2, 3, 4, 5, 6]:
-            if unsafe_windows_detected[joint_num] > parameters[joint_num]['max_uncertain_windows']:
-                # safety_triggered = safety() 
-                print(f"Joint {joint_num} is uncertain at timestep {i}")
-                unsafe_windows_detected[joint_num] = 0
+                if error_norm < 1e-3:
+                    print("Reached target position within tolerance.")
+                    break
 
-        # Unnormalize actions
-        if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
-            actions = (
-                (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
-            ) / 2 + args_cli.norm_factor_min
+                # 3. Optional: clamp the magnitude
+                max_step = 1e-5
+                delta = delta.clamp(-max_step, max_step)
 
-        actions = actions.to(device=device).view(1, env.action_space.shape[1])
-        
-        # Apply actions
-        obs_dict, _, terminated, truncated, _ = env.step(actions)
-        obs = obs_dict["policy"]
-        sub_obs = obs_dict["subtask_terms"]
+                # 4. Build action tensor
+                action = delta.view(1, -1)
+                action = torch.cat([action, torch.zeros(1, env.action_space.shape[1] - action.shape[1], device=device)], dim=1)
 
-        # Record trajectory
-        traj["actions"].append(actions.tolist())
-        traj["next_obs"].append(obs)
-        traj['uncertainties'].append(uncertainty)
-        traj['max_actions'].append(metrics['max'])
-        traj['min_actions'].append(metrics['min'])
-        traj['time_taken'].append(metrics['time_taken'])
+                # 5. Issue the delta command
+                obs_dict, _, terminated, truncated, _ = env.step(action)
 
-        # Check if rollout was successful
-        if bool(success_term.func(env, **success_term.params)[0]):
-            return True, traj
-        elif terminated or truncated:
-            return False, traj
+                if terminated or truncated:
+                    print("Environment terminated during recovery.")
+                    return False, traj
+
+            recovery_mode = False
+        else:
+            # Calculate uncertainty using the ensemble
+            metrics = ensemble_uncertainty(ensemble, obs)
+            # Get the std and mean action
+            uncertainty = metrics['std']
+            actions = metrics['mean']
+
+            # Add the uncertainty to all joint windows
+            for joint_num, unc in enumerate(uncertainty):
+                windows[joint_num].append(unc)
+
+            for joint_num in joints_to_check:
+                unc_threshold = parameters[joint_num]['unc_threshold']
+                peaks = sum(1 for curr_unc in windows[joint_num] if curr_unc > unc_threshold)
+                if peaks > parameters[joint_num]['max_peaks']:
+                    unsafe_windows_detected[joint_num] += 1
+            
+            replay_triggered = False
+            for joint_num in joints_to_check:
+                if unsafe_windows_detected[joint_num] > parameters[joint_num]['max_uncertain_windows']:
+                    print(f"Joint {joint_num} is uncertain at timestep {i}")
+                    unsafe_windows_detected[joint_num] = 0
+                    #actions = torch.tensor(traj['actions'][-prev_action])
+                    # actions = torch.tensor(certain_timesteps[-prev_action])  
+                    # actions = torch.tensor([-3.7080e-03, -4.2983e-03,  4.2449e-05,  4.1694e-04, -5.2641e-04,
+                    #                 1.9590e-04, -5.9999e-01])
+                    #actions = torch.tensor([0 for _ in range(7)])
+                    replay_triggered = True
+                    recovery_mode = True
+            
+            # prev_action = prev_action + 1 if replay_triggered else 1
+            if not replay_triggered:
+                # certain_joint_positions.append(actions)
+                # safe_joint_positions = obs['joint_pos'][:7].clone().detach().cpu()
+                certain_joint_positions.append(actions.clone().detach().to(device))
+
+            # Unnormalize actions
+            if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
+                actions = (
+                    (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
+                ) / 2 + args_cli.norm_factor_min
+
+            actions = actions.to(device=device).view(1, env.action_space.shape[1])
+            
+            # Apply actions
+            obs_dict, _, terminated, truncated, _ = env.step(actions)
+            obs = obs_dict["policy"]
+            sub_obs = obs_dict["subtask_terms"]
+
+            # Record trajectory
+            traj["actions"].append(actions.tolist())
+            traj["next_obs"].append(obs)
+            traj['uncertainties'].append(uncertainty)
+            traj['max_actions'].append(metrics['max'])
+            traj['min_actions'].append(metrics['min'])
+            traj['time_taken'].append(metrics['time_taken'])
+
+            # Check if rollout was successful
+            if bool(success_term.func(env, **success_term.params)[0]):
+                return True, traj
+            elif terminated or truncated:
+                return False, traj
 
     return False, traj
 
@@ -667,7 +720,7 @@ def main():
     model_arch = "BC_RNN_GMM"
     task = "pick_place" # stack_cube or pick_place
     model_name = f"ensemble"
-    number = 'experiment3'
+    number = 'recovery'
 
     results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/run_{number}"
 

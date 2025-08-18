@@ -151,8 +151,10 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
 
     joint_all_scores = {joint_num: [] for joint_num in joints_to_plot}
     joint_all_labels = {joint_num: [] for joint_num in joints_to_plot}
+    
+    all_labels= []
     all_scores = []
-    all_labels = []
+
     successful_rollout_means = {joint_num: [] for joint_num in joints_to_plot} 
     failed_rollout_means = {joint_num: [] for joint_num in joints_to_plot}
     num_joints = 7
@@ -166,6 +168,10 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
 
         # transpose the list of uncertainties so each sublist is for one joint
         rollout_uncertainties_per_joint = list(zip(*rollout_uncertainties))
+        system_pred_unsafe_set = set()
+        system_true_unsafe_set = set()
+        total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
+
 
         for joint_num in range(num_joints):
             unsafe_timesteps = []
@@ -239,6 +245,8 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 # plot the unsafe windows 
                 # Extract x and y
                 unsafe_x = [t for t, _ in unsafe_timesteps]
+                system_pred_unsafe_set.update(unsafe_x)
+                # system_pred_unsafe_set.update(unsafe_x)
                 unsafe_y = [u for _, u in unsafe_timesteps]
 
                 # sort by timestep to ensure proper line order
@@ -251,21 +259,30 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 try:
                     with open(f"{results_path}/gold_standard_unsafe_timesteps_rollout_{i}.txt", 'r') as file:
                         true_unsafe_timesteps = file.readlines()
+                        true_unsafe_timesteps_ranges = []
                         if len(true_unsafe_timesteps) > 0:
                             true_unsafe_timesteps_ranges = [
                                     (int(ut_min.strip()), int(ut_max.strip())) for ut_min, ut_max in 
                                     [ut.split() for ut in true_unsafe_timesteps]
                             ]
 
-                            pred_unsafe_set = set(unsafe_x)
-                            true_unsafe_set = set()
-                            for ut_min, ut_max in true_unsafe_timesteps_ranges:
-                                for true_timestep in range(ut_min, ut_max + 1):
-                                    true_unsafe_set.add(true_timestep)
-                            
-                            total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
-                            true_safe_set = total_rollout_timesteps_set - true_unsafe_set
-                            pred_safe_set = total_rollout_timesteps_set - pred_unsafe_set
+                        # pred_unsafe_set = set(unsafe_x)
+                        # true_unsafe_set = set()
+                        for ut_min, ut_max in true_unsafe_timesteps_ranges:
+                            for true_timestep in range(ut_min, ut_max + 1):
+                                system_true_unsafe_set.add(true_timestep)
+                        
+                        system_safe_set = total_rollout_timesteps_set - system_true_unsafe_set
+                        system_pred_safe_set = total_rollout_timesteps_set - system_pred_unsafe_set
+
+                        for t in sorted(total_rollout_timesteps_set):
+                            all_labels.append(1 if t in system_true_unsafe_set else 0)
+                            all_scores.append(1 if t in system_pred_unsafe_set else 0)
+
+                            # all_scores.extend()
+                            #total_rollout_timesteps_set = {t for t in range(len(rollout_timesteps))}
+                            #true_safe_set = total_rollout_timesteps_set - true_unsafe_set
+                            #pred_safe_set = total_rollout_timesteps_set - pred_unsafe_set
                             # # timesteps from pred set that are in true set
                             # TP = len(pred_unsafe_set & true_unsafe_set)
                             # # timesteps from pred set that are not in true set
@@ -290,26 +307,14 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                             # print(f"FPR:       {FPR:.2%}")
                             # print(f"Accuracy:  {accuracy:.2%}")
 
-                            scores = rollout_uncertainties_per_joint[joint_num]
-                            labels_per_ts = [1 if t in true_unsafe_set else 0 for t in rollout_timesteps]
-                            joint_all_scores[joint_num].extend(scores)
-                            joint_all_labels[joint_num].extend(labels_per_ts)
+                            # scores = rollout_uncertainties_per_joint[joint_num]
+                            # labels_per_ts = [1 if t in true_unsafe_set else 0 for t in rollout_timesteps]
+                            # joint_all_scores[joint_num].extend(scores)
+                            # joint_all_labels[joint_num].extend(labels_per_ts)
 
                             # fpr, tpr, thresholds = roc_curve(labels_per_ts, scores)
                             # roc_auc = auc(fpr, tpr)
                             
-                            # title = f"ROC Curve for Joint {joint_num}, Rollout {i}"
-                            # plt.figure(figsize=(8, 6))
-                            # plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
-                            # plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
-                            # plt.xlabel('False Positive Rate')
-                            # plt.ylabel('True Positive Rate')
-                            # plt.title(title)
-                            # plt.legend(loc='lower right')
-                            # plt.grid(True)
-                            # plt.tight_layout()
-                            # plt.savefig(f"{results_path}/Joint{joint_num}/ROC_Rollout_{i}.png")
-                            # plt.close()
                 except FileNotFoundError as filenotfounderror:
                     with open(f"{results_path}/gold_standard_unsafe_timesteps_rollout_{i}.txt", 'w'):
                         pass 
@@ -358,25 +363,44 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
             fig.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
             plt.close()
    
-    for joint_num in joints_to_plot:
-        if len(set(joint_all_labels[joint_num])) < 2:
-            print(f"Skipping Joint {joint_num} — only one class in labels.")
-            continue
-
-        fpr, tpr, thresholds = roc_curve(joint_all_labels[joint_num], joint_all_scores[joint_num])
+    if len(set(all_labels)) < 2:
+        print("Skipping System-Level ROC — only one class in labels.")
+    else:
+        fpr, tpr, thresholds = roc_curve(all_labels, all_scores)
         roc_auc = auc(fpr, tpr)
 
         plt.figure(figsize=(8, 6))
-        plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
+        plt.plot(fpr, tpr, label=f'System-Level ROC (AUC = {roc_auc:.2f})')
         plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title(f'ROC Curve — Joint {joint_num} (All Rollouts)')
+        plt.title(f'System-Level ROC Curve (All Joints)')
         plt.legend(loc='lower right')
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(f"{results_path}/Joint{joint_num}/ROC_All_Rollouts.png")
+        plt.savefig(f"{results_path}/System_ROC_All_Rollouts.png")
         plt.close()
+
+
+    # for joint_num in joints_to_plot:
+    #     if len(set(joint_all_labels[joint_num])) < 2:
+    #         print(f"Skipping Joint {joint_num} — only one class in labels.")
+    #         continue
+
+    #     fpr, tpr, thresholds = roc_curve(joint_all_labels[joint_num], joint_all_scores[joint_num])
+    #     roc_auc = auc(fpr, tpr)
+
+    #     plt.figure(figsize=(8, 6))
+    #     plt.plot(fpr, tpr, label=f'ROC (AUC = {roc_auc:.2f})')
+    #     plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
+    #     plt.xlabel('False Positive Rate')
+    #     plt.ylabel('True Positive Rate')
+    #     plt.title(f'ROC Curve — Joint {joint_num} (All Rollouts)')
+    #     plt.legend(loc='lower right')
+    #     plt.grid(True)
+    #     plt.tight_layout()
+    #     plt.savefig(f"{results_path}/Joint{joint_num}/ROC_All_Rollouts.png")
+    #     plt.close()
 
     for joint_num in range(num_joints):
 
@@ -394,11 +418,13 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
 
             # fail_data = np.random.normal(loc=0.02 + mean_diff, scale=std_dev, size=400)
             # fail_data = np.clip(fail_data, 0, 1)
-            
             success_data = success_current_joint_means
             fail_data = failed_current_joint_means
             #fail_data = [f + 0.001 for f in success_current_joint_means]
             
+            if len(fail_data) < 2 or len(success_data) < 2:
+                print(f"Skipping KDE for joint {joint_num} — insufficient data (fail: {len(fail_data)}, success: {len(success_data)})")
+                continue
             # Estimate PDFs using KDE
             f_kde = gaussian_kde(fail_data)
             s_kde = gaussian_kde(success_data)
@@ -516,18 +542,6 @@ def plot_trajectory(traj_info, results_path):
             plt.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
             plt.close()
         
-
-
-
-# model_arch = "BC_RNN_GMM"
-# task = "stack_cube" # stack_cube or pick_place
-# model_name = f"model2"
-
-# uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/uncertainties.txt"
-
-
-# uncertainties_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/video_plots/uncertainties.txt"
-# results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/Isaac-Stack-Cube-Franka-IK-Rel-v0/video_plots" 
 
 
 
@@ -684,7 +698,7 @@ args = parser.parse_args()
 model_arch = "BC_RNN_GMM"
 task = "pick_place" # stack_cube or pick_place
 model_name = f"ensemble"
-number = 'experiment2'
+number = 'recovery'
 
 results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/run_{number}"
 
@@ -693,7 +707,6 @@ actions_path = f"{results_path}/actions{number}.txt"
 min_actions_path = f"{results_path}/min_actions{number}.txt"
 max_actions_path = f"{results_path}/max_actions{number}.txt"
 time_taken_path = f"{results_path}/time_taken{number}.txt"
-rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt"
 
 rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt" # remove the '.txt' and add rollout_log.txt
 
@@ -701,6 +714,7 @@ uncertainty_results_path = f"{results_path}/uncertainty_plots"
 trajectory_results_path = f"{results_path}/trajectory_plots"
 os.makedirs(uncertainty_results_path, exist_ok=True)
 os.makedirs(trajectory_results_path, exist_ok=True)
+
 # loghelper.namefile = rollout_log_path
 
 # clear joint paths

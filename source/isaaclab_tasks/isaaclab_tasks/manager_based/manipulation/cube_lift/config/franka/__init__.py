@@ -122,3 +122,6 @@ gym.register(
     },
     disable_env_checker=True,
 )
+
+# print(__name__)
+# exit()

@@ -19,6 +19,14 @@ from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
+def get_joint_pos(
+    env: ManagerBasedRLEnv,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Check if an object is grasped by the specified robot."""
+
+    robot: Articulation = env.scene[robot_cfg.name]
+    return robot.data.joint_pos
 
 def object_position_in_robot_root_frame(
     env: ManagerBasedRLEnv,

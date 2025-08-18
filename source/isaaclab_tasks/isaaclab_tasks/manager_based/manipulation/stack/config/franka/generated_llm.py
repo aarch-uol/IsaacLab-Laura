@@ -11,14 +11,12 @@ from isaaclab.markers.config import FRAME_MARKER_CFG
 from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG
 from . import glassware_files
 
-# Number of tasks: 2
-
 @configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping1 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
     object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-    success_term = DoneTerm(func=mdp.objects_stacked, params={"object_2_cfg": SceneEntityCfg("object3")})
+    success_term = DoneTerm(func=mdp.object_reached_goal)
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
@@ -27,30 +25,25 @@ class ObservationsCfg:
         last_action = ObsTerm(func=mdp.last_action)
         joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel_rel = ObsTerm(func=mdp.joint_vel_rel)
-        object_obs2 = ObsTerm(func=mdp.object_obs2)
-        object_positions_in_world_frame2 = ObsTerm(func=mdp.object_positions_in_world_frame2)
-        object_orientations_in_world_frame2 = ObsTerm(func=mdp.object_orientations_in_world_frame2)
+        object_obs = ObsTerm(func=mdp.object_obs)
+        object_positions_in_world_frame = ObsTerm(func=mdp.object_positions_in_world_frame)
+        object_orientations_in_world_frame = ObsTerm(func=mdp.object_orientations_in_world_frame)
         ee_frame_pos = ObsTerm(func=mdp.ee_frame_pos)
         ee_frame_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
 
     class SubtasksCfg(ObsGroup):
-        reach_object1 = ObsTerm(func=mdp.reach_object, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object1"), "threshold": 0.05})
-        object_grasped1 = ObsTerm(func=mdp.object_grasped, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "robot_cfg": SceneEntityCfg("robot"), "object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted1 = ObsTerm(func=mdp.is_object_lifted, params={"threshold": 0.05, "object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal1 = ObsTerm(func=mdp.object_reached_midgoal, params={"threshold": 0.05, "command_name": "object_pose"})
-        reach_object2_1 = ObsTerm(func=mdp.reach_object2, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object2"), "threshold": 0.05})
-        object_stacked1 = ObsTerm(func=mdp.object_stacked, params={"robot_cfg": SceneEntityCfg("robot"), "upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
+        # Task 1
+        reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal)
+        pouring_solution_task1 = ObsTerm(func=mdp.pouring_solution)
+        reorient_object_task1 = ObsTerm(func=mdp.reorient_object)
+        object_near_goal_task1 = ObsTerm(func=mdp.object_near_goal, params={"object_cfg": SceneEntityCfg("object2")})
 
-        reach_object1_2 = ObsTerm(func=mdp.reach_object, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object1"), "threshold": 0.05})
-        object_grasped1_2 = ObsTerm(func=mdp.object_grasped, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "robot_cfg": SceneEntityCfg("robot"), "object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted1_2 = ObsTerm(func=mdp.is_object_lifted, params={"threshold": 0.05, "object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal1_2 = ObsTerm(func=mdp.object_reached_midgoal, params={"threshold": 0.05, "command_name": "object_pose"})
-        reach_object2_2 = ObsTerm(func=mdp.reach_object2, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object3"), "threshold": 0.05})
-        object_stacked1_2 = ObsTerm(func=mdp.object_stacked, params={"robot_cfg": SceneEntityCfg("robot"), "upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object3")})
-
-    policy = PolicyCfg()
-    subtasks = SubtasksCfg()
+    policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)
+    subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
 
 @configclass
 class FrankaCubeStackEnvCfg(StackEnvCfg):
@@ -60,24 +53,25 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         glassware = glassware_files.Glassware()
         self.terminations = TerminationsCfg()
         self.observations = ObservationsCfg()
+
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
-        # Add semantics to table
+
+        # Add semantics to table and ground
         self.scene.table.spawn.semantic_tags = [("class", "table")]
-        # Add semantics to ground
         self.scene.plane.spawn.semantic_tags = [("class", "ground")]
+
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True)
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(asset_name="robot", joint_names=["panda_finger.*"], open_command_expr={"panda_finger_.*": 0.04}, close_command_expr={"panda_finger_.*": 0.0})
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware
-        self.scene.object1 = glassware.sample_vial  # Main object, used in both tasks
+        self.scene.object1 = glassware.beaker  # Main object for pouring
 
         # Spawn Lab Equipment
-        self.scene.object2 = glassware.hot_plate  # Used in Task 1
-        self.scene.object3 = glassware.electric_balance  # Used in Task 2
+        self.scene.object2 = glassware.hot_plate  # Target equipment for pouring
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

@@ -75,7 +75,7 @@ class CommandsCfg:
         resampling_time_range=(10.0, 10.0),
         debug_vis=True,
         ranges=mdp.UniformPoseCommandCfg.Ranges(
-            pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.5, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
+            pos_x=(0.4, 0.4), pos_y=(-0.1, -0.1), pos_z=(0.15, 0.15), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
     # low_pose = mdp.UniformPoseCommandCfg(
@@ -266,7 +266,7 @@ class Observations2Cfg:
             }
         )
         pour = ObsTerm(
-            func=mdp.pour_object, 
+            func=mdp.pouring_solution, 
             params={
                 "ee_frame_cfg": SceneEntityCfg("ee_frame"),
                 "angle_threshold": 45,

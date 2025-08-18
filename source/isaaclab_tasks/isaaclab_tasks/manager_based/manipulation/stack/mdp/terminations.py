@@ -32,10 +32,11 @@ def objects_stacked(
     height_threshold: float = 0.006,
     # height_diff: float = 0.0468,
     height_diff: float = 0.05,
-    threshold: float = 0.02,
+    threshold: float = 0.05,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     atol=0.0001,
     rtol=0.0001,
+    success_hold_time: float = 5.0,
     # loghelper : LoggingHelper = LoggingHelper(),
 ):
     robot: Articulation = env.scene[robot_cfg.name]
@@ -70,11 +71,23 @@ def objects_stacked(
     stacked = torch.logical_and(
         torch.isclose(robot.data.joint_pos[:, -2], gripper_open_val.to(env.device), atol=atol, rtol=rtol), stacked
     )
-    if stacked == True:
-        print("Termination function: objects_stacked")
+    # if stacked == True:
+    #     print("Termination function: objects_stacked")
 
-    return stacked
+    # return stacked
+     # Time-based success
+    
+    import time
+    if stacked.all():
+        if objects_stacked._start_time is None:
+            objects_stacked._start_time = time.time()
+        elif time.time() - objects_stacked._start_time >= success_hold_time:
+            print(f"✅ Termination: objects_stacked held for {success_hold_time} seconds")
+            return torch.tensor([True], device=env.device)
+    else:
+        objects_stacked._start_time = None
 
+    return torch.tensor([False], device=env.device)
 
 def object_reached_goal(
     env: ManagerBasedRLEnv,

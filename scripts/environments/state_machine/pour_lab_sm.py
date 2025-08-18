@@ -164,16 +164,8 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(object_pose[tid])
         pose_rot = wp.transform_get_rotation(object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.015, pose_pos.y, pose_pos.z + 0.05)
+        offset_pos = wp.vec3(pose_pos.x + 0.015, pose_pos.y, pose_pos.z)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
-        CONICAL = False
-        count = 0
-        pos = wp.transform_get_translation(object_pose[tid])
-        if count == 0:
-            z_val = pos.z
-            count += 1
-        if  z_val > 0.07 and state == PickSmState.APPROACH_OBJECT:
-            CONICAL = True
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
@@ -216,7 +208,8 @@ def infer_state_machine(
         # if CONICAL == True:
         #     offset_pos = wp.vec3(offset_pos.x + 0.1, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
         # else:
-        offset_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.15, offset_pos.z + 0.05)  # raise 25 cm 
+        offset_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.15, offset_pos.z + 0.25)  # raise 25 cm 0.05
+        print(offset_pos)
         new_offset = wp.transform(offset_pos, offset_rot)
         # Target pose: above the object using offset
         # above_target_pose = wp.transform_multiply(offset[tid], final_object_pose[tid])
@@ -237,21 +230,11 @@ def infer_state_machine(
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
         # Evaluate readiness to transition
-        if conical:
-            dx = wp.abs(current_pos.x - target_pos.x)
-            dy = wp.abs(current_pos.y - target_pos.y)
-            dz = wp.abs(current_pos.z - target_pos.z)
-            if (dx < 0.02) and (dy < 0.02) and (dz < 1.4):
-                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                    print("[SM_INFO] : Moving from APPR_ABOVE2 to POUR")
-                    sm_state[tid] = PickSmState.POUR
-                    sm_wait_time[tid] = 0.0
-        else:
-            if distance_below_threshold(current_pos, target_pos, position_threshold):
-                if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                    print("[SM_INFO] : Moving from APPR_ABOVE2 to POUR")
-                    sm_state[tid] = PickSmState.POUR
-                    sm_wait_time[tid] = 0.0
+        if distance_below_threshold(current_pos, target_pos, position_threshold):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
+                print("[SM_INFO] : Moving from APPR_ABOVE2 to POUR")
+                sm_state[tid] = PickSmState.POUR
+                sm_wait_time[tid] = 0.0
     elif state == PickSmState.POUR:
         # Tilt hand 45 degrees down (around local X axis)
         # Due to how holding beaker, this would not pour properly, if holding from side then it would probably work
@@ -293,13 +276,10 @@ def infer_state_machine(
             sm_state[tid] = PickSmState.APPROACH_GOAL
             sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_GOAL:
-        pose_pos = wp.transform_get_translation(final_object_pose[tid])
-        pose_rot = wp.transform_get_rotation(final_object_pose[tid])
-        if CONICAL == True:
-            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
-        else:
-            # Apply offset in x-direction (5 cm = 0.05 m)
-            offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+        pose_pos = wp.transform_get_translation(des_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(des_object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m)
+        offset_pos = wp.vec3(pose_pos.x - 0.2, pose_pos.y - 0.1, pose_pos.z - 0.4)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
@@ -314,7 +294,7 @@ def infer_state_machine(
                 sm_state[tid] = PickSmState.UNGRASP_OBJECT
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.UNGRASP_OBJECT:
-        des_ee_pose[tid] = final_object_pose[tid]
+        des_ee_pose[tid] = des_object_pose[tid]
         gripper_state[tid] = GripperState.OPEN
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT:

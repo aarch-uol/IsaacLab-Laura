@@ -38,37 +38,26 @@ class LLMClient:
 
         prompt = f"""
 
-    This prompt applies to IsaacLab-based simulation code. 
-    Your task is to generate a single, valid Python file with no syntax errors. 
-    The content of the output file should only differ by the objects spawned from the given file.
+    Your task is to generate a single, valid Python file for an IsaacLab simulation. 
+    This file's content should only differ from the reference file by the objects and configurations required for the user's task.
+    Use the `@configclass` decorator for any Classes, as in the given file.
 
     ### Task description
 
     User description: {user_input}
     Think about which laboratory equipment from the original file would be used to complete the task in the user description.
-    Look at the user description and decide how many tasks have been described, write the number of tasks in a comment under the imports.
-
-    ### Imports
-
-    - **`PourEnvCfg` is in `lab_env_cfg` file in `stack` folder**.
-    - If `pour` in user description, then change import StackEnvCfg to PourEnvCfg.
+    Look at the user description and identify the number of tasks.
+    Add a comment: name the first task 'Task 1' and the second (if applicable) 'Task 2'.
 
     ### DoneTerm Definitions
 
-    - Write **exactly** 4 DoneTerms for:
+    Create **exactly** 4 DoneTerms for  the TerminationsCfg class, following these specific rules:
         - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
-        - Must include one of (Success Term): mdp.objects_stacked function or mdp.object_reached_goal.
+        - One of (Success Term):
+            Final Subtask	DoneTerm Function	Required Parameters
+            Stacking or placing object1	mdp.objects_stacked	object_2_cfg = SceneEntityCfg("object2") for one task and SceneEntityCfg("object3") for two tasks.
+            All other tasks	mdp.object_reached_goal	None
         - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
-    Strictly Ensure that there are 4 DoneTerms under TerminationsCfg.
-
-    Success Condition Selection Rules:
-        - For objects_stacked (used for any tasks involving stacking object1 onto object2):
-            - Use objects_stacked **only** if object_stacked is appropriate for the final subtask.
-            - If there is one task: objects_stacked only param `object_2_cfg`: SceneEntityCfg object2.
-            - If there is two tasks: objects_stacked only param `object_2_cfg`: SceneEntityCfg object3.
-        - For object_reached_goal (used if stacking isn't applicable for final subtask):
-            - Use object_reached_goal **only** if object_near_goal is appropriate for the final subtask.
-            - Requires no params
 
     ### ObsTerm Definitions
 
@@ -82,63 +71,56 @@ class LLMClient:
             - `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs2`, `object_positions_in_world_frame2`, `object_orientations_in_world_frame2`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`
 
     SUBTASK GENERATION RULES:
-    Task Context:
-        In SubtasksCfg, create a logical sequence of subtasks using ObsTerm for a robot to complete the user-defined task(s).
+        Before generating any subtasks, analyze the specific action words in the user's task description for each task.
+        The subtasks you generate must directly correspond to these specific actions.
+        In SubtasksCfg, create a logical sequence of subtasks using ObsTerm for a robot to complete the user-defined task.
         - Single Task → Subtasks use object1 as the main object, object2 as apparatus.
-        - Two Tasks → Generate two sequences:
-            Task 1: object1 (main), object2 (apparatus)
-            Task 2: object1 (main), object3 (apparatus)
-        - The sequence of task 1 must be fully completed before starting the sequence for task 2.
+        - Two Tasks → Create **two separate and distinct** sequences of subtasks.
+            **For Two Tasks, your final output must be structured with explicit comments to separate each task's subtasks**.
+            Your generation process must follow these steps:
+                Write all the subtasks for **Task 1** and ensure the sequence is complete.
+                Then, and only then, write all the subtasks for **Task 2** and ensure that sequence is also complete.
+            Do not mix or interleave subtasks from different tasks.
 
-    Available Subtask Functions (func=):
-        - Core Subtasks: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2
-        - Optional Subtasks: pour_object, reorient_object (follows pour_object if used)
-        - Final Termination Subtask must include either (ObsTerm(func=)): `object_stacked`, `object_near_goal`.
+    Available Subtask Functions & Parameters (func=):
+        - **Core Subtasks**: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2.
+        - **Optional Subtasks (for a subtask involving pouring, in the following specific order)**: pouring_solution, reorient_object.
+        - **Final Termination Subtask** must include **one of** (ObsTerm(func=)): `object_stacked`, `object_near_goal`.
         - Use reach_object2 for a second reach in a task.
 
     SUBTASK FUNCTION PARAMETERS:
-        - `reach_object` / `reach_object2` requires: `ee_frame_cfg`, `object_cfg`, `threshold`.
-        - `object_grasped` requires: `ee_frame_cfg`, `robot_cfg`, `object_cfg`.
-        - `is_object_lifted` requires: `threshold`, `object_cfg`.
-        - `object_reached_midgoal` requires: `threshold`, `command_name = "object_pose"`.
-        - `pour_object` / `reorient_object` requires: `angle_threshold = 45 / 175`, `ee_frame_cfg`.
+        - `reach_object` / `reach_object2` / `object_grasped` / `is_object_lifted` requires: `object_cfg`.
 
     Termination Function Rules:
         - For `object_stacked` (used for tasks involving placing object1 onto apparatus):
-            - Use `object_stacked` **only** if appropriate for the final subtask.
-            - Requires params:
-                - `robot_cfg` → SceneEntityCfg("robot")
-                - `upper_object_cfg` → SceneEntityCfg("object1")
-                - `lower_object_cfg`:
-                    - IF ONE TASK → SceneEntityCfg("object2")
-                    - IF TWO TASKS → SceneEntityCfg("object3")
-        - For `object_near_goal` (used if stacking isn't applicable for final subtask):
-            - Requires:
-                - `threshold`
-                - `robot_cfg` → SceneEntityCfg("robot")
-                - `object_cfg` → SceneEntityCfg("object1")
+            - Requires params: `upper_object_cfg`, `lower_object_cfg`:
+        - For `object_near_goal` (used if `object_stacked` isn't applicable for final subtask):
+            - Requires: `object_cfg`
         - **The termination function must be the final subtask for each sequence of subtasks**.
 
+    Subtask Parameters:
+
+    Parameter	Main Object	Apparatus (Task 1)	Apparatus (Task 2)
+    object_cfg	SceneEntityCfg("object1")	SceneEntityCfg("object2")	SceneEntityCfg("object3")
+    upper_object_cfg	SceneEntityCfg("object1")	N/A	 N/A
+    lower_object_cfg	N/A	SceneEntityCfg("object2")	SceneEntityCfg("object3")
+
     General Parameter Mapping Rules:
-        - Use SceneEntityCfg("object1") for any subtask with `"object"` in the name.
-        - IF ONE TASK:
-            - Use SceneEntityCfg("object2") for `"object2"` subtasks.
-        - IF TWO TASKS:
-            - For Task 1: use SceneEntityCfg("object2") for `"object2"` subtasks.
-            - For Task 2: use SceneEntityCfg("object3") for `"object2"` subtasks.
-        - Use SceneEntityCfg("ee_frame") for all `ee_frame_cfg` parameters.
-        - Use `threshold` values between `0.05` and `0.1`.
+        For any subtask parameter that refers to the main object (e.g., object_cfg, upper_object_cfg), always use SceneEntityCfg("object1").
+        For any subtask parameter that refers to the apparatus (e.g., object_cfg (only for reach_object2), lower_object_cfg):
+            If generating subtasks for Task 1, use SceneEntityCfg("object2").
+            If generating subtasks for Task 2, use SceneEntityCfg("object3").
 
-    At the end of ObservationsCfg Class create an instance for: PolicyCfg and SubtasksCfg each with `enable_corruption`, `concatenate_terms` which are both `False`.
+    Logical Sequence Self-Correction:
+    For each task sequence you generate, perform a logical check.
+        Does the sequence begin by reaching for and grasping the main object (object1)?
+        Does the sequence end with a termination function (object_stacked or object_near_goal)?
+        For a stacking task, is there a reach_object2 to move to the apparatus immediately before the object_stacked termination?
+        For a pouring task, is the pouring_solution and reorient_object subtask included?
+
+    At the end of `ObservationsCfg` Class create instances for: `PolicyCfg` named policy and `SubtasksCfg` named subtasks.
+    Within each of the `PolicyCfg` and `SubtasksCfg` instances, include terms: `enable_corruption`, `concatenate_terms` which are both `False`.
     Note: All ObsTerm functions are sourced from the `mdp` folder.
-
-    ### FrankaCubeStack Class Definitions
-
-    Use the `@configclass` decorator for any Classes, as in the given file.
-
-    Change the inheritance of `FrankaCubeStackEnvCfg(StackEnvCfg)` only IF the task involves `pour` in the task description:
-        - Change `StackEnvCfg` to `PourEnvCfg`.
-    If `pour` is not in the task description then keep `StackEnvCfg`.
 
     ### Task Specific Objects
 

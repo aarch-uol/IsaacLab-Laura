@@ -201,7 +201,7 @@ def gripper_pos(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityC
 def reach_object(
     env: ManagerBasedRLEnv,
     object_cfg: SceneEntityCfg,
-    ee_frame_cfg: SceneEntityCfg,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     threshold: float = 0.05,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
@@ -224,9 +224,9 @@ def reach_object(
 
 def object_grasped(
     env: ManagerBasedRLEnv,
-    robot_cfg: SceneEntityCfg,
-    ee_frame_cfg: SceneEntityCfg,
     object_cfg: SceneEntityCfg,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     diff_threshold: float = 0.06,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     gripper_threshold: float = 0.005,
@@ -275,7 +275,7 @@ def is_object_lifted(
 def reach_object2(
     env: ManagerBasedRLEnv,
     object_cfg: SceneEntityCfg,
-    ee_frame_cfg: SceneEntityCfg,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     threshold: float = 0.1,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
@@ -296,10 +296,10 @@ def reach_object2(
         print("Obs function: reach_object2")
     return object2_ee_distance < (threshold + 0.05)
 
-def pour_object(
+def pouring_solution(
     env: ManagerBasedEnv,
-    ee_frame_cfg: SceneEntityCfg,
-    angle_threshold: int = 45, 
+    angle_threshold: int = 45,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """The agent is pouring into something else"""
@@ -324,8 +324,8 @@ def pour_object(
 
 def reorient_object(
     env: ManagerBasedEnv,
-    ee_frame_cfg: SceneEntityCfg,
-    angle_threshold: int = 175, 
+    angle_threshold: int = 175,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """The agent is reorienting the object"""
@@ -350,15 +350,15 @@ def reorient_object(
 
 def object_stacked(
     env: ManagerBasedRLEnv,
-    robot_cfg: SceneEntityCfg,
     # Upper and lower object cfg defined in stack_env_cfg when stacked in subtask
     upper_object_cfg: SceneEntityCfg,
     lower_object_cfg: SceneEntityCfg,
     command_name: str = "object_pose",
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     xy_threshold: float = 0.1,
     height_threshold: float = 0.006,
     height_diff: float = 0.05,
-    threshold: float = 0.02,
+    threshold: float = 0.05,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     atol=0.0001,
     rtol=0.0001,
@@ -414,8 +414,8 @@ def object_stacked(
 def object_near_goal(
     env: ManagerBasedRLEnv,
     # command_name: str = "object_pose",
-    robot_cfg: SceneEntityCfg,
     object_cfg: SceneEntityCfg,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     threshold: float = 0.02,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:

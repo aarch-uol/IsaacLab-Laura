@@ -49,7 +49,6 @@ from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
-import math
 
 # initialize warp
 wp.init()
@@ -71,49 +70,41 @@ class PickSmState:
     GRASP_OBJECT = wp.constant(3)
     LIFT_OBJECT = wp.constant(4)
     APPROACH_ABOVE_OBJECT2 = wp.constant(5)
-    POUR = wp.constant(6)
-    REORIENT = wp.constant(7)
-    APPROACH_GOAL = wp.constant(8)
-    UNGRASP_OBJECT = wp.constant(9)
+    APPROACH_OBJECT2 = wp.constant(6)
+    UNGRASP_OBJECT = wp.constant(7)
+    APPROACH_ABOVE_OBJECT_2 = wp.constant(8)
+    APPROACH_OBJECT_2 = wp.constant(9)
+    GRASP_OBJECT_2 = wp.constant(10)
+    LIFT_OBJECT_2 = wp.constant(11)
+    APPROACH_ABOVE_OBJECT3 = wp.constant(12)
+    APPROACH_OBJECT3 = wp.constant(13)
+    UNGRASP_OBJECT_2 = wp.constant(14)
 
 
 class PickSmWaitTime:
     """Additional wait times (in s) for states for before switching."""
 
-    REST = wp.constant(0.2)
+    REST = wp.constant(5)
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
     LIFT_OBJECT = wp.constant(0.5)
     APPROACH_ABOVE_OBJECT2 = wp.constant(0.5)
-    POUR = wp.constant(1.0)
-    REORIENT = wp.constant(1.0)
-    APPROACH_GOAL = wp.constant(0.6)
-    UNGRASP_OBJECT = wp.constant(0.3)
+    APPROACH_OBJECT2 = wp.constant(0.6)
+    UNGRASP_OBJECT = wp.constant(5)
+    APPROACH_ABOVE_OBJECT_2 = wp.constant(0.5)
+    APPROACH_OBJECT_2 = wp.constant(0.6)
+    GRASP_OBJECT_2 = wp.constant(0.3)
+    LIFT_OBJECT_2 = wp.constant(0.5)
+    APPROACH_ABOVE_OBJECT3 = wp.constant(0.5)
+    APPROACH_OBJECT3 = wp.constant(0.6)
+    UNGRASP_OBJECT_2 = wp.constant(0.3)
 
 
 @wp.func
 def distance_below_threshold(current_pos: wp.vec3, desired_pos: wp.vec3, threshold: float) -> bool:
     return wp.length(current_pos - desired_pos) < threshold
 
-@wp.func
-def quat_mul(q1: wp.quatf, q2: wp.quatf) -> wp.quatf:
-    x1 = q1[0]
-    y1 = q1[1]
-    z1 = q1[2]
-    w1 = q1[3]
-
-    x2 = q2[0]
-    y2 = q2[1]
-    z2 = q2[2]
-    w2 = q2[3]
-
-    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-    y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
-    z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
-    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-
-    return wp.quatf(x, y, z, w)
 
 @wp.kernel
 def infer_state_machine(
@@ -124,11 +115,11 @@ def infer_state_machine(
     object_pose: wp.array(dtype=wp.transform),
     des_object_pose: wp.array(dtype=wp.transform),
     final_object_pose: wp.array(dtype=wp.transform),
+    object_task2_pose: wp.array(dtype=wp.transform),
     des_ee_pose: wp.array(dtype=wp.transform),
     gripper_state: wp.array(dtype=float),
     offset: wp.array(dtype=wp.transform),
     position_threshold: float,
-    conical: bool,
 ):
     # retrieve thread id
     tid = wp.tid()
@@ -159,11 +150,10 @@ def infer_state_machine(
                 sm_state[tid] = PickSmState.APPROACH_OBJECT
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT:
-        ### Getting position and rotation for the robot to go to the object at
         pose_pos = wp.transform_get_translation(object_pose[tid])
         pose_rot = wp.transform_get_rotation(object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.015, pose_pos.y, pose_pos.z)
+        offset_pos = wp.vec3(pose_pos.x + 0.02, pose_pos.y, pose_pos.z) #sample vial + 0.04
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
@@ -182,7 +172,7 @@ def infer_state_machine(
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT:
             # move to next state and reset wait time
-            print("[SM_INFO] : Moving from GRSP to APPROACH_ABOVE_OBJECT2")
+            print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
             sm_state[tid] = PickSmState.LIFT_OBJECT
             sm_wait_time[tid] = 0.0
     elif state == PickSmState.LIFT_OBJECT:
@@ -201,12 +191,10 @@ def infer_state_machine(
                 sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_ABOVE_OBJECT2:
-        # Change offset position
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
-        offset_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.15, offset_pos.z + 0.25)  # raise 25 cm ## 0.05 for sample vial
+        offset_pos = wp.vec3(offset_pos.x, offset_pos.y, offset_pos.z + 0.15)  # raise 25 cm 
         new_offset = wp.transform(offset_pos, offset_rot)
-        # Target pose: above the object using offset
         above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
         # Blend time for smooth approach
         APPROACH_BLEND_TIME = 0.4  # seconds, tune as needed
@@ -224,56 +212,16 @@ def infer_state_machine(
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
         # Evaluate readiness to transition
-        if distance_below_threshold(current_pos, target_pos, position_threshold):
+        if distance_below_threshold(current_pos, target_pos, 0.02):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                print("[SM_INFO] : Moving from APPR_ABOVE2 to POUR")
-                sm_state[tid] = PickSmState.POUR
+                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
+                sm_state[tid] = PickSmState.APPROACH_OBJECT2
                 sm_wait_time[tid] = 0.0
-    elif state == PickSmState.POUR:
-        # Tilt hand 45 degrees down (around local X axis)
-        # Due to how holding beaker, this would not pour properly, if holding from side then it would probably work
-        angle_rad = wp.radians(-45.0)  # or wp.pi / 4
-        tilt_quat = wp.quat_from_axis_angle(wp.vec3(0.25, 0.1, 0.0), angle_rad)
-
-        # Get current pose of end-effector
-        ee_pos = wp.transform_get_translation(ee_pose[tid])
-        ee_rot = wp.transform_get_rotation(ee_pose[tid])
-
-        tilted_rot = quat_mul(tilt_quat, ee_rot)
-
-        # Set desired pose with same position but tilted orientation
-
-        des_ee_pose[tid] = wp.transform(ee_pos, tilted_rot)
-        gripper_state[tid] = GripperState.CLOSE
-
-        if sm_wait_time[tid] >= PickSmWaitTime.POUR:
-            print("[SM_INFO] : Moving from POUR to REORIENT")
-            sm_state[tid] = PickSmState.REORIENT
-            sm_wait_time[tid] = 0.0
-    elif state == PickSmState.REORIENT:
-        angle_rad = wp.radians(-45.0)  # or wp.pi / 4
-        tilt_quat = wp.quat_from_axis_angle(wp.vec3(0.25, 0.1, 0.0), -angle_rad)
-
-        # Get current pose of end-effector
-        ee_pos = wp.transform_get_translation(ee_pose[tid])
-        ee_rot = wp.transform_get_rotation(ee_pose[tid])
-
-        tilted_rot = quat_mul(tilt_quat, ee_rot)
-
-        # Set desired pose with same position but tilted orientation
-
-        des_ee_pose[tid] = wp.transform(ee_pos, tilted_rot)
-        gripper_state[tid] = GripperState.CLOSE
-
-        if sm_wait_time[tid] >= PickSmWaitTime.REORIENT:
-            print("[SM_INFO] : Moving from REORIENT to REST")
-            sm_state[tid] = PickSmState.APPROACH_GOAL
-            sm_wait_time[tid] = 0.0
-    elif state == PickSmState.APPROACH_GOAL:
-        pose_pos = wp.transform_get_translation(des_object_pose[tid])
-        pose_rot = wp.transform_get_rotation(des_object_pose[tid])
+    elif state == PickSmState.APPROACH_OBJECT2:
+        pose_pos = wp.transform_get_translation(final_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(final_object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.2, pose_pos.y - 0.1, pose_pos.z -0.15)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
@@ -282,16 +230,115 @@ def infer_state_machine(
             wp.transform_get_translation(des_ee_pose[tid]),
             0.03,
         ):
-            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_GOAL:
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
                 # move to next state and reset wait time
                 print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
                 sm_state[tid] = PickSmState.UNGRASP_OBJECT
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.UNGRASP_OBJECT:
-        des_ee_pose[tid] = des_object_pose[tid]
+        des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.OPEN
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT:
+            # move to next state and reset wait time
+            print("[SM_INFO] : Moving from UNGRASP to TASK2")
+            sm_state[tid] = PickSmState.APPROACH_OBJECT_2
+            sm_wait_time[tid] = 0.0
+    elif state == PickSmState.APPROACH_OBJECT_2:
+        pose_pos = wp.transform_get_translation(object_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m)
+        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+        gripper_state[tid] = GripperState.OPEN
+        if distance_below_threshold(
+            wp.transform_get_translation(ee_pose[tid]),
+            wp.transform_get_translation(des_ee_pose[tid]),
+            position_threshold,
+        ):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT_2:
+                # move to next state and reset wait time
+                print("[SM_INFO] : Moving from APPR_OBJ to GRASP_OBJECT")
+                sm_state[tid] = PickSmState.GRASP_OBJECT_2
+                sm_wait_time[tid] = 0.0
+    elif state == PickSmState.GRASP_OBJECT_2:
+        des_ee_pose[tid] = object_pose[tid]
+        gripper_state[tid] = GripperState.CLOSE
+        # wait for a while
+        if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT_2:
+            # move to next state and reset wait time
+            print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
+            sm_state[tid] = PickSmState.LIFT_OBJECT_2
+            sm_wait_time[tid] = 0.0
+    elif state == PickSmState.LIFT_OBJECT_2:
+        des_ee_pose[tid] = des_object_pose[tid]
+        gripper_state[tid] = GripperState.CLOSE
+        # wait for a while
+        if distance_below_threshold(
+            wp.transform_get_translation(ee_pose[tid]),
+            wp.transform_get_translation(des_ee_pose[tid]),
+            0.03,
+        ):
+            # wait for a while
+            if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT_2:
+                # move to next state and reset wait time
+                print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
+                sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT3
+                sm_wait_time[tid] = 0.0
+    elif state == PickSmState.APPROACH_ABOVE_OBJECT3:
+        offset_pos = wp.transform_get_translation(offset[tid])
+        offset_rot = wp.transform_get_rotation(offset[tid])
+        offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
+        new_offset = wp.transform(offset_pos, offset_rot)
+        above_target_pose = wp.transform_multiply(new_offset, object_task2_pose[tid])
+        # Blend time for smooth approach
+        APPROACH_BLEND_TIME = 0.4  # seconds, tune as needed
+        alpha = wp.clamp(sm_wait_time[tid] / APPROACH_BLEND_TIME, 0.0, 1.0)
+        # Interpolate position and rotation
+        current_pos = wp.transform_get_translation(ee_pose[tid])
+        current_rot = wp.transform_get_rotation(ee_pose[tid])
+
+        target_pos = wp.transform_get_translation(above_target_pose)
+        target_rot = wp.transform_get_rotation(above_target_pose)
+
+        pos_interp = wp.lerp(current_pos, target_pos, alpha)
+        rot_interp = wp.quat_slerp(current_rot, target_rot, alpha)
+        # Set interpolated pose
+        des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
+        gripper_state[tid] = GripperState.CLOSE
+        # Evaluate readiness to transition
+        if distance_below_threshold(current_pos, target_pos, 0.02):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT3:
+                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
+                sm_state[tid] = PickSmState.APPROACH_OBJECT3
+                sm_wait_time[tid] = 0.0
+    elif state == PickSmState.APPROACH_OBJECT3:
+        ## Pushes a bit into flask because already on hot plate at this point
+        # Get original transform from final_object_pose[tid]
+        pose_pos = wp.transform_get_translation(object_task2_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_task2_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.125)
+
+        # Reconstruct the transform with new position and same rotation
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+        gripper_state[tid] = GripperState.CLOSE
+        # wait for a while
+        if distance_below_threshold(
+            wp.transform_get_translation(ee_pose[tid]),
+            wp.transform_get_translation(des_ee_pose[tid]),
+            position_threshold,
+        ):
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT3:
+                # move to next state and reset wait time
+                print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
+                sm_state[tid] = PickSmState.UNGRASP_OBJECT_2
+                sm_wait_time[tid] = 0.0
+    elif state == PickSmState.UNGRASP_OBJECT_2:
+        des_ee_pose[tid] = object_task2_pose[tid]
+        gripper_state[tid] = GripperState.OPEN
+        # wait for a while
+        if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT_2:
             # move to next state and reset wait time
             print("[SM_INFO] : Moving from UNGRASP to REST")
             sm_state[tid] = PickSmState.REST
@@ -314,7 +361,8 @@ class PickAndLiftSm:
     4. GRASP_OBJECT: The robot grasps the object.
     5. LIFT_OBJECT: The robot lifts the object to the desired pose. This is the final state.
     6. APPROACH_ABOVE_OBJECT2: The robot moves above another object.
-    7. POUR: The robot tilts the object 45 degrees.
+    7. APPROACH_OBJECT2: The robot moves to another object.
+    8. UNGRASP_OBJECT: The robot ungrasps the object.
     """
 
     def __init__(self, dt: float, num_envs: int, device: torch.device | str = "cpu", position_threshold=0.01):
@@ -330,7 +378,6 @@ class PickAndLiftSm:
         self.num_envs = num_envs
         self.device = device
         self.position_threshold = position_threshold
-        self.conical = False
 
         # initialize state machine
         self.sm_dt = torch.full((self.num_envs,), self.dt, device=self.device)
@@ -340,7 +387,8 @@ class PickAndLiftSm:
         # desired state
         self.des_ee_pose = torch.zeros((self.num_envs, 7), device=self.device)
         self.des_gripper_state = torch.full((self.num_envs,), 0.0, device=self.device)
-        self.final_object_pose = torch.zeros((self.num_envs, 7), device=self.device)
+        # self.final_object_pose = torch.zeros((self.num_envs, 7), device=self.device)
+        # self.object_task2_pose = torch.zeros((self.num_envs, 7), device=self.device)
 
         # approach above object offset
         self.offset = torch.zeros((self.num_envs, 7), device=self.device)
@@ -353,7 +401,8 @@ class PickAndLiftSm:
         self.sm_wait_time_wp = wp.from_torch(self.sm_wait_time, wp.float32)
         self.des_ee_pose_wp = wp.from_torch(self.des_ee_pose, wp.transform)
         self.des_gripper_state_wp = wp.from_torch(self.des_gripper_state, wp.float32)
-        self.final_object_pose_wp = wp.from_torch(self.final_object_pose, wp.transform)
+        # self.final_object_pose_wp = wp.from_torch(self.final_object_pose, wp.transform)
+        # self.object_task2_pose_wp = wp.from_torch(self.object_task_pose, wp.transform)
         self.offset_wp = wp.from_torch(self.offset, wp.transform)
 
     def reset_idx(self, env_ids: Sequence[int] = None):
@@ -363,19 +412,21 @@ class PickAndLiftSm:
         self.sm_state[env_ids] = 0
         self.sm_wait_time[env_ids] = 0.0
 
-    def compute(self, ee_pose: torch.Tensor, object_pose: torch.Tensor, des_object_pose: torch.Tensor, final_object_pose: torch.Tensor) -> torch.Tensor:
+    def compute(self, ee_pose: torch.Tensor, object_pose: torch.Tensor, des_object_pose: torch.Tensor, final_object_pose: torch.Tensor, object_task2_pose: torch.Tensor) -> torch.Tensor:
         """Compute the desired state of the robot's end-effector and the gripper."""
         # convert all transformations from (w, x, y, z) to (x, y, z, w)
         ee_pose = ee_pose[:, [0, 1, 2, 4, 5, 6, 3]]
         object_pose = object_pose[:, [0, 1, 2, 4, 5, 6, 3]]
         des_object_pose = des_object_pose[:, [0, 1, 2, 4, 5, 6, 3]]
         final_object_pose = final_object_pose[:, [0, 1, 2, 4, 5, 6, 3]]
+        object_task2_pose = object_task2_pose[:, [0, 1, 2, 4, 5, 6, 3]]
 
         # convert to warp
         ee_pose_wp = wp.from_torch(ee_pose.contiguous(), wp.transform)
         object_pose_wp = wp.from_torch(object_pose.contiguous(), wp.transform)
         des_object_pose_wp = wp.from_torch(des_object_pose.contiguous(), wp.transform)
         final_object_pose_wp = wp.from_torch(final_object_pose.contiguous(), wp.transform)
+        object_task2_pose_wp = wp.from_torch(object_task2_pose.contiguous(), wp.transform)
 
         # run state machine
         wp.launch(
@@ -389,11 +440,11 @@ class PickAndLiftSm:
                 object_pose_wp,
                 des_object_pose_wp,
                 final_object_pose_wp,
+                object_task2_pose_wp,
                 self.des_ee_pose_wp,
                 self.des_gripper_state_wp,
                 self.offset_wp,
                 self.position_threshold,
-                self.conical,
             ],
             device=self.device,
         )
@@ -406,7 +457,7 @@ class PickAndLiftSm:
 
 def main():
     # parse configuration
-    env_cfg: LiftEnvCfg = parse_env_cfg(
+    env_cfg: LiftEnvCfg = parse_env_cfg( # might need to change LiftEnvCfg
         # "Isaac-Stack-Lab-Franka-IK-Abs-v0",
         "Isaac-Stack-LLM-Franka-IK-Abs-v0",
         device=args_cli.device,
@@ -418,24 +469,20 @@ def main():
     env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start
     env.reset()
-    # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
+   # print("Setup action buffer : shape : ", env.unwrapped.action_space.shape)
     # create action buffers (position + quaternion)
     actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
     actions[:, 3] = 1.0
     
-    # print("actions : ", actions)
+   # print("actions : ", actions)
     # desired object orientation (we only do position control of object)
     desired_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
     desired_orientation[:, 1] = 1.0 #0?
-
-    # Create state machine
+    # create state machine
     pick_sm = PickAndLiftSm(
         env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.01
     )
-
-    # Set the EE orientation offset in the state machine
-    # pick_sm.set_ee_orientation_offset(ee_quat_xyzw)
-    # print("debug1 : " , env.unwrapped.action_space.shape)
+   # print("debug1 : " , env.unwrapped.action_space.shape)
     n=0
     while simulation_app.is_running():
         # run everything in inference mode+
@@ -450,13 +497,15 @@ def main():
             ee_frame_sensor = env.unwrapped.scene["ee_frame"]
             tcp_rest_position = ee_frame_sensor.data.target_pos_w[..., 0, :].clone() - env.unwrapped.scene.env_origins
             tcp_rest_orientation = ee_frame_sensor.data.target_quat_w[..., 0, :].clone()
-
-            # -- object frame 
+            # -- object frame - changed object -> object1 like my env
             object_data: RigidObjectData = env.unwrapped.scene["object1"].data
             object_position = object_data.root_pos_w - env.unwrapped.scene.env_origins
 
             final_data: RigidObjectData = env.unwrapped.scene["object2"].data
             final_position = final_data.root_pos_w - env.unwrapped.scene.env_origins
+
+            object_task2_data: RigidObjectData = env.unwrapped.scene["object3"].data
+            object_task2_position = object_task2_data.root_pos_w - env.unwrapped.scene.env_origins
 
             # -- target object frame
             desired_position = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
@@ -467,11 +516,16 @@ def main():
                 torch.cat([object_position, tcp_rest_orientation], dim=-1),
                 torch.cat([desired_position, tcp_rest_orientation], dim=-1),
                 torch.cat([final_position, tcp_rest_orientation], dim=-1),
+                torch.cat([object_task2_position, tcp_rest_orientation], dim=-1),
             )
-
+        
+            
            # print(f"End of loop : {actions.shape}")
             #print("Action space shape:", env.unwrapped.action_space.shape)
+            
 
+            
+           
             # reset state machine
             if dones.any():
                 pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
@@ -483,6 +537,18 @@ def main():
 
 if __name__ == "__main__":
     # run the main function
+    # add argparse arguments
+    # parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
+    # parser.add_argument(
+    #     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+    # )
+    # parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+    # # append AppLauncher cli args
+    # AppLauncher.add_app_launcher_args(parser)
+    # # parse the arguments
+    # args_cli = parser.parse_args()
+    # app_launcher = AppLauncher(headless=args_cli.headless)
+    # simulation_app = app_launcher.app
     main()
     # close sim app
     simulation_app.close()

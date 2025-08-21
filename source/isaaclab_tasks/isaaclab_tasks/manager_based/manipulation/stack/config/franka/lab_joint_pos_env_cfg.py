@@ -2,7 +2,9 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-
+from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.managers import ObservationGroupCfg as ObsGroup
+from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.assets import RigidObjectCfg
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import SceneEntityCfg
@@ -15,7 +17,7 @@ from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
 from isaaclab_tasks.manager_based.manipulation.stack import mdp
 from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
-from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import PourEnvCfg
+from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
 
 ##
 # Pre-defined configs
@@ -105,55 +107,57 @@ class EventCfg:
             "asset_cfg": SceneEntityCfg("object1"),
         },
     )
-# @configclass
-# class TerminationsCfg:
-#     """Termination terms for the MDP."""
-#     object_dropping = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
-#     object2_dropping = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-#     success_term = DoneTerm(func=mdp.object_stacked)
-#     time_out = DoneTerm(func=mdp.time_out, time_out=True)
-
-# @configclass
-# class ObservationsCfg:
-#     class PolicyCfg(ObsGroup):
-#         last_action = ObsTerm(func=mdp.last_action)
-#         joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
-#         joint_vel_rel = ObsTerm(func=mdp.joint_vel_rel)
-#         ### If combining two, might need to update objects PolicyCfg functions
-#         object_obs = ObsTerm(func=mdp.object_obs)
-#         object_positions_in_world_frame = ObsTerm(func=mdp.object_positions_in_world_frame)
-#         object_orientations_in_world_frame = ObsTerm(func=mdp.object_orientations_in_world_frame)
-#         ee_frame_pos = ObsTerm(func=mdp.ee_frame_pos)
-#         ee_frame_quat = ObsTerm(func=mdp.ee_frame_quat)
-#         gripper_pos = ObsTerm(func=mdp.gripper_pos)
-
-#     class SubtasksCfg(ObsGroup):
-#         reach_object = ObsTerm(func=mdp.reach_object, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object1"), "threshold": 0.05})
-#         object_grasped = ObsTerm(func=mdp.object_grasped, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "robot_cfg": SceneEntityCfg("robot"), "object_cfg": SceneEntityCfg("object1")})
-#         is_object_lifted = ObsTerm(func=mdp.is_object_lifted, params={"threshold": 0.05, "object_cfg": SceneEntityCfg("object1")})
-#         object_reached_midgoal = ObsTerm(func=mdp.object_reached_midgoal, params={"threshold": 0.05, "command_name": "object_pose"})
-#         reach_object2 = ObsTerm(func=mdp.reach_object2, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object2"), "threshold": 0.05})
-#         object_stacked = ObsTerm(func=mdp.object_stacked, params={"threshold": 0.1, "robot_cfg": SceneEntityCfg("robot"), "upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
-#         reach_object = ObsTerm(func=mdp.reach_object, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object1"), "threshold": 0.05})
-#         object_grasped = ObsTerm(func=mdp.object_grasped, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "robot_cfg": SceneEntityCfg("robot"), "object_cfg": SceneEntityCfg("object1")})
-#         is_object_lifted = ObsTerm(func=mdp.is_object_lifted, params={"threshold": 0.05, "object_cfg": SceneEntityCfg("object1")})
-#         object_reached_midgoal = ObsTerm(func=mdp.object_reached_midgoal, params={"threshold": 0.05, "command_name": "object_pose"})
-#         reach_object3 = ObsTerm(func=mdp.reach_object2, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object4"), "threshold": 0.05})
-#         object_stacked = ObsTerm(func=mdp.object_stacked, params={"threshold": 0.1, "robot_cfg": SceneEntityCfg("robot"), "upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object3")})
-
-#     policy_obs = PolicyCfg(enable_corruption=False, concatenate_terms=False)
-#     subtasks_obs = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
+@configclass
+class TerminationsCfg:
+    """Termination terms for the MDP."""
+    object_dropping1 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
+    object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
+    success_term = DoneTerm(func=mdp.object_reached_goal)
+    time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
-class FrankaLabStackEnvCfg(PourEnvCfg): # StackEnvCfg
+class ObservationsCfg:
+    class PolicyCfg(ObsGroup):
+        last_action = ObsTerm(func=mdp.last_action)
+        joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
+        joint_vel_rel = ObsTerm(func=mdp.joint_vel_rel)
+        object_obs = ObsTerm(func=mdp.object_obs)
+        object_positions_in_world_frame = ObsTerm(func=mdp.object_positions_in_world_frame)
+        object_orientations_in_world_frame = ObsTerm(func=mdp.object_orientations_in_world_frame)
+        ee_frame_pos = ObsTerm(func=mdp.ee_frame_pos)
+        ee_frame_quat = ObsTerm(func=mdp.ee_frame_quat)
+        gripper_pos = ObsTerm(func=mdp.gripper_pos)
+
+    class SubtasksCfg(ObsGroup):
+        reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal)
+        reach_object2_task1 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
+        object_stacked_task1 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
+
+        reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal)
+        reach_object2_task1 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object3")})
+        pouring_solution1 = ObsTerm(func=mdp.pouring_solution)
+        reorient_object1 = ObsTerm(func=mdp.reorient_object)
+        object_stacked_task1 = ObsTerm(func=mdp.object_near_goal, params={"object_cfg": SceneEntityCfg("object1")})
+
+    policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)
+    subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
+
+@configclass
+class FrankaLabStackEnvCfg(StackEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
 
         # Set events
         # self.events = EventCfg()
-        # self.terminations = TerminationsCfg()
-        # self.observations = ObservationsCfg()
+        self.terminations = TerminationsCfg()
+        self.observations = ObservationsCfg()
 
         # Set Franka as robot
         # self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
@@ -216,7 +220,7 @@ class FrankaLabStackEnvCfg(PourEnvCfg): # StackEnvCfg
                 semantic_tags=[("class", "hot_plate")],
             ),
         )
-        self.scene.object1 = RigidObjectCfg(
+        self.scene.object3 = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Object1",
             init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             # init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
@@ -243,13 +247,15 @@ class FrankaLabStackEnvCfg(PourEnvCfg): # StackEnvCfg
                 semantic_tags=[("class", "electronic_balance")],
             ),
         )
-        self.scene.object3 = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Funnel",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.55, -0.2, 0.0203], rot=[0.707, 0.707, 0, 0]),
+        self.scene.object1 = RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/vial",
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0, 1, 1, 0]),
             spawn=UsdFileCfg(
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/funnel.usd",
-                scale=(0.02, 0.02, 0.02),
-                rigid_props=cube_properties,
+                # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/funnel.usd",
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
+                # scale=(0.02, 0.02, 0.02),
+                scale=(1.0, 1.0, 1.0),
+                rigid_props=RigidBodyPropertiesCfg(),
                 semantic_tags=[("class", "funnel")],
             ),
         )

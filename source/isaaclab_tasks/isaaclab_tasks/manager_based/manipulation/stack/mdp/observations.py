@@ -20,71 +20,57 @@ if TYPE_CHECKING:
 
 def object_positions_in_world_frame(
     env: ManagerBasedRLEnv,
-    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
+    object_3_cfg: SceneEntityCfg = None,
 ) -> torch.Tensor:
-    """The position of the cubes in the world frame."""
-    object_1: RigidObject = env.scene[object_1_cfg.name]
+    """The position of objects in the world frame, supporting 2 or 3 objects."""
+    
+    object_1: RigidObject = env.scene[object_cfg.name]
     object_2: RigidObject = env.scene[object_2_cfg.name]
-
-    return torch.cat((object_1.data.root_pos_w, object_2.data.root_pos_w), dim=1) 
-
-def object_positions_in_world_frame2(
-    env: ManagerBasedRLEnv,
-    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
-    object_3_cfg: SceneEntityCfg = SceneEntityCfg("object3"),
-) -> torch.Tensor:
-    """The position of the cubes in the world frame."""
-    object_1: RigidObject = env.scene[object_1_cfg.name]
-    object_2: RigidObject = env.scene[object_2_cfg.name]
-    object_3: RigidObject = env.scene[object_3_cfg.name]
-
-    return torch.cat((object_1.data.root_pos_w, object_2.data.root_pos_w, object_3.data.root_pos_w), dim=1) 
-
+    
+    # Initialize the list of positions with the first two objects.
+    positions_list = [object_1.data.root_pos_w, object_2.data.root_pos_w]
+    
+    # Conditionally add the third object's position if it exists.
+    if object_3_cfg is not None:
+        object_3: RigidObject = env.scene[object_3_cfg.name]
+        positions_list.append(object_3.data.root_pos_w)
+    
+    return torch.cat(positions_list, dim=1)
 
 def object_orientations_in_world_frame(
     env: ManagerBasedRLEnv,
-    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
+    object_3_cfg: SceneEntityCfg = None,
 ):
-    """The orientation of the cubes in the world frame."""
-    object_1: RigidObject = env.scene[object_1_cfg.name]
+    """The orientation of objects in the world frame, supporting 2 or 3 objects."""
+    
+    object_1: RigidObject = env.scene[object_cfg.name]
     object_2: RigidObject = env.scene[object_2_cfg.name]
-
-    return torch.cat((object_1.data.root_quat_w, object_2.data.root_quat_w), dim=1) 
-
-def object_orientations_in_world_frame2(
-    env: ManagerBasedRLEnv,
-    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-    object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
-    object_3_cfg: SceneEntityCfg = SceneEntityCfg("object3"),
-):
-    """The orientation of the cubes in the world frame."""
-    object_1: RigidObject = env.scene[object_1_cfg.name]
-    object_2: RigidObject = env.scene[object_2_cfg.name]
-    object_3: RigidObject = env.scene[object_3_cfg.name]
-
-    return torch.cat((object_1.data.root_quat_w, object_2.data.root_quat_w, object_3.data.root_quat_w), dim=1)
-
+    
+    # Initialize the list of orientations with the first two objects
+    orientations_list = [object_1.data.root_quat_w, object_2.data.root_quat_w]
+    
+    # Conditionally add the third object's orientation
+    if object_3_cfg is not None:
+        object_3: RigidObject = env.scene[object_3_cfg.name]
+        orientations_list.append(object_3.data.root_quat_w)
+    
+    return torch.cat(orientations_list, dim=1)
 
 def object_obs(
     env: ManagerBasedRLEnv,
-    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
+    object_3_cfg: SceneEntityCfg = None,
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ):
     """
-    Object observations (in world frame):
-        object_1 pos,
-        object_1 quat,
-        object_2 pos,
-        object_2 quat,
-        gripper to object_1,
-        gripper to object_2,
-        object_1 to object_2,
+    Object observations (in world frame) for 2 or 3 objects.
     """
-    object_1: RigidObject = env.scene[object_1_cfg.name]
+    object_1: RigidObject = env.scene[object_cfg.name]
     object_2: RigidObject = env.scene[object_2_cfg.name]
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
 
@@ -94,29 +80,38 @@ def object_obs(
     object_2_pos_w = object_2.data.root_pos_w
     object_2_quat_w = object_2.data.root_quat_w
 
-
     ee_pos_w = ee_frame.data.target_pos_w[:, 0, :]
-    gripper_to_object_1 = object_1_pos_w - ee_pos_w
-    gripper_to_object_2 = object_2_pos_w - ee_pos_w
-
-    object_1_to_2 = object_1_pos_w - object_2_pos_w
-
-    return torch.cat(
-        (
-            object_1_pos_w - env.scene.env_origins,
-            object_1_quat_w,
-            object_2_pos_w - env.scene.env_origins,
-            object_2_quat_w,
-            gripper_to_object_1,
-            gripper_to_object_2,
-            object_1_to_2,
-        ),
-        dim=1,
-    )
+    
+    # Base observations for object1 and object2
+    observations = [
+        object_1_pos_w - env.scene.env_origins,
+        object_1_quat_w,
+        object_2_pos_w - env.scene.env_origins,
+        object_2_quat_w,
+        object_1_pos_w - ee_pos_w, # gripper to object_1
+        object_2_pos_w - ee_pos_w, # gripper to object_2
+        object_1_pos_w - object_2_pos_w, # object_1 to object_2
+    ]
+    
+    # Conditionally add observations for the third object
+    if object_3_cfg is not None:
+        object_3: RigidObject = env.scene[object_3_cfg.name]
+        object_3_pos_w = object_3.data.root_pos_w
+        object_3_quat_w = object_3.data.root_quat_w
+        
+        observations.extend([
+            object_3_pos_w - env.scene.env_origins,
+            object_3_quat_w,
+            object_3_pos_w - ee_pos_w, # gripper to object_3
+            object_1_pos_w - object_3_pos_w, # object_1 to object_3
+            object_2_pos_w - object_3_pos_w, # object_2 to object_3
+        ])
+    
+    return torch.cat(observations, dim=1)
 
 def object_obs2(
     env: ManagerBasedRLEnv,
-    object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     object_2_cfg: SceneEntityCfg = SceneEntityCfg("object2"),
     object_3_cfg: SceneEntityCfg = SceneEntityCfg("object3"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
@@ -136,7 +131,7 @@ def object_obs2(
         object_1 to object_3,
         object_2 to object_3,
     """
-    object_1: RigidObject = env.scene[object_1_cfg.name]
+    object_1: RigidObject = env.scene[object_cfg.name]
     object_2: RigidObject = env.scene[object_2_cfg.name]
     object_3: RigidObject = env.scene[object_3_cfg.name]
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]

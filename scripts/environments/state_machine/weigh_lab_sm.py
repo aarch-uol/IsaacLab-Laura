@@ -129,7 +129,7 @@ def infer_state_machine(
             position_threshold,
         ):
             # wait for a while
-            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT:
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT:
                 # move to next state and reset wait time
                 print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT")
                 sm_state[tid] = PickSmState.APPROACH_OBJECT
@@ -344,7 +344,6 @@ class PickAndLiftSm:
 def main():
     # parse configuration
     env_cfg: LiftEnvCfg = parse_env_cfg(
-        #"Isaac-Lift-Cube-Franka-IK-Abs-v0",
         # "Isaac-Stack-Lab-Franka-IK-Abs-v0",
         "Isaac-Stack-LLM-Franka-IK-Abs-v0",
         device=args_cli.device,
@@ -352,7 +351,6 @@ def main():
         use_fabric=not args_cli.disable_fabric,
     )
     # create environment
-    #env = gym.make("Isaac-Lift-Cube-Franka-IK-Abs-v0", cfg=env_cfg)
     # env = gym.make("Isaac-Stack-Lab-Franka-IK-Abs-v0", cfg=env_cfg)
     env = gym.make("Isaac-Stack-LLM-Franka-IK-Abs-v0", cfg=env_cfg)
     # reset environment at start

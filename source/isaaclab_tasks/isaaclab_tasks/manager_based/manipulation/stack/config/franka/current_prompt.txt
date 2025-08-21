@@ -133,3 +133,163 @@
     Strictly Ensure that there are 4 DoneTerms under TerminationsCfg.
 
     - For object1 also include an object dropping term for onto the table rather than below the table which is at 0.005 height.
+
+    - Instantiate **only** the **Franka robot** and **objects required** to complete the user-defined task.
+
+The most appropriate termination function should be the last subtask of the user-defined task.
+
+    - In SubtasksCfg, create ObsTerm subtasks that logically sequence together to complete the task in the task description.
+
+
+    - Write **exactly** 4 DoneTerms for:
+        - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
+        - Must include one of (Success Term): mdp.objects_stacked function or mdp.object_reached_goal function.
+        - This success term is based on the last task in the user description.
+        - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
+    Strictly Ensure that there are 4 DoneTerms under TerminationsCfg.
+
+    Success Condition Selection Rules:
+        - For `objects_stacked` (used for any tasks involving stacking object1 onto object2):
+            - Use `objects_stacked` **only** if object_stacked is appropriate for the final subtask.
+            - If there is one task: `objects_stacked` only params= `"object_2_cfg": SceneEntityCfg object2`.
+            - If there is two tasks: `objects_stacked` only params= `"object_2_cfg": SceneEntityCfg object3`.
+        - For `object_reached_goal` (used if stacking isn't applicable for final subtask):
+            - Use `object_reached_goal` **only** if object_near_goal is appropriate for the final subtask.
+            - Requires no params
+
+
+    Generate **exactly** four DoneTerms for the TerminationsCfg section. The four required terms are:
+        A term for dropping object1.
+        A term for dropping object2.
+        A success term based on the last user-defined task.
+        A timeout term.
+    Detailed Rules for Success and Timeout Terms:
+        **Success Term**: You **must** select and use **only one* of these functions for the success term:
+            mdp.objects_stacked: Use this if the final subtask is to place object1 onto apparatus.
+                If there is **one task**, the parameters must be "object_2_cfg": SceneEntityCfg object2.
+                If there are **two tasks**, the parameters must be "object_2_cfg": SceneEntityCfg object3.
+            mdp.object_reached_goal: Use this if the final subtask is for an object to reach a specific goal location. This function requires no parameters.
+        **Timeout Term**: The DoneTerm for a timeout must always be defined as:
+        func=mdp.time_out, time_out=True
+
+
+
+    ### Imports
+
+    - **`PourEnvCfg` is in `lab_env_cfg` file in `stack` folder**.
+    - If `pour` in user description, then change import StackEnvCfg to PourEnvCfg.
+
+
+    Change the inheritance of `FrankaCubeStackEnvCfg(StackEnvCfg)` only IF the task involves `pour` in the task description:
+        - Change `StackEnvCfg` to `PourEnvCfg`.
+    If `pour` is not in the task description then keep `StackEnvCfg`.
+
+
+        - Use SceneEntityCfg("object1") for any subtask with "object" in the name.
+        - For a **Single Task**:
+            - Use SceneEntityCfg("object2") for `"object2"` subtasks.
+        - **For Two Tasks**:
+            - **In the subtask sequence for Task 1**: use SceneEntityCfg("object2") for `"object2"` subtasks.
+            - **In the subtask sequence for Task 2**: use SceneEntityCfg("object3") for `"object2"` subtasks.
+
+
+
+    - Create **exactly** 4 DoneTerms for:
+        - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
+        - Must include one of (Success Term): mdp.objects_stacked function or mdp.object_reached_goal function.
+        - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
+    Strictly Ensure that there are 4 DoneTerms under TerminationsCfg.
+
+    Success Condition Selection Rules:
+        - For `objects_stacked` (used for any tasks involving stacking object1 onto object2):
+            - Use `objects_stacked` **only** if object_stacked is appropriate for the final subtask.
+            - If there is one task: `objects_stacked` only params= `"object_2_cfg": SceneEntityCfg object2`.
+            - If there is two tasks: `objects_stacked` only params= `"object_2_cfg": SceneEntityCfg object3`.
+        - For `object_reached_goal` (used if stacking isn't applicable for final subtask):
+            - Use `object_reached_goal` **only** if object_near_goal is appropriate for the final subtask.
+            - Requires no params
+
+
+### When used the only difference was that midgoal for heat/weigh missing and policy/subtask postinit working - for below
+### Termination for both success = reach goal and subtask = stacked 
+### Objects all correct for both
+### I noticed policies arent changing to use 2 versions - this may be ue to LLM prompt being too long, too much for LLM to digest
+    Subtask Functions & Parameters
+    Define subtasks using the func= parameter, following these rules.
+    **Subtask Types**
+        **Core Subtasks**: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2.
+        **Optional Pouring Subtasks**: For pouring tasks, use pouring_solution followed by reorient_object.
+        **Final Subtasks**: The final subtask for any sequence must be one of the following: object_stacked or object_near_goal.
+    **Function Parameters**
+        The subtasks reach_object, reach_object2, object_grasped, and is_object_lifted require the object_cfg parameter.
+    **Termination Function Rules**
+        object_stacked: Use this for tasks where object1 is placed on another object.
+        Requires two parameters:
+            - upper_object_cfg: Always SceneEntityCfg("object1")
+            - lower_object_cfg: SceneEntityCfg("object2") for a single task, or SceneEntityCfg("object3") for two tasks.
+        object_near_goal: Use this when object_stacked doesn't apply.
+        Requires object_cfg: Always SceneEntityCfg("object1").
+    Note: reach_object2 is used for a second reach in a task. The termination function is always the last subtask in a sequence.
+
+
+
+    Create **exactly** 4 DoneTerms for  the TerminationsCfg class, following these specific rules:
+        - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
+        - One of (Success Term):
+            If stacking or placing an object is the final subtask, use DoneTerm(func=mdp.objects_stacked).
+                - For one task, include params: "object_2_cfg": SceneEntityCfg("object2").
+                - For two tasks, include params: "object_2_cfg": SceneEntityCfg("object3").
+            Otherwise, use DoneTerm(func=mdp.object_reached_goal). This requires no parameters.
+        - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
+
+
+If task involved placing object1 onto apparatus for the final subtask, use DoneTerm(func=mdp.objects_stacked).
+
+- Only `reach_object` / `reach_object2` / `object_grasped` / `is_object_lifted` requires: `object_cfg`.
+delete comment line at top
+
+
+    - If there are two names for an instance, keep only the name involving object1.
+    - Each instantiated object must have a side comment explaining:
+        - Whether it is the main object.
+        - Which task it is used in.
+
+    DO NOT:
+    - Do not use object2 for both tasks.
+    - Do not use object3 if there's only one task.
+    - Do not name the target equipment anything other than object2 or object3 depending on task order.
+
+    REMEMBER:
+    - object1 = main object (the glassware being moved) — always the same, used for all tasks.
+    - object2, object3 = equipment the main object interacts with (assigned by task number).
+    - Count your instantiated objects. There must be no more than 3 total.
+
+
+
+
+    User description: {user_input}
+    Think about which laboratory equipment from the original file would be used to complete the task in the user description.
+    Look at the user description and decide how many tasks have been described.
+    Add a comment: name the first task 'Task 1' and the second (if applicable) 'Task 2'.
+
+
+    Create **exactly** 4 DoneTerms for  the TerminationsCfg class, following these specific rules:
+        - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
+        - One of (Success Term):
+            Final Subtask	DoneTerm Function	Required Parameters
+            Stacking or placing object1	mdp.objects_stacked	object_2_cfg = SceneEntityCfg("object3") for two tasks and SceneEntityCfg("object2") for one task.
+            All other tasks	mdp.object_reached_goal	None
+        - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
+
+    - One of (Success Term):
+    - Final Subtask: Stacking or placing object1 on apparatus (object2/object3) **(e.g., placing a beaker on a hot plate to heat)**.
+        - DoneTerm Function: mdp.objects_stacked
+        - Required Parameters: "lower_object_cfg": SceneEntityCfg("apparatus")
+    - All other tasks:
+        - DoneTerm Function: mdp.object_reached_goal
+        - Required Parameters: None
+
+
+    Condition	Functions to Use (for func=)
+    If only one task	last_action, joint_pos_rel, joint_vel_rel, object_obs, object_positions_in_world_frame, object_orientations_in_world_frame, ee_frame_pos, ee_frame_quat, gripper_pos
+    If two tasks	last_action, joint_pos_rel, joint_vel_rel, object_obs2, object_positions_in_world_frame2, object_orientations_in_world_frame2, ee_frame_pos, ee_frame_quat, gripper_pos

@@ -38,61 +38,80 @@ class LLMClient:
 
         prompt = f"""
 
-    Your task is to generate a single, valid Python file for an IsaacLab simulation. 
-    This file's content should only differ from the reference file by the objects and configurations required for the user's task.
-    Use the `@configclass` decorator for any Classes.
+    This prompt applies to IsaacLab-based simulation code. 
+    Your task is to generate a single, valid Python file with no syntax errors. 
+    The content of the output file should only differ by the objects spawned from the given file.
+    Use the `@configclass` decorator for any Classes, as in the given file.
 
     ### Task description
 
     User description: {user_input}
     Think about which laboratory equipment from the original file would be used to complete the task in the user description.
+    Look at the user description and decide how many tasks have been described.
+    Add a comment: name the first task 'Task 1' and the second (if applicable) 'Task 2'.
 
     ### DoneTerm Definitions
 
     Create **exactly** 4 DoneTerms for  the TerminationsCfg class, following these specific rules:
         - Two terms for object dropping as shown in the given file, one for object1 and one for object2.
         - One of (Success Term):
-            Final Subtask	DoneTerm Function	Required Parameters
-            Placing object1 on object2	mdp.objects_stacked	"lower_object_cfg": SceneEntityCfg("object2")
-            All other tasks	mdp.object_reached_goal	None
+            If stacking or placing an object is the final subtask, use DoneTerm(func=mdp.objects_stacked).
+                - For one task, include params: "object_2_cfg": SceneEntityCfg("object2").
+                - For two tasks, include params: "object_2_cfg": SceneEntityCfg("object3").
+            Otherwise, use DoneTerm(func=mdp.object_reached_goal). This requires no parameters.
         - A time out term, the DoneTerm includes: func=mdp.time_out, time_out=True.
 
-    ### ObsGroup/ObsTerm Definitions
+    ### ObsTerm Definitions
 
     - Create an ObservationsCfg Class.
     - Within the ObservationsCfg Class, create two Classes: PolicyCfg and SubtasksCfg, inheriting from ObsGroup.
-
-    - Inside the PolicyCfg, define ObsTerms for only the following **9** observation functions and no params: `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs`, 
-    `object_positions_in_world_frame`, `object_orientations_in_world_frame`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`.
+    
+    Inside the PolicyCfg, define ObsTerms with **only** the following **9** functions and no params:
+        IF THERE IS ONLY ONE TASK (`func=`):
+            - `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs`, `object_positions_in_world_frame`, `object_orientations_in_world_frame`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`
+        IF THERE ARE TWO TASKS (`func=`):
+            - `last_action`, `joint_pos_rel`, `joint_vel_rel`, `object_obs2`, `object_positions_in_world_frame2`, `object_orientations_in_world_frame2`, `ee_frame_pos`, `ee_frame_quat`, `gripper_pos`
 
     SUBTASK GENERATION RULES:
         Before generating any subtasks, analyze the specific action words in the user's task description for each task.
         The subtasks you generate must directly correspond to these specific actions.
         In SubtasksCfg, create a logical sequence of subtasks using ObsTerm for a robot to complete the user-defined task.
-        - Task → Subtasks use object1 as the main object, object2 as apparatus.
+        - Single Task → Subtasks use object1 as the main object, object2 as apparatus.
+        - Two Tasks → Create **two separate and distinct** sequences of subtasks:
+            Sequence for the Task 1 action: object1 (main object), object2 (apparatus)
+            Sequence for the Task 2 action: object1 (main object), object3 (apparatus)
+            **For Two Tasks, your final output must be structured with explicit comments to separate each task's subtasks**.
+            Your generation process must follow these steps:
+                Write all the subtasks for **Task 1** and ensure the sequence is complete.
+                Then, and only then, write all the subtasks for **Task 2** and ensure that sequence is also complete.
+            Do not mix or interleave subtasks from different tasks.
 
     Available Subtask Functions & Parameters (func=):
-        - **Core Subtasks**: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2 requires `object_cfg`
-        - **Optional Subtasks (for a subtask involving pouring, in the following specific order)**: pouring_solution, reorient_object
-        - **Final Termination Subtask** must include **one of** (ObsTerm(func=)): `object_stacked`, `object_near_goal`
-        - Use reach_object2 for a second reach in a task
+        - **Core Subtasks**: reach_object, object_grasped, is_object_lifted, object_reached_midgoal, reach_object2.
+        - **Optional Subtasks (for a subtask involving pouring, in the following specific order)**: pouring_solution, reorient_object.
+        - **Final Termination Subtask** must include **one of** (ObsTerm(func=)): `object_stacked`, `object_near_goal`.
+        - Use reach_object2 for a second reach in a task.
+
+    SUBTASK FUNCTION PARAMETERS:
+        - `reach_object` / `reach_object2` / `object_grasped` / `is_object_lifted` requires: `object_cfg`.
 
     Termination Function Rules:
-        - `object_stacked` (used for tasks involving placing object1 onto apparatus) requires params: `upper_object_cfg`, `lower_object_cfg`
-        - `object_near_goal` (used if `object_stacked` isn't applicable for final subtask) requires: `object_cfg`
+        - For `object_stacked` (used for tasks involving placing object1 onto apparatus):
+            - Requires params:
+                - `upper_object_cfg` → SceneEntityCfg("object1")
+                - `lower_object_cfg`:
+                    - IF ONE TASK → SceneEntityCfg("object2")
+                    - IF TWO TASKS → SceneEntityCfg("object3")
+        - For `object_near_goal` (used if `object_stacked` isn't applicable for final subtask):
+            - Requires:
+                - `object_cfg` → SceneEntityCfg("object1")
         - **The termination function must be the final subtask for each sequence of subtasks**.
-
-    Subtask Parameters:
-
-    Parameter	Main Object	Apparatus/Glassware
-    object_cfg	SceneEntityCfg("object1")	SceneEntityCfg("object2")
-    upper_object_cfg	SceneEntityCfg("object1")	N/A
-    lower_object_cfg	N/A	SceneEntityCfg("object2")
 
     General Parameter Mapping Rules:
         For any subtask parameter that refers to the main object (e.g., object_cfg, upper_object_cfg), always use SceneEntityCfg("object1").
         For any subtask parameter that refers to the apparatus (e.g., object_cfg (only for reach_object2), lower_object_cfg):
-            If generating subtasks for Task, use SceneEntityCfg("object2").
+            If generating subtasks for Task 1, use SceneEntityCfg("object2").
+            If generating subtasks for Task 2, use SceneEntityCfg("object3").
 
     Logical Sequence Self-Correction:
     For each task sequence you generate, perform a logical check.
@@ -103,16 +122,18 @@ class LLMClient:
 
     At the end of `ObservationsCfg` Class create instances for: `PolicyCfg` named policy and `SubtasksCfg` named subtasks.
     Within each of the `PolicyCfg` and `SubtasksCfg` instances, include terms: `enable_corruption`, `concatenate_terms` which are both `False`.
-    Note: All of the functions for the ObsTerms and are from the folder mdp.
+    Note: All ObsTerm functions are sourced from the `mdp` folder.
 
     ### Task Specific Objects
 
     - Use **only** objects defined in the original file — do **not invent new ones**.
+    - You are **strictly forbidden** from instantiating **all** glassware or lab equipment.
     - Instantiate only the **Franka robot** and the **objects required** to complete the user-defined task.
     - **Do not use all of the objects from the original file**.
     - The **hot plate** object in the USD file refers to a **magnetic stir plate**.
-    - The “main object” is the one moved within the task. You must decide which one that is based on the task description.
+    - The “main object” is the one physically moved within the task. You must decide which one that is based on the task description.
     - This main object will be a piece of glassware.
+    - **Only include the "main object" for the first task**.
 
     In the output file:
         ***CRITICAL NAMING RULE — FOLLOW EXACTLY*** 
@@ -128,15 +149,39 @@ class LLMClient:
         ```
         Do not include any placeholder code like <glassware> in your final output.
     - Replace <glassware> with the actual object name from the task, and assign it to a standardized scene name like object1.
-    - Replace the lab equipment that is completing the task or is the target to follow the naming convention for object2 similar to above.
+
+    IMPORTANT: Do NOT treat all equipment the same. Follow the rules based on the number of tasks in the user description.
+    CRITICAL: Task count = number of tasks described in user description.
+    TASK COUNT CHECK:
+        IF THERE IS ONLY ONE TASK:
+            - Identify the lab equipment that the main object interacts with (this is the target or tool).
+            - Instantiate that equipment and assign it the name object2.
+        IF THERE ARE TWO TASKS:
+            - Identify the lab equipment of Task 1 (the lab equipment performing the task or is the target of the task).
+                - Rename the target object2 using the naming convention self.scene.object2 = glassware.<glassware>.
+            - Identify the lab equipment of Task 2 (the lab equipment performing the task or is the target of the task).
+                - Rename the target object3 using the naming convention self.scene.object3 = glassware.<glassware>.
+            IMPORTANT: Both object2 and object3 **must** be in the output file.
+
     - If there are two names for an instance, keep only the name involving object1.
-    - Add a side comment indicating which objects were chosen as the main object and object2 for the task.
+    - Each instantiated object must have a side comment explaining:
+        - Whether it is the main object.
+        - Which task it is used in.
+
+    DO NOT:
+    - Do not use object2 for both tasks.
+    - Do not use object3 if there's only one task.
+    - Do not name the target equipment anything other than object2 or object3 depending on task order.
+
+    REMEMBER:
+    - object1 = main object (the glassware being moved) — always the same, used for all tasks.
+    - object2, object3 = equipment the main object interacts with (assigned by task number).
+    - Count your instantiated objects. There must be no more than 3 total.
 
     Given/Original file to reference: {file_content}
     ```plaintext
     REMINDER: ALL object assignments **must use the format `self.scene.object1 = ...`** and **must not include placeholder code like `<glassware>`**.
     REMINDER: Do not use objects_stacked if both objects are **glassware**.
-    REMINDER: `SubtasksCfg` **must include a Termination Function**.
 
     """
 

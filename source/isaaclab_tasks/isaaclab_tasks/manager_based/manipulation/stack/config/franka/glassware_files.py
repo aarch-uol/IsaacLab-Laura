@@ -41,7 +41,7 @@ class Glassware:
         # Spawn a conical vial
         self.conical_flask = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Conical_flask",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.60, 0.0, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/conical_flask_100ml_glass_new.usd",
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/con_flask_new.usd",
@@ -54,7 +54,7 @@ class Glassware:
         # Spawn a beaker - changed from 1,1,1 scale
         self.beaker = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Beaker",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.60, -0.1, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_beaker_upright.usd",
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
@@ -66,7 +66,7 @@ class Glassware:
         # Spawn a round bottom flask
         self.round_bottom_flask = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Round_bottom_flask",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.70, -0.1, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
             # init_state=RigidObjectCfg.InitialStateCfg(pos=[0.70, -0.1, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_round_bot.usd",
@@ -79,7 +79,7 @@ class Glassware:
         # Spawn a funnel
         self.funnel = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Funnel",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.80, 0.0, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.50, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/funnel.usd",
                 scale=(0.005, 0.005, 0.005),
@@ -90,7 +90,7 @@ class Glassware:
         # Spawn a hot plate
         self.hot_plate = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Hot_plate",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.1, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/hot_plate.usd",
                 scale=(0.03, 0.03, 0.03),
@@ -101,7 +101,7 @@ class Glassware:
         # Spawn an electric balance
         self.electric_balance = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Electric_balance",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.1, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/scale/balance_electronic.usd",
                 scale=(0.01, 0.01, 0.01),
@@ -112,7 +112,7 @@ class Glassware:
         # Spawn a full clamp stand
         self.clamp_stand = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Clamp_stand",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.4, -0.2, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/full_clamp_stand.usd",
                 scale=(1.0, 1.0, 1.0),
@@ -123,7 +123,7 @@ class Glassware:
         # Spawn a ring stand
         self.ring_stand = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Ring_stand",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.8, -0.2, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/ring_stand.usd",
                 scale=(1.0, 1.0, 1.0),
@@ -133,7 +133,7 @@ class Glassware:
         )
         self.test_tube_rack = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Test_tube_rack",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.9, -0.1, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/test_tube_rack/test_tube_rack.usd",
                 scale=(0.03, 0.03, 0.03),

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 def objects_stacked(
     env: ManagerBasedRLEnv,
-    object_2_cfg: SceneEntityCfg, 
+    lower_object_cfg: SceneEntityCfg, 
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
     command_name: str = "object_pose",
@@ -41,7 +41,7 @@ def objects_stacked(
 ):
     robot: Articulation = env.scene[robot_cfg.name]
     object_1: RigidObject = env.scene[object_1_cfg.name]
-    object_2: RigidObject = env.scene[object_2_cfg.name]
+    object_2: RigidObject = env.scene[lower_object_cfg.name]
     command = env.command_manager.get_command(command_name)
 
     # Position difference between cube and hot plate 

@@ -25,22 +25,31 @@ class ObservationsCfg:
         last_action = ObsTerm(func=mdp.last_action)
         joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel_rel = ObsTerm(func=mdp.joint_vel_rel)
-        object_obs = ObsTerm(func=mdp.object_obs)
-        object_positions_in_world_frame = ObsTerm(func=mdp.object_positions_in_world_frame)
-        object_orientations_in_world_frame = ObsTerm(func=mdp.object_orientations_in_world_frame)
+        object_obs2 = ObsTerm(func=mdp.object_obs, params={"object_cfg": SceneEntityCfg("object1")})
+        object_positions_in_world_frame2 = ObsTerm(func=mdp.object_positions_in_world_frame, params={"object_cfg": SceneEntityCfg("object1")})
+        object_orientations_in_world_frame2 = ObsTerm(func=mdp.object_orientations_in_world_frame, params={"object_cfg": SceneEntityCfg("object1")})
         ee_frame_pos = ObsTerm(func=mdp.ee_frame_pos)
         ee_frame_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
 
     class SubtasksCfg(ObsGroup):
-        # Task 1
-        reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
-        object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal)
-        pouring_solution_task1 = ObsTerm(func=mdp.pouring_solution)
-        reorient_object_task1 = ObsTerm(func=mdp.reorient_object)
-        object_near_goal_task1 = ObsTerm(func=mdp.object_near_goal, params={"object_cfg": SceneEntityCfg("object2")})
+        # Task 1: Weighing a solution
+        reach_object1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal1 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
+        reach_object2_weighing = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
+        object_stacked_weighing = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
+
+        # Task 2: Pouring a solution
+        reach_object1_pouring = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped1_pouring = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted1_pouring = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal1_pouring = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
+        reach_object2_pouring = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object3")})
+        pouring_solution = ObsTerm(func=mdp.pouring_solution)
+        reorient_object = ObsTerm(func=mdp.reorient_object)
+        object_near_goal_pouring = ObsTerm(func=mdp.object_near_goal, params={"object_cfg": SceneEntityCfg("object1")})
 
     policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)
     subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
@@ -68,10 +77,11 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware
-        self.scene.object1 = glassware.beaker  # Main object for pouring
+        self.scene.object1 = glassware.sample_vial  # Main object for weighing and pouring
 
         # Spawn Lab Equipment
-        self.scene.object2 = glassware.hot_plate  # Target equipment for pouring
+        self.scene.object2 = glassware.electric_balance  # Used for weighing
+        self.scene.object3 = glassware.beaker  # Used for pouring
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

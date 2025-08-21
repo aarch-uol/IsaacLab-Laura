@@ -34,7 +34,7 @@ parser.add_argument(
 )
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Pytorch model checkpoint to load.")
-parser.add_argument("--horizon", type=int, default=800, help="Step horizon of each rollout.")
+parser.add_argument("--horizon", type=int, default=2000, help="Step horizon of each rollout.")
 parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts.")
 parser.add_argument("--seed", type=int, default=101, help="Random seed.")
 parser.add_argument(
@@ -46,6 +46,13 @@ parser.add_argument(
 parser.add_argument("--enable_pinocchio", default=False, action="store_true", help="Enable Pinocchio.")
 
 parser.add_argument("--model_name", type=str, default=None)
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--use_recovery", action="store_true", help="Enable recovery mechanism. By default recovery is enabled.")
+group.add_argument("--no_use_recovery", action="store_false", dest="use_recovery", help="Disable recovery mechanism")
+
+parser.set_defaults(use_recovery=True)
+parser.add_argument("--ensemble_size", type=int, default=15)
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -69,11 +76,12 @@ import random
 import os
 import gymnasium as gym
 import torch
+import math
 from collections import deque
 
 import robomimic.utils.file_utils as FileUtils
 import robomimic.utils.torch_utils as TorchUtils
-from source.isaaclab_tasks.isaaclab_tasks.manager_based.manipulation.cube_lift.mdp.observations import get_joint_pos
+from source.isaaclab_tasks.isaaclab_tasks.manager_based.manipulation.cube_lift.mdp.observations import get_joint_pos, object_grasped
 
 if args_cli.enable_pinocchio:
     import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
@@ -81,8 +89,7 @@ if args_cli.enable_pinocchio:
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
-
-from evaluation import inject_dropout_layers, MC_dropout_uncertainty, remove_dropout_layers, ensemble_uncertainty
+from evaluation import ensemble_uncertainty
 
 
 def rollout(policy, env, success_term, horizon, device):
@@ -169,7 +176,7 @@ def rollout(policy, env, success_term, horizon, device):
     return False, traj
 
 
-def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
+def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters, use_recovery=True):
     """Perform a single rollout of the policy in the environment.
 
     Args:
@@ -192,15 +199,21 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
     traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], 
                 uncertainties=[], min_actions=[], max_actions=[],
                 time_taken=[])
-    
+   
     joints_to_check = [0, 1, 2, 3, 4, 5, 6]
     unsafe_windows_detected = {joint_num: 0 for joint_num in joints_to_check}
     windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_check} 
-    certain_timestep = 1
+    certain_timestep = 50
     certain_joint_positions = []
 
+    recovery_activated_during_rollout = 0
+
     recovery_mode = False
-    recovery_duration = 100 # X timesteps
+    recovery_duration = 100
+    recovery_cooldown_duration = 300 # timesteps
+    recovery_cooldown_timer = recovery_cooldown_duration
+    recovery_cooldown_active = False
+    
     for i in range(horizon):
         # Prepare observations
         obs = copy.deepcopy(obs_dict["policy"])
@@ -229,43 +242,60 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
         traj["sub_obs"].append(sub_obs)
        
         if recovery_mode:
-            print("Recovery Mode")
-            target_qpos = get_joint_pos(env)
-            # print(target_qpos)
-            # exit()
-            # target_qpos = certain_joint_positions[-certain_timestep][:7].clone().detach().to(device)
-            # target_qpos = torch.tensor([-3.7080e-03, -4.2983e-03,  4.2449e-05,  4.1694e-04, -5.2641e-04, 1.9590e-04, -5.9999e-01]).to(device)
-            for _ in range(recovery_duration):
-                # 1. Get current state
-                # obs_dict, _, terminated, truncated, _ = env.step(torch.zeros_like(action_placeholder))  # Step to update obs
-                # current_qpos = obs_dict["policy"]["joint_pos"][0, :7].clone().detach().to(device)
-                curr
-                # 2. Compute delta
-                delta = target_qpos - current_qpos
-                error_norm = delta.norm().item()
+            print(f"Recovery Mode Started at Timestep {i}")
+            robot = env.unwrapped.scene["robot"]
+            tmp_pos = get_joint_pos(env)
+            safe_pos = None
+            if object_grasped(env):
+                # mid safe place - should help with the task of moving the beaker to the target
+                safe_pos = torch.tensor([[0.2932,  0.2640, -0.3573, -2.6099, -2.8971,  2.0274,  0.8245, tmp_pos[0][8], tmp_pos[0][8]]]).to(device)
+            else:
+                # origin
+                safe_pos = torch.tensor([[ 0.405,0.35,-0.22,-3,-2.85,math.pi/2,0.9, tmp_pos[0][8],tmp_pos[0][8]]]).to(device)
+            # safe_pos = certain_joint_positions[-certain_timestep]
+            position_errors = deque(maxlen=50)
+            rec_i = 0
+            while rec_i < recovery_duration:
+                robot.set_joint_position_target(safe_pos) # expects an absolute joint position
+                env.scene.write_data_to_sim()
+                env.sim.step()
 
-                print(f"Error norm: {error_norm:.6f}")
+                # Check if robot reached the safe position within a small tolerance
+                new_joint_positions = get_joint_pos(env)
+                target_joint_positions = safe_pos
+                
+                position_error = torch.abs(new_joint_positions - target_joint_positions)
+                position_errors.append(position_error)
+                tolerance = 1e-2 
+                 
+                # check if the positon/position error has converged to the safe position (it wont reach it exactly). 
+                # it also jumps to it straight away but if you stop straight away you get weird jerky motion and it doesnt actually reach the safe position 
+                # check every 50 iterations
+                if rec_i % 50 == 0:
+                    reached_safe_pos_early = False
+                    if position_errors.maxlen == len(position_errors):
+                        for pe in position_errors:
+                            if torch.all(torch.abs(pe - position_error)  < tolerance):
+                                reached_safe_pos_early = True
+                    if reached_safe_pos_early:
+                        print(f"Reached safe position early.")
+                        break
+                    # else extend the recovery duration
+                    if rec_i == recovery_duration - 1:
+                        print("Extending Recovery Duration")
+                        recovery_duration += 50
 
-                if error_norm < 1e-3:
-                    print("Reached target position within tolerance.")
-                    break
+                rec_i += 1
 
-                # 3. Optional: clamp the magnitude
-                max_step = 1e-5
-                delta = delta.clamp(-max_step, max_step)
-
-                # 4. Build action tensor
-                action = delta.view(1, -1)
-                action = torch.cat([action, torch.zeros(1, env.action_space.shape[1] - action.shape[1], device=device)], dim=1)
-
-                # 5. Issue the delta command
-                obs_dict, _, terminated, truncated, _ = env.step(action)
-
-                if terminated or truncated:
-                    print("Environment terminated during recovery.")
-                    return False, traj
-
+            print(f"Recovery Mode Ended")
+            print("Recovery Cooldown Activated")
             recovery_mode = False
+            recovery_cooldown_active = True
+            obs_dict, _, terminated, truncated, _ = env.step(torch.tensor([0 for _ in range(7)]).to(device).view(1, env.action_space.shape[1]))
+            obs = copy.deepcopy(obs_dict["policy"])
+            for ob in obs:
+                obs[ob] = torch.squeeze(obs[ob])
+            ensemble_uncertainty(ensemble, obs)
         else:
             # Calculate uncertainty using the ensemble
             metrics = ensemble_uncertainty(ensemble, obs)
@@ -283,25 +313,29 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
                 if peaks > parameters[joint_num]['max_peaks']:
                     unsafe_windows_detected[joint_num] += 1
             
-            replay_triggered = False
+            
             for joint_num in joints_to_check:
-                if unsafe_windows_detected[joint_num] > parameters[joint_num]['max_uncertain_windows']:
+                if unsafe_windows_detected[joint_num] > parameters[joint_num]['max_uncertain_windows'] and not recovery_cooldown_active:
                     print(f"Joint {joint_num} is uncertain at timestep {i}")
                     unsafe_windows_detected[joint_num] = 0
-                    #actions = torch.tensor(traj['actions'][-prev_action])
-                    # actions = torch.tensor(certain_timesteps[-prev_action])  
-                    # actions = torch.tensor([-3.7080e-03, -4.2983e-03,  4.2449e-05,  4.1694e-04, -5.2641e-04,
-                    #                 1.9590e-04, -5.9999e-01])
-                    #actions = torch.tensor([0 for _ in range(7)])
-                    replay_triggered = True
-                    recovery_mode = True
-            
-            # prev_action = prev_action + 1 if replay_triggered else 1
-            if not replay_triggered:
-                # certain_joint_positions.append(actions)
-                # safe_joint_positions = obs['joint_pos'][:7].clone().detach().cpu()
-                certain_joint_positions.append(actions.clone().detach().to(device))
+                    if use_recovery:
+                        recovery_mode = True
+                        recovery_activated_during_rollout += 1
+                    
 
+            if recovery_cooldown_active:
+                recovery_cooldown_timer -= 1
+            
+            if recovery_cooldown_timer <= 0:
+                recovery_cooldown_active = False
+                recovery_cooldown_timer = recovery_cooldown_duration 
+                print("Recovery Cooldown Ended")
+            
+            if not recovery_mode:
+                current_absolute_joints = get_joint_pos(env)
+                certain_joint_positions.append(current_absolute_joints)
+
+                
             # Unnormalize actions
             if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
                 actions = (
@@ -309,12 +343,14 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
                 ) / 2 + args_cli.norm_factor_min
 
             actions = actions.to(device=device).view(1, env.action_space.shape[1])
+            # print(f"------------------------------")
+            # print(f"Policy action :  {actions.tolist()}")
             
             # Apply actions
             obs_dict, _, terminated, truncated, _ = env.step(actions)
             obs = obs_dict["policy"]
             sub_obs = obs_dict["subtask_terms"]
-
+            # print(f"Obs change : {obs}")
             # Record trajectory
             traj["actions"].append(actions.tolist())
             traj["next_obs"].append(obs)
@@ -325,11 +361,11 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters):
 
             # Check if rollout was successful
             if bool(success_term.func(env, **success_term.params)[0]):
-                return True, traj
+                return True, traj, recovery_activated_during_rollout
             elif terminated or truncated:
-                return False, traj
+                return False, traj, recovery_activated_during_rollout
 
-    return False, traj
+    return False, traj, recovery_activated_during_rollout
 
 
 def safety():
@@ -496,13 +532,31 @@ def rollout_transformer(policy, env, success_term, horizon, device):
 # --dataset ./docs/training_data/generated_dataset_split.hdf5 --logdir ./logs/docs/Models/bc/model8/
 
 
-def load_ensemble(device, ensemble_paths):
+
+def load_ensemble(device, ensemble_path):
+    with open(ensemble_path, 'r') as file:
+        ensemble_paths = [path.strip() for path in file.readlines()]
     ensemble = []
     for path in ensemble_paths:
         policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=path, device=device, verbose=True)
         ensemble.append(policy)
 
     return ensemble
+
+def clear_files(*paths : str):
+    if len(paths) < 1:
+        raise ValueError("At least one path is required.")
+    if os.path.exists(paths[0]):
+        overwrite = input(f"You are about to overwrite rollout data at: {paths}\nContinue (y/n):")
+        match overwrite.lower():
+            case 'y' | 'Y':
+                for path in paths:
+                    with open(path, 'w') as file:
+                        pass
+            case _:
+                exit()
+            
+                
 
 def main():
     """Run a trained policy from robomimic with Isaac Lab environment."""
@@ -535,93 +589,13 @@ def main():
     # Acquire device
     device = TorchUtils.get_torch_device(try_to_use_cuda=True)
 
-    # Load policy
-    #policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args_cli.checkpoint, device=device, verbose=True)
-    
     # load the stack cube ensemble
-    stack_cube_ensemble = load_ensemble(device, ensemble_paths=[
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model0/bc_rnn_low_dim_franka_stack/20250722162848/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model1/bc_rnn_low_dim_franka_stack/20250722162851/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model2/bc_rnn_low_dim_franka_stack/20250722162852/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model3/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model4/bc_rnn_low_dim_franka_stack/20250722162853/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model5/bc_rnn_low_dim_franka_stack/20250722162854/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model6/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model7/bc_rnn_low_dim_franka_stack/20250722162855/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model8/bc_rnn_low_dim_franka_stack/20250722162856/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model9/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model10/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model11/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model12/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model13/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth',
-        'docs/training_data/stack_cube/uncertainty_rollout_stack_cube/ensemble/Isaac-Stack-Cube-Franka-IK-Rel-v0/model14/bc_rnn_low_dim_franka_stack/20250722162857/models/model_epoch_4000.pth'
-    ])
+    # stack_cube_ensemble = load_ensemble(device, ensemble_path='scripts/imitation_learning/robomimic/stack_cube_ensemble.txt')    
+    
+    pick_place_ensemble = load_ensemble(device, ensemble_path='scripts/imitation_learning/robomimic/pick_place_ensemble_paths.txt')
+    # pick_place_ensemble_30 = load_ensemble(device, ensemble_path='scripts/imitation_learning/robomimic/pick_place_ensemble_30_paths.txt')
+ 
 
-    # load the pick place ensemble - 47% success rate ensemble
-    # ensemble = load_ensemble(device, ensemble_paths=[ 
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model0/BC-RNN-GMM-Ensemble/20250728121319/models/model_epoch_2515_best_validation_268877.2984375.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model1/BC-RNN-GMM-Ensemble/20250728121322/models/model_epoch_1341_best_validation_264557.3390625.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model2/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_2127_best_validation_257163.584375.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model3/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_1466_best_validation_268943.61875.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model4/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_1122_best_validation_259180.1421875.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model5/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_1885_best_validation_263727.775.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model6/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_1039_best_validation_266665.428125.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model7/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_2821_best_validation_255741.9453125.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model8/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_2240_best_validation_261618.5515625.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model9/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_2576_best_validation_266381.5921875.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model10/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_1710_best_validation_254380.1484375.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model11/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_2149_best_validation_252307.69375.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model12/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_1114_best_validation_266930.321875.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model13/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_2771_best_validation_268996.6671875.pth',
-    #     'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model14/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_2885_best_validation_250146.475.pth',
-    # ])
-
-    # load the pick place ensemble - 65% success rate ensemble
-    pick_place_ensemble = load_ensemble(device, ensemble_paths=[ 
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model0/BC-RNN-GMM-Ensemble/20250728121319/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model1/BC-RNN-GMM-Ensemble/20250728121322/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model2/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model3/BC-RNN-GMM-Ensemble/20250728121323/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model4/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model5/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model6/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model7/BC-RNN-GMM-Ensemble/20250728121324/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model8/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model9/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model10/BC-RNN-GMM-Ensemble/20250728121325/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model11/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model12/BC-RNN-GMM-Ensemble/20250728121326/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model13/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_3000.pth',
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model14/BC-RNN-GMM-Ensemble/20250728121327/models/model_epoch_3000.pth',
-    ])
-
-    single = load_ensemble(device, ensemble_paths=[ 
-        'docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/model0/BC-RNN-GMM-Ensemble/20250728121319/models/model_epoch_3000.pth'
-        for _ in range(15)
-    ])
-
-    # load the pick place ensemble - 60% success rate ensemble
-    # ensemble = load_ensemble(device, ensemble_paths=[ 
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    #     'docs/model_epoch_2748_best_validation_273167.9078125.pth',
-    # ])
-
-    # 'unc_threshold': 0.1,
-    # 'max_peaks': 20,
-    # 'window_size': 40
     parameters = {
         'stack_cube': {
              6: {
@@ -684,13 +658,13 @@ def main():
             },
 
             4: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
             },
             3: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
@@ -702,13 +676,13 @@ def main():
                 'max_uncertain_windows': 3
             },
             1: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
             },
             0: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
@@ -720,7 +694,7 @@ def main():
     model_arch = "BC_RNN_GMM"
     task = "pick_place" # stack_cube or pick_place
     model_name = f"ensemble"
-    number = 'recovery'
+    number = 'no_recovery_video'
 
     results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/run_{number}"
 
@@ -729,6 +703,8 @@ def main():
     min_actions_path = f"{results_path}/min_actions{number}.txt"
     max_actions_path = f"{results_path}/max_actions{number}.txt"
     time_taken_path = f"{results_path}/time_taken{number}.txt"
+    recovery_activated_during_rollout_path = f"{results_path}/recovery_activated_during_rollout.txt"
+   
     rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt"
 
     rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt" # remove the '.txt' and add rollout_log.txt
@@ -738,35 +714,41 @@ def main():
     os.makedirs(uncertainty_results_path, exist_ok=True)
     os.makedirs(trajectory_results_path, exist_ok=True)
 
-    try:
-        os.remove(rollout_log_path)
-    except FileNotFoundError as filenotfounderror:
-        pass
+    # try:
+    #     os.remove(rollout_log_path)
+    # except FileNotFoundError as filenotfounderror:
+    #     pass
     
     # clear files
+    clear_files(
+        uncertainties_path, actions_path, 
+        min_actions_path, max_actions_path, 
+        time_taken_path, recovery_activated_during_rollout_path
+    )
+    
     # clear uncertainties file
-    with open(uncertainties_path, 'w') as file:
-        pass
-    with open(actions_path, 'w') as file:
-        pass
-    with open(min_actions_path, 'w') as file:
-        pass
-    with open(max_actions_path, 'w') as file:
-        pass
-    with open(time_taken_path, 'w') as file:
-        pass
-    # clear rollout logger file
-    with open(loghelper.namefile, 'w') as file:
-        pass
+    # with open(uncertainties_path, 'w') as file:
+    #     pass
+    # with open(actions_path, 'w') as file:
+    #     pass
+    # with open(min_actions_path, 'w') as file:
+    #     pass
+    # with open(max_actions_path, 'w') as file:
+    #     pass
+    # with open(time_taken_path, 'w') as file:
+    #     pass
+    # with open(recovery_activated_during_rollout_path, 'w') as file:
+    #     pass
+    # # clear rollout logger file
+    # with open(loghelper.namefile, 'w') as file:
+    #     pass
     
     # Run policy
     results = []
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
-       # loghelper.startEpoch(trial)
-        #terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
-        #terminated, traj = rollout_transformer(policy, env, success_term, args_cli.horizon, device)
-        terminated, traj = rollout_ensemble(pick_place_ensemble, env, success_term, args_cli.horizon, device, parameters[task])
+
+        terminated, traj, recovery_activated_during_rollout = rollout_ensemble(pick_place_ensemble[:args_cli.ensemble_size], env, success_term, args_cli.horizon, device, parameters[task], use_recovery=args_cli.use_recovery)
         # save the uncertainties
         with open(uncertainties_path, 'a') as file:
             for i, var in enumerate(traj['uncertainties']):
@@ -792,6 +774,9 @@ def main():
             for i, time_taken in enumerate(traj['time_taken']):
                 line = f"{str(time_taken)} {terminated}\n"
                 file.write(f"{str(i)} {line}")
+        # save recovery activated
+        with open(recovery_activated_during_rollout_path, 'a') as file:
+            file.write(f"{trial} {recovery_activated_during_rollout} {terminated}\n")
 
             
         results.append(terminated)

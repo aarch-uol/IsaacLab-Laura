@@ -149,6 +149,10 @@ class ObservationsCfg():
         #object_to_target = ObsTerm(func=mdp.position_command_error)
         #norm_error = ObsTerm(func=mdp.object_goal_norm_error)
 
+        ##### temppp#
+        # current_ee_pos = ObsTerm(func=mdp.get_current_ee_joint_pos)
+        robot_pos = ObsTerm(func=mdp.get_joint_pos)
+
         def __post_init__(self):
             self.enable_corruption = False
             self.concatenate_terms = False

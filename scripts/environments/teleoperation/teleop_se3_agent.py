@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+# ./isaaclab.sh -p scripts/environments/teleoperation/teleop_se3_agent.py --task Dev-IK-Rel-v0 --num_envs 1 --teleop_device keyboard
+
 """Script to run a keyboard teleoperation with Isaac Lab manipulation environments."""
 
 """Launch Isaac Sim Simulator first."""
@@ -140,6 +142,8 @@ def main():
     # Flags for controlling teleoperation flow
     should_reset_recording_instance = False
     teleoperation_active = True
+
+    
 
     # Callback handlers
     def reset_recording_instance():

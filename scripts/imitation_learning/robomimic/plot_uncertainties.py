@@ -1,104 +1,35 @@
+# ./isaaclab.sh -p scripts/imitation_learning/robomimic/plot_uncertainties.py 
+# specify how many rollouts to process by adding --num_rollouts x
+
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 import argparse
 from scipy.stats import gaussian_kde
-from scipy.interpolate import CubicSpline
 from sklearn.metrics import roc_curve, auc
 
 from isaaclab.utils.logging_helper import LoggingHelper
-
-
-def process_rollout_logger(rollout_log_path):
-    """
-    for each rollout, return the timesteps that each subtask was completed
-    """
-    subtask_codes = {
-        'APPR': '0',
-        'GRASP': '1',
-        'LIFT': '2',
-        'FINISH': '4'
-    }
     
-    # Check if rollout log data for this rollout already exists, if so use it. If not, it means we are 
-    # running a new rollout so get the log data from the original path and then copy it over to save it.
+
+def get_success_rate(labels, recovery_activated_during_rollout_path=''):
     try:
-        with open(rollout_log_path, 'r') as file:
-            print(f"Reading rollout log data from {rollout_log_path}")
+        recovery_activated_rollouts = []
+        with open(recovery_activated_during_rollout_path, 'r') as file:
             lines = file.readlines()
+            for line in lines:
+                line = line.strip().split()
+                rollout_num = int(line[0])
+                recovery_activated = int(line[1])
+                termination = True if line[2] == 'True' else False
+                recovery_activated_rollouts.append((rollout_num, recovery_activated, termination))
+
+        successful_terminations = sum(1 for _, _, ter in recovery_activated_rollouts if ter == True)
+        print(f"Success Rate: {successful_terminations}/{len(recovery_activated_rollouts)}, {successful_terminations / len(recovery_activated_rollouts) * 100}%")
     except FileNotFoundError as filenotfounderror:
-        with open(LoggingHelper().namefile, 'r') as file:
-            print(f"Using original rollout logging path at {LoggingHelper().namefile}")
-            raw_content = file.read()
-            file.seek(0)
-            lines = file.readlines()
-            with open(rollout_log_path, 'w') as file:
-                file.write(raw_content)
-
-    
-
-    object_goal_distances = []
-    end_effector_distances_to_object = []
-    subtask_rollouts = [] 
-
-    rollout_number = -1
-    current_timestep = -1
-    for line in lines:
-        if rollout_number > args.num_rollouts:
-            break
-        line = line.strip().split(':')
+        successful_terminations = sum(1 for l in labels if l == True)
+        print(f"Success Rate: {successful_terminations}/{len(labels)}, {successful_terminations / len(labels) * 100}%")
         
-        if line[0] == 'X':
-            rollout_number += 1
-            current_timestep = -1
-
-        if line[0] == 'S':
-            current_timestep += 1
-    
-        # APPR subtask was completed successfully
-        if line[0] == subtask_codes['APPR'] and line[2] == 'TRUE' and 'APPR' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
-            subtask_rollouts.append([rollout_number, 'APPR', current_timestep])
-
-        if line[0] == subtask_codes['GRASP'] and line[2] == 'TRUE' and 'GRASP' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
-            subtask_rollouts.append([rollout_number, 'GRASP', current_timestep])
-        
-        if line[0] == subtask_codes['LIFT'] and line[2] == 'TRUE' and 'LIFT' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
-            subtask_rollouts.append([rollout_number, 'LIFT', current_timestep])
-
-        if line[0] == subtask_codes['FINISH'] and line[2] == 'TRUE' and 'FINISH' not in [subtask_name for rol_num, subtask_name, _ in subtask_rollouts if rol_num == rollout_number]:
-            subtask_rollouts.append([rollout_number, 'FINISH', current_timestep])
-
-        if line[0] == 'G':
-            object_goal_distance = float(line[1])
-            object_goal_distances.append([rollout_number, object_goal_distance, current_timestep])
-        if line[0] == 'E':  
-            end_effector_distance_to_object = float(line[1])
-            end_effector_distances_to_object.append([rollout_number, end_effector_distance_to_object, current_timestep])
-            
-        
-    # fix incorrect rollout numbers
-    for rollouts in [subtask_rollouts, object_goal_distances, end_effector_distances_to_object]:
-        prev_rollout_number = 0
-        rollout_number = 0
-        for rollout in rollouts:
-            og_rollout_num = rollout[0]
-            if rollout[0] != prev_rollout_number:
-                rollout_number += 1
-            rollout[0] = rollout_number
-            prev_rollout_number = og_rollout_num
-    
-
-    #subtask_timesteps = {(rol_num, timestep) : subtask for rol_num, subtask, timestep in rollouts}
-    subtask_timesteps = {(rol_num, subtask) : timestep for rol_num, subtask, timestep in subtask_rollouts}
-    object_goal_distances = {(rol_num, timestep) : dist for rol_num, dist, timestep in object_goal_distances}
-    end_effector_distances_to_object = {(rol_num, timestep) : dist for rol_num, dist, timestep in end_effector_distances_to_object}
-
-    #print(subtask_timesteps)
-    # print(object_goal_distances)
-    return subtask_timesteps, object_goal_distances, end_effector_distances_to_object
-    
-
 
 def load_traj_file(file, pointer=8):
     """
@@ -142,8 +73,7 @@ def load_traj_file(file, pointer=8):
 
 
 
-def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, graph_params,
-                  subtask_timesteps, object_goal_distances, end_effector_distances_to_object, 
+def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, graph_params, 
                   duration=800, joints_to_plot=[_ for _ in range(7)]):
     # define a window for each joint
     windows = {joint_num: deque(maxlen=parameters[joint_num]['window_size']) for joint_num in joints_to_plot} 
@@ -203,25 +133,10 @@ def plot_rollouts_uncertainties(rollouts, labels, results_path, parameters, grap
                 mean = [mean for _ in range(len(rollout_timesteps_to_plot))]
                 unc_threshold_plot = [parameters[joint_num]['unc_threshold'] for _ in range(len(rollout_timesteps_to_plot))]
 
-                # plot subtasks
-                for subtask in ['APPR', 'GRASP', 'LIFT', 'FINISH']:
-                    try:
-                        rt = subtask_timesteps[(i, subtask)]
-                        if rt < duration: 
-                            ax1.scatter(rt, 0, zorder=4, label=f"{subtask} Completion")
-                    except KeyError:
-                        continue
-
 
                 ax1.plot(rollout_timesteps_to_plot, mean, label=f"Joint {joint_num} mean uncertainty", linestyle='--', alpha=0.4, color=plotted_line[0].get_color()) 
                 ax1.plot(rollout_timesteps_to_plot, unc_threshold_plot, label=f"Uncertainty Threshold", linestyle='--', alpha=0.4, color='red')
-                # plot object to goal distances at each timestep
-                # object_goal_distances_to_plot = [object_goal_distances.get((i, t-1), np.NaN) for t in rollout_timesteps_to_plot]
-                # ax2.plot(rollout_timesteps_to_plot, object_goal_distances_to_plot, label=f"Object Goal Distance",  color='purple')
-                # plot end effector to object distances at each timestep
-                #end_effector_distances_to_object_to_plot = [end_effector_distances_to_object.get((i, t-1), np.NaN) for t in rollout_timesteps_to_plot]
-                #ax2.plot(rollout_timesteps_to_plot, end_effector_distances_to_object_to_plot, label=f"EE Object Distance",  color='orange')
-                
+              
                 if labels[i] == True:
                     successful_rollout_means[joint_num].append(mean)
                 else:
@@ -515,7 +430,8 @@ def plot_trajectory(traj_info, results_path):
         for joint_num in range(7):
         
             title = f"Trajectory for Rollout {i}, Joint {joint_num}"
-            plt.figure(figsize=(10, 6))
+            # title = "Variation in Policy Output Action for Robot Joint"
+            plt.figure(figsize=(12, 8))
             current_joint_actions = actions[:, joint_num]
             current_joint_max_actions = max_actions[:, joint_num]
             current_joint_min_actions = min_actions[:, joint_num]
@@ -530,17 +446,20 @@ def plot_trajectory(traj_info, results_path):
                 label='Action Range'
             )
 
-            plt.plot(timesteps, current_joint_max_actions, label=f"Max Trajectory", color='blue', alpha=0.1)
-            plt.plot(timesteps, current_joint_actions, label=f"Mean Trajectory", color='blue')
-            plt.plot(timesteps, current_joint_min_actions, label=f"Min Trajectory",  color='blue', alpha=0.1)
+            plt.plot(timesteps, current_joint_max_actions, label=f"Max Action", color='blue', alpha=0.1)
+            plt.plot(timesteps, current_joint_actions, label=f"Mean Action", color='blue')
+            plt.plot(timesteps, current_joint_min_actions, label=f"Min Action",  color='blue', alpha=0.1)
 
+            plt.title(title)
             plt.tight_layout()
             plt.legend()
             plt.grid(True)
             plt.xlabel('Timestep')
-            plt.ylabel('Joint Position')
+            plt.ylabel('Relative Joint Position')
             plt.savefig(f"{results_path}/Joint{joint_num}/{title}.png")
             plt.close()
+
+            # print(f"{results_path}/Joint{joint_num}/{title}.png")
         
 
 
@@ -606,13 +525,13 @@ parameters = {
             },
 
             4: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
             },
             3: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
@@ -624,20 +543,20 @@ parameters = {
                 'max_uncertain_windows': 3
             },
             1: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
             },
             0: {
-                'unc_threshold': 0.02,
+                'unc_threshold': 0.03,
                 'max_peaks': 2,
                 'window_size': 10,
                 'max_uncertain_windows': 3
             }
 
         }
-    }  
+    } 
 
 graph_params = {
     'stack_cube' : {
@@ -698,7 +617,7 @@ args = parser.parse_args()
 model_arch = "BC_RNN_GMM"
 task = "pick_place" # stack_cube or pick_place
 model_name = f"ensemble"
-number = 'recovery'
+number = 'recovery_experiment_without_recovery'
 
 results_path = f"./docs/training_data/{task}/uncertainty_rollout_{task}/{model_name}/run_{number}"
 
@@ -707,7 +626,7 @@ actions_path = f"{results_path}/actions{number}.txt"
 min_actions_path = f"{results_path}/min_actions{number}.txt"
 max_actions_path = f"{results_path}/max_actions{number}.txt"
 time_taken_path = f"{results_path}/time_taken{number}.txt"
-
+recovery_activated_during_rollout_path = f"{results_path}/recovery_activated_during_rollout.txt"
 rollout_log_path = f"{uncertainties_path[:len(uncertainties_path)-4]}_rollout_log.txt" # remove the '.txt' and add rollout_log.txt
 
 uncertainty_results_path = f"{results_path}/uncertainty_plots"
@@ -728,7 +647,7 @@ for joint_num in range(7):
             os.remove(os.path.join(dir_path, file_name))
       
 
-subtask_timesteps, object_goal_distances, end_effector_distances_to_object  = process_rollout_logger(rollout_log_path)
+# subtask_timesteps, object_goal_distances, end_effector_distances_to_object  = process_rollout_logger(rollout_log_path)
 
 rollouts_uncertainties, labels, all_uncertainties, all_timesteps = load_traj_file(uncertainties_path)
 rollouts_actions, _, _, _ = load_traj_file(actions_path)
@@ -743,17 +662,43 @@ traj_info = {
     'time_taken': rollouts_times_taken
 }
 
+get_success_rate(labels, recovery_activated_during_rollout_path)
 
 plot_rollouts_uncertainties(rollouts_uncertainties, labels, uncertainty_results_path,
               parameters[task], graph_params[task], 
-              subtask_timesteps, object_goal_distances, end_effector_distances_to_object,
-              duration=800, joints_to_plot=[0, 1, 2, 3, 4, 5, 6]
+              duration=1000, joints_to_plot=[0, 1, 2, 3, 4, 5, 6]
             )
 
 
 plot_trajectory(traj_info, trajectory_results_path)
 
+# binomial confidence intervals for success rates
+# from statsmodels.stats.proportion import proportion_confint
 
+# Example data
+# n1, k1 = 100, 70   # baseline: 70 successes out of 100
+# n2, k2 = 100, 85   # recovery: 85 successes out of 100
+
+# p1 = k1 / n1
+# p2 = k2 / n2
+
+# ci1_low, ci1_high = proportion_confint(k1, n1, alpha=0.05, method='wilson')
+# ci2_low, ci2_high = proportion_confint(k2, n2, alpha=0.05, method='wilson')
+
+# print(f"Baseline: {p1:.2f} CI = ({ci1_low:.2f}, {ci1_high:.2f})")
+# print(f"Recovery: {p2:.2f} CI = ({ci2_low:.2f}, {ci2_high:.2f})")
+
+
+# models = ["Baseline", "Recovery"]
+# success_rates = [p1, p2]
+# ci_lows = [p1 - ci1_low, p2 - ci2_low]
+# ci_highs = [ci1_high - p1, ci2_high - p2]
+
+# plt.bar(models, success_rates, yerr=[ci_lows, ci_highs], capsize=5, color=["red","green"])
+# plt.ylabel("Success Rate")
+# plt.title("Success Rate with 95% CI")
+# plt.ylim(0,1)
+# plt.show()
 # Hellinger distance data for each policy and joint
 # hellinger_data = {
 #     "minstd": {

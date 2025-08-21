@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import torch
+import math
 from typing import TYPE_CHECKING
 
 from isaaclab.assets import RigidObject
@@ -26,7 +27,54 @@ def get_joint_pos(
     """Check if an object is grasped by the specified robot."""
 
     robot: Articulation = env.scene[robot_cfg.name]
+    # print(f"robot_pose :  {robot.data.joint_pos}")
     return robot.data.joint_pos
+
+def get_current_ee_joint_pos(
+    env: ManagerBasedRLEnv,
+    # robot_entity_cfg = SceneEntityCfg("robot", joint_names=["panda_joint.*"], body_names=["panda_hand"]),
+    robot_entity_cfg = SceneEntityCfg("robot", body_names=["panda_hand"]),
+
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")
+) -> torch.Tensor:
+    
+    robot_entity_cfg.resolve(env.scene)
+    robot: Articulation = env.scene[robot_entity_cfg.name]
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+
+    ee_pose_w = ee_frame.data.target_pos_w[...,0,:]
+    # print("robot relative ee_pos", ee_pose_w)
+    ee_quat_b = ee_frame.data.target_pos_w[:, 0, :] - env.scene.env_origins[:, 0:3]
+    # print('quat: ', ee_quat_b)
+    
+    # ee_pose_w = robot.data.body_state_w[:, robot_entity_cfg.body_ids[0], 0:7]
+
+    # ee_pose_w, _ = subtract_frame_transforms(
+    #     robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], ee_p
+    # )
+    # print('ee_pos_w: ', ee_pose_w)
+    root_pose_w = robot.data.root_state_w[:, 0:7]
+    # ee_pos_b, ee_quat_b = subtract_frame_transforms(
+    #     root_pose_w[:, 0:3], root_pose_w[:, 3:7], ee_pose_w[:, 0:3], ee_pose_w[:, 3:7]
+    # )
+
+    if robot.is_fixed_base:
+        ee_jacobi_idx = robot_entity_cfg.body_ids[0] - 1
+    else:
+        ee_jacobi_idx = robot_entity_cfg.body_ids[0]
+    jacobian = robot.root_physx_view.get_jacobians()[:, ee_jacobi_idx, :, robot_entity_cfg.joint_ids]
+
+    joint_pos = robot.data.joint_pos[:, robot_entity_cfg.joint_ids]
+    d = {'ee_pos_b': ee_pose_w, 
+            'ee_quat_b': ee_quat_b, 
+            'jacobian': jacobian, 
+            'joint_pos': joint_pos,
+            'robot_entity_cfg': robot_entity_cfg}
+    # print(d)
+    
+    # return torch.tensor([0])
+    return d
+
 
 def object_position_in_robot_root_frame(
     env: ManagerBasedRLEnv,
@@ -59,7 +107,6 @@ def obstacle_position_in_robot_root_frame(
     )
    
     return object_pos_b
-
 
 def reach_object(
     env: ManagerBasedRLEnv,
@@ -168,14 +215,14 @@ def is_object_lifted(
 def ee_frame_pos(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
     ee_frame_pos = ee_frame.data.target_pos_w[:, 0, :] - env.scene.env_origins[:, 0:3]
-
+    # print(f"EE_FRAME_POS :  {ee_frame_pos}")
     return ee_frame_pos
 
 
 def ee_frame_quat(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
     ee_frame_quat = ee_frame.data.target_quat_w[:, 0, :]
-
+    # print(f"EE_FRAME_QUAT : {ee_frame_quat}")
     return ee_frame_quat
 
 
@@ -288,8 +335,8 @@ def robot_pose(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    print(robot.data.joint_pos)
-    return torch.tensor([0.04])
+    # print(robot.data.joint_pos)
+    return robot.data.joint_pos
 
 
 

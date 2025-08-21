@@ -359,7 +359,7 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.05, 0.1), "y": (-0.1, 0.0), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.05, 0.1), "y": (-0.1, -0.05), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object1"), 
         },
@@ -368,20 +368,20 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (0.0, 0.1), "y": (0.15, 0.25), "z": (0.0, 0.0)},
+            "pose_range": {"x": (0.0, 0.1), "y": (0.175, 0.275), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object2"),
         },
     )
-    reset_object3_position = EventTerm(
-        func=mdp.reset_root_state_uniform,
-        mode="reset",
-        params={
-            "pose_range": {"x": (0.0, 0.1), "y": (-0.25, -0.20), "z": (0.0, 0.0)},
-            "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object3"),
-        }
-    )
+    # reset_object3_position = EventTerm(
+    #     func=mdp.reset_root_state_uniform,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": (0.0, 0.1), "y": (-0.25, -0.20), "z": (0.0, 0.0)},
+    #         "velocity_range": {},
+    #         "asset_cfg": SceneEntityCfg("object3"),
+    #     }
+    # )
 
 
 @configclass
@@ -415,7 +415,7 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
         """Post initialization."""
         # general settings
         self.decimation = 5
-        self.episode_length_s = 160.0 # used to be 30.0
+        self.episode_length_s = 300.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = 2

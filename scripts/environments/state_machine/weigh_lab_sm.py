@@ -22,19 +22,19 @@ import argparse
 from isaaclab.app import AppLauncher
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
-parser.add_argument(
-    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
-)
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-# append AppLauncher cli args
-AppLauncher.add_app_launcher_args(parser)
-# parse the arguments
-args_cli = parser.parse_args()
+# parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
+# parser.add_argument(
+#     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+# )
+# parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+# # append AppLauncher cli args
+# AppLauncher.add_app_launcher_args(parser)
+# # parse the arguments
+# args_cli = parser.parse_args()
 
-# launch omniverse app
-app_launcher = AppLauncher(headless=args_cli.headless)
-simulation_app = app_launcher.app
+# # launch omniverse app
+# app_launcher = AppLauncher(headless=args_cli.headless)
+# simulation_app = app_launcher.app
 
 """Rest everything else."""
 
@@ -77,7 +77,7 @@ class PickSmState:
 class PickSmWaitTime:
     """Additional wait times (in s) for states for before switching."""
 
-    REST = wp.constant(0.2)
+    REST = wp.constant(5)
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
@@ -138,7 +138,7 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(object_pose[tid])
         pose_rot = wp.transform_get_rotation(object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.02, pose_pos.y, pose_pos.z + 0.04)
+        offset_pos = wp.vec3(pose_pos.x + 0.02, pose_pos.y, pose_pos.z)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(

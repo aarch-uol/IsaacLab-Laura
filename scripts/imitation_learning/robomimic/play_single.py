@@ -199,7 +199,7 @@ def main():
  
     results = []
     for trial in range(args_cli.num_rollouts):
-        filename = "BC_RNN_TEST_RUN_" + str(trial)
+        filename = "BC_RNN_Conical_" + str(trial)
         logging = LogRollout(filename,["Step", "Gripper pose" , "Variance", "Collision dist", "Safety violation"] )
         traj_logging = TrajectoryLogger(filename)
         print(f"[INFO] Starting trial {trial}")

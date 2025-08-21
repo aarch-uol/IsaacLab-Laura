@@ -32,7 +32,7 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )
         glassware = Chem_Assets()
-        self.scene.obstacle = glassware.cube_obs(pos= [0.5, -0.1, 0.0],rot=[0, 0, 1, 0], name="cube_obs")
+        #self.scene.obstacle = glassware.cube_obs(pos= [0.5, -0.1, 0.0],rot=[0, 0, 1, 0], name="cube_obs")
 
        
 

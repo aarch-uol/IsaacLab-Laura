@@ -233,8 +233,12 @@ class EventCfg:
     randomise_object__scale = EventTerm(
         func=mdp.randomize_rigid_body_scale,
         mode="prestartup",
+        # params={
+        #     "scale_range": {"x": (0.5, 0.7), "y": (0.2, 0.6), "z": (0.2, 0.5)},
+        #     "asset_cfg": SceneEntityCfg("object", body_names="Object"),
+        # },
         params={
-            "scale_range": {"x": (0.5, 0.7), "y": (0.2, 0.6), "z": (0.2, 0.5)},
+            "scale_range": {"x": (1.0, 1.0), "y": (1.0, 1.0), "z": (1.0, 1.0)},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
     )

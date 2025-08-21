@@ -1,0 +1,416 @@
+# Copyright (c) 2024-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+"""
+Script to record demonstrations with Isaac Lab environments using human teleoperation.
+
+This script allows users to record demonstrations operated by human teleoperation for a specified task.
+The recorded demonstrations are stored as episodes in a hdf5 file. Users can specify the task, teleoperation
+device, dataset directory, and environment stepping rate through command-line arguments.
+
+required arguments:
+    --task                    Name of the task.
+
+optional arguments:
+    -h, --help                Show this help message and exit
+    --teleop_device           Device for interacting with environment. (default: keyboard)
+    --dataset_file            File path to export recorded demos. (default: "./datasets/dataset.hdf5")
+    --step_hz                 Environment stepping rate in Hz. (default: 30)
+    --num_demos               Number of demonstrations to record. (default: 0)
+    --num_success_steps       Number of continuous steps with task success for concluding a demo as successful. (default: 10)
+"""
+
+"""Launch Isaac Sim Simulator first."""
+
+# Standard library imports
+import argparse
+import contextlib
+
+# Third-party imports
+import gymnasium as gym
+import numpy as np
+import os
+import time
+import torch
+
+# Isaac Lab AppLauncher
+from isaaclab.app import AppLauncher
+
+# add argparse arguments
+parser = argparse.ArgumentParser(description="Record demonstrations for Isaac Lab environments.")
+parser.add_argument("--task", type=str, default=None, help="Name of the task.")
+parser.add_argument("--teleop_device", type=str, default="keyboard", help="Device for interacting with environment.")
+parser.add_argument(
+    "--dataset_file", type=str, default="./datasets/dataset.hdf5", help="File path to export recorded demos."
+)
+parser.add_argument("--step_hz", type=int, default=30, help="Environment stepping rate in Hz.")
+parser.add_argument(
+    "--num_demos", type=int, default=0, help="Number of demonstrations to record. Set to 0 for infinite."
+)
+parser.add_argument(
+    "--num_success_steps",
+    type=int,
+    default=10,
+    help="Number of continuous steps with task success for concluding a demo as successful. Default is 10.",
+)
+parser.add_argument(
+    "--enable_pinocchio",
+    action="store_true",
+    default=False,
+    help="Enable Pinocchio.",
+)
+
+# append AppLauncher cli args
+AppLauncher.add_app_launcher_args(parser)
+# parse the arguments
+args_cli = parser.parse_args()
+
+app_launcher_args = vars(args_cli)
+
+if args_cli.enable_pinocchio:
+    # Import pinocchio before AppLauncher to force the use of the version installed by IsaacLab and not the one installed by Isaac Sim
+    # pinocchio is required by the Pink IK controllers and the GR1T2 retargeter
+    import pinocchio  # noqa: F401
+
+# launch the simulator
+app_launcher = AppLauncher(args_cli)
+simulation_app = app_launcher.app
+
+# Omniverse logger
+import omni.log
+import omni.ui as ui
+
+# Additional Isaac Lab imports that can only be imported after the simulator is running
+from isaaclab.devices import OpenXRDevice, Se3Keyboard, Se3SpaceMouse
+
+import isaaclab_mimic.envs  # noqa: F401
+from isaaclab_mimic.ui.instruction_display import InstructionDisplay, show_subtask_instructions
+
+if args_cli.enable_pinocchio:
+    from isaaclab.devices.openxr.retargeters.humanoid.fourier.gr1t2_retargeter import GR1T2Retargeter
+    import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
+
+from isaaclab.devices.openxr.retargeters.manipulator import GripperRetargeter, Se3AbsRetargeter, Se3RelRetargeter
+from isaaclab.envs.mdp.recorders.recorders_cfg import ActionStateRecorderManagerCfg
+from isaaclab.envs.ui import EmptyWindow
+from isaaclab.managers import DatasetExportMode
+
+import isaaclab_tasks  # noqa: F401
+from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
+import sys
+sys.path.append("/workspace/isaaclab/scripts/environments")
+
+class RateLimiter:
+    """Convenience class for enforcing rates in loops."""
+
+    def __init__(self, hz: int):
+        """Initialize a RateLimiter with specified frequency.
+
+        Args:
+            hz: Frequency to enforce in Hertz.
+        """
+        self.hz = hz
+        self.last_time = time.time()
+        self.sleep_duration = 1.0 / hz
+        self.render_period = min(0.033, self.sleep_duration)
+
+    def sleep(self, env: gym.Env):
+        """Attempt to sleep at the specified rate in hz.
+
+        Args:
+            env: Environment to render during sleep periods.
+        """
+        next_wakeup_time = self.last_time + self.sleep_duration
+        while time.time() < next_wakeup_time:
+            time.sleep(self.render_period)
+            env.sim.render()
+
+        self.last_time = self.last_time + self.sleep_duration
+
+        # detect time jumping forwards (e.g. loop is too slow)
+        if self.last_time < time.time():
+            while self.last_time < time.time():
+                self.last_time += self.sleep_duration
+
+# def run_state_machine(env, env_cfg):
+#     from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
+#     """Run the state machine to control the robot and record demos."""
+#     # Create action buffer (position + quaternion)
+#     actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
+#     actions[:, 3] = 1.0
+
+#     # Create state machine instance
+#     pick_sm = PickAndLiftSm(
+#         env_cfg.sim.dt * env_cfg.decimation,
+#         env.unwrapped.num_envs,
+#         env.unwrapped.device,
+#         position_threshold=0.01
+#     )
+#     ee_frame_sensor = env.unwrapped.scene["ee_frame"]
+#     tcp_rot = ee_frame_sensor.data.target_quat_w[..., 0, :].clone()
+    
+#     # while simulation_app.is_running():
+#     with torch.inference_mode():
+#         dones = env.step(actions)[-2]
+
+#         # End-effector pose
+#         tcp_pos = ee_frame_sensor.data.target_pos_w[..., 0, :].clone() - env.unwrapped.scene.env_origins
+
+#         # Object positions
+#         obj1_pos = env.unwrapped.scene["object1"].data.root_pos_w - env.unwrapped.scene.env_origins
+#         obj2_pos = env.unwrapped.scene["object2"].data.root_pos_w - env.unwrapped.scene.env_origins
+
+#         # Desired goal position
+#         desired_pos = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
+
+#         # Compute actions from state machine
+#         actions = pick_sm.compute(
+#             torch.cat([tcp_pos, tcp_rot], dim=-1),
+#             torch.cat([obj1_pos, tcp_rot], dim=-1),
+#             torch.cat([desired_pos, tcp_rot], dim=-1),
+#             torch.cat([obj2_pos, tcp_rot], dim=-1),
+#         )
+
+#         # Reset SM for finished envs
+#         if dones.any():
+#             pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
+
+#         return actions
+
+def init_state_machine(env, env_cfg):
+    """Create PickAndLiftSm once and capture initial TCP orientation."""
+    
+    from state_machine.lift_cube_sm import PickAndLiftSm
+
+    pick_sm = PickAndLiftSm(
+        env_cfg.sim.dt * env_cfg.decimation,
+        env.unwrapped.num_envs,
+        env.unwrapped.device,
+        position_threshold=0.01,
+    )
+
+    # Read current ee frame and capture a fixed orientation (per env)
+    ee_frame = env.unwrapped.scene["ee_frame"]
+    fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()  # shape (num_envs,4)
+
+    return pick_sm, fixed_tcp_rot
+
+def state_machine_step(env, pick_sm, fixed_tcp_rot):
+    """Compute a single-step action from the persistent state machine (does NOT call env.step)."""
+    with torch.inference_mode():
+        ee_frame = env.unwrapped.scene["ee_frame"]
+        tcp_pos = ee_frame.data.target_pos_w[..., 0, :].clone() - env.unwrapped.scene.env_origins
+
+        obj1_pos = env.unwrapped.scene["object1"].data.root_pos_w - env.unwrapped.scene.env_origins
+      #  obj2_pos = env.unwrapped.scene["object2"].data.root_pos_w - env.unwrapped.scene.env_origins
+        desired_pos = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
+
+        # Use the fixed quaternion for all inputs so orientation is locked.
+        a = pick_sm.compute(
+            torch.cat([tcp_pos, fixed_tcp_rot], dim=-1),
+            torch.cat([obj1_pos, fixed_tcp_rot], dim=-1),
+            torch.cat([desired_pos, fixed_tcp_rot], dim=-1),
+           # torch.cat([obj2_pos,  fixed_tcp_rot], dim=-1),
+        )#
+
+        # Trim to match env action dim (e.g. 7).  Safer: read action dim at runtime.
+        # action_dim = env.unwrapped.action_space.shape[1]  # e.g. 7
+        # if a.shape[-1] != action_dim:
+        #     a = a[..., :action_dim]
+
+    return a
+
+
+def main():
+    """Collect demonstrations from the environment using teleop interfaces."""
+
+    # if handtracking is selected, rate limiting is achieved via OpenXR
+    rate_limiter = RateLimiter(args_cli.step_hz)
+
+    # get directory path and file name (without extension) from cli arguments
+    output_dir = os.path.dirname(args_cli.dataset_file)
+    output_file_name = os.path.splitext(os.path.basename(args_cli.dataset_file))[0]
+
+    # create directory if it does not exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # parse configuration
+    env_cfg = parse_env_cfg(
+        args_cli.task,
+        device=args_cli.device,
+        num_envs=1,
+    )
+    env_cfg.env_name = args_cli.task
+
+    # extract success checking function to invoke in the main loop
+    success_term = None
+    if hasattr(env_cfg.terminations, "success_term"):
+        success_term = env_cfg.terminations.success_term
+        env_cfg.terminations.success_term = None
+    else:
+        omni.log.warn(
+            "No success termination term was found in the environment."
+            " Will not be able to mark recorded demos as successful."
+        )
+
+    # modify configuration such that the environment runs indefinitely until
+    # the goal is reached or other termination conditions are met
+    env_cfg.terminations.time_out = None
+
+    env_cfg.observations.policy.concatenate_terms = False
+
+    env_cfg.recorders: ActionStateRecorderManagerCfg = ActionStateRecorderManagerCfg()
+    env_cfg.recorders.dataset_export_dir_path = output_dir
+    env_cfg.recorders.dataset_filename = output_file_name
+    env_cfg.recorders.dataset_export_mode = DatasetExportMode.EXPORT_SUCCEEDED_ONLY
+
+    # create environment
+    env = gym.make(args_cli.task, cfg=env_cfg).unwrapped
+    env.reset()
+
+    # Flags for controlling the demonstration recording process
+    should_reset_recording_instance = False
+    running_recording_instance = True
+
+    def reset_recording_instance():
+        """Reset the current recording instance.
+
+        This function is triggered when the user indicates the current demo attempt
+        has failed and should be discarded. When called, it marks the environment
+        for reset, which will start a fresh recording instance. This is useful when:
+        - The robot gets into an unrecoverable state
+        - The user makes a mistake during demonstration
+        - The objects in the scene need to be reset to their initial positions
+        """
+        nonlocal should_reset_recording_instance
+        should_reset_recording_instance = True
+
+    def start_recording_instance():
+        """Start or resume recording the current demonstration.
+
+        This function enables active recording of robot actions. It's used when:
+        - Beginning a new demonstration after positioning the robot
+        - Resuming recording after temporarily stopping to reposition
+        - Continuing demonstration after pausing to adjust approach or strategy
+
+        The user can toggle between stop/start to reposition the robot without
+        recording those transitional movements in the final demonstration.
+        """
+        nonlocal running_recording_instance
+        running_recording_instance = True
+
+    def stop_recording_instance():
+        """Temporarily stop recording the current demonstration.
+
+        This function pauses the active recording of robot actions, allowing the user to:
+        - Reposition the robot or hand tracking device without recording those movements
+        - Take a break without terminating the entire demonstration
+        - Adjust their approach before continuing with the task
+
+        The environment will continue rendering but won't record actions or advance
+        the simulation until recording is resumed with start_recording_instance().
+        """
+        nonlocal running_recording_instance
+        running_recording_instance = False
+
+    # reset before starting
+    # env.sim.reset()
+    # env.reset()
+
+    # simulate environment -- run everything in inference mode
+    current_recorded_demo_count = 0
+    success_step_count = 0
+
+    label_text = f"Recorded {current_recorded_demo_count} successful demonstrations."
+
+    instruction_display = InstructionDisplay(args_cli.teleop_device)
+    window = EmptyWindow(env, "Instruction")
+    with window.ui_window_elements["main_vstack"]:
+        demo_label = ui.Label(label_text)
+        subtask_label = ui.Label("")
+        instruction_display.set_labels(subtask_label, demo_label)
+
+    subtasks = {}
+    pick_sm, fixed_tcp_rot = init_state_machine(env, env_cfg)
+
+    # with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
+    while simulation_app.is_running():
+
+        # perform action on environment
+        if running_recording_instance:
+            # compute actions based on environment
+            # actions = run_state_machine(env, env_cfg)
+            actions = state_machine_step(env, pick_sm, fixed_tcp_rot)
+            obv, reward, done, done2, info = env.step(actions)
+            if done.any():
+                pick_sm.reset_idx(done.nonzero(as_tuple=False).squeeze(-1))
+
+            # if the env actually performs a full env.reset() (e.g. after recording or timeouts),
+            # you must re-capture the fixed orientation for the restarted episodes:
+            if should_reset_recording_instance:
+                env.sim.reset()
+                env.recorder_manager.reset()
+                env.reset()
+                # re-capture fixed orientation (after reset)
+                ee_frame = env.unwrapped.scene["ee_frame"]
+                fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()
+                pick_sm.reset_idx(torch.arange(env.unwrapped.num_envs, device=env.unwrapped.device))
+                should_reset_recording_instance = False
+        
+        #     if subtasks is not None:
+        #         if subtasks == {}:
+        #             subtasks = obv[0].get("subtask_terms")
+        #         elif subtasks:
+        #             show_subtask_instructions(instruction_display, subtasks, obv, env.cfg)
+            else:
+                env.sim.render()
+
+        if success_term is not None:
+            if bool(success_term.func(env, **success_term.params)[0]):
+                success_step_count += 1
+                if success_step_count >= args_cli.num_success_steps:
+                    env.recorder_manager.record_pre_reset([0], force_export_or_skip=False)
+                    env.recorder_manager.set_success_to_episodes(
+                        [0], torch.tensor([[True]], dtype=torch.bool, device=env.device)
+                    )
+                    env.recorder_manager.export_episodes([0])
+                    should_reset_recording_instance = True
+            else:
+                success_step_count = 0
+
+        # print out the current demo count if it has changed
+        if env.recorder_manager.exported_successful_episode_count > current_recorded_demo_count:
+            current_recorded_demo_count = env.recorder_manager.exported_successful_episode_count
+            label_text = f"Recorded {current_recorded_demo_count} successful demonstrations."
+            print(label_text)
+
+        if should_reset_recording_instance:
+            env.sim.reset()
+            env.recorder_manager.reset()
+            env.reset()
+            should_reset_recording_instance = False
+            success_step_count = 0
+            instruction_display.show_demo(label_text)
+
+        if args_cli.num_demos > 0 and env.recorder_manager.exported_successful_episode_count >= args_cli.num_demos:
+            print(f"All {args_cli.num_demos} demonstrations recorded. Exiting the app.")
+            break
+
+        # check that simulation is stopped or not
+        if env.sim.is_stopped():
+            break
+
+        if rate_limiter:
+            rate_limiter.sleep(env)
+
+    env.close()
+
+
+if __name__ == "__main__":
+    # run the main function
+    main()
+    # close sim app
+    simulation_app.close()

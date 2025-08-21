@@ -68,6 +68,7 @@ def reach_object(
     cube_pos_w = object.data.root_pos_w
     # End-effector position: (num_envs, 3)
     ee_w = ee_frame.data.target_pos_w[..., 0, :]
+   # print("ee pos : ", ee_w)
     # Distance of the end-effector to the object: (num_envs,)
     object_ee_distance = torch.norm(cube_pos_w - ee_w, dim=1)
     if object_ee_distance.item() < std :
@@ -180,7 +181,7 @@ def gripper_pos(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityC
 def object_near_goal(
     env: ManagerBasedRLEnv,
     command_name: str = "object_pose",
-    threshold: float = 0.02,
+    threshold: float = 0.05,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     loghelper : LoggingHelper = LoggingHelper()
@@ -246,7 +247,7 @@ def robot_pose(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    print(robot.data.joint_pos)
+   # print(robot.data.joint_pos)
     return torch.tensor([0.04])
 
 def position_command_error(

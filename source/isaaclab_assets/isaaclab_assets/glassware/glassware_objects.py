@@ -17,13 +17,13 @@ class Chem_Assets:
             enable_gyroscopic_forces=True,
         )
 
-        def flask(self,pos=[0.65, 0.4, 0.05],rot=[1, 0, 0, 0], name="Flask")-> RigidObjectCfg:
+        def flask(self,pos=[0.65, 0.4, 0.05],rot=[1, 0, 0, 0], name="Flask", scale=(1,1,1))-> RigidObjectCfg:
            return RigidObjectCfg(
                 prim_path="{ENV_REGEX_NS}/" + name,
                 init_state=RigidObjectCfg.InitialStateCfg(pos=pos,rot=rot),
                 spawn=UsdFileCfg(
                     usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/conical_flask.usd",
-                    scale=(1, 1, 1),
+                    scale=scale,
                     rigid_props=self.cube_properties,
                     visible=True,
                     copy_from_source = False,

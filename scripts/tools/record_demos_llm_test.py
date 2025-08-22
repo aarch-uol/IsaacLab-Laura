@@ -86,8 +86,6 @@ simulation_app = app_launcher.app
 import omni.log
 import omni.ui as ui
 
-# Additional Isaac Lab imports that can only be imported after the simulator is running
-from isaaclab.devices import OpenXRDevice, Se3Keyboard, Se3SpaceMouse
 
 import isaaclab_mimic.envs  # noqa: F401
 from isaaclab_mimic.ui.instruction_display import InstructionDisplay, show_subtask_instructions
@@ -106,8 +104,8 @@ from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
 # from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
 # from scripts.environments.state_machine.weigh_lab_sm import PickAndLiftSm
-# from scripts.environments.state_machine.pour_lab_sm import PickAndLiftSm
-from scripts.environments.state_machine.stack_weigh_lab_sm import PickAndLiftSm
+from scripts.environments.state_machine.pour_lab_sm import PickAndLiftSm
+# from scripts.environments.state_machine.stack_weigh_lab_sm import PickAndLiftSm
 
 
 class RateLimiter:
@@ -271,8 +269,8 @@ def main():
         running_recording_instance = False
 
     # reset before starting
-    # env.sim.reset()
-    # env.reset()
+    env.sim.reset()
+    env.reset()
 
     # simulate environment -- run everything in inference mode
     current_recorded_demo_count = 0

@@ -365,15 +365,15 @@ class EventCfg:
             "asset_cfg": SceneEntityCfg("object2"),
         },
     )
-    # reset_object3_position = EventTerm(
-    #     func=mdp.reset_root_state_uniform,
-    #     mode="reset",
-    #     params={
-    #         "pose_range": {"x": (0.0, 0.1), "y": (-0.25, -0.20), "z": (0.0, 0.0)},
-    #         "velocity_range": {},
-    #         "asset_cfg": SceneEntityCfg("object3"),
-    #     }
-    # )
+    reset_object3_position = EventTerm(
+        func=mdp.reset_root_state_uniform,
+        mode="reset",
+        params={
+            "pose_range": {"x": (0.0, 0.1), "y": (-0.25, -0.20), "z": (0.0, 0.0)},
+            "velocity_range": {},
+            "asset_cfg": SceneEntityCfg("object3"),
+        }
+    )
 
 
 @configclass
@@ -406,7 +406,7 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
         """Post initialization."""
         # general settings
         self.decimation = 5
-        self.episode_length_s = 300.0
+        self.episode_length_s = 300 #300.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = 2

@@ -22,19 +22,19 @@ import argparse
 from isaaclab.app import AppLauncher
 
 # add argparse arguments
-# parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
-# parser.add_argument(
-#     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
-# )
-# parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-# # append AppLauncher cli args
-# AppLauncher.add_app_launcher_args(parser)
-# # parse the arguments
-# args_cli = parser.parse_args()
+parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
+parser.add_argument(
+    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+)
+parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+# append AppLauncher cli args
+AppLauncher.add_app_launcher_args(parser)
+# parse the arguments
+args_cli = parser.parse_args()
 
-# # launch omniverse app
-# app_launcher = AppLauncher(headless=args_cli.headless)
-# simulation_app = app_launcher.app
+# launch omniverse app
+app_launcher = AppLauncher(headless=args_cli.headless)
+simulation_app = app_launcher.app
 
 """Rest everything else."""
 
@@ -80,7 +80,7 @@ class PickSmState:
 class PickSmWaitTime:
     """Additional wait times (in s) for states for before switching."""
 
-    REST = wp.constant(5)
+    REST = wp.constant(5.0)
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
@@ -88,8 +88,8 @@ class PickSmWaitTime:
     APPROACH_ABOVE_OBJECT2 = wp.constant(0.5)
     POUR = wp.constant(1.0)
     REORIENT = wp.constant(1.0)
-    APPROACH_GOAL = wp.constant(0.6)
-    UNGRASP_OBJECT = wp.constant(0.3)
+    APPROACH_GOAL = wp.constant(2.0)
+    UNGRASP_OBJECT = wp.constant(5.0)
 
 
 @wp.func

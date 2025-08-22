@@ -16,7 +16,7 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping1 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
     object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-    success_term = DoneTerm(func=mdp.object_reached_goal)
+    success_term = DoneTerm(func=mdp.objects_stacked, params={"lower_object_cfg": SceneEntityCfg("object3")})
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
@@ -33,23 +33,21 @@ class ObservationsCfg:
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
 
     class SubtasksCfg(ObsGroup):
-        # Task 1: Weighing a solution
-        reach_object1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
-        object_grasped1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal1 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
-        reach_object2_weighing = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
-        object_stacked_weighing = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
+        # Task 1: Heating a solution
+        reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
+        reach_object2_task1 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
+        object_stacked_task1 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
 
-        # Task 2: Pouring a solution
-        reach_object1_pouring = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
-        object_grasped1_pouring = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted1_pouring = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal1_pouring = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
-        reach_object2_pouring = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object3")})
-        pouring_solution = ObsTerm(func=mdp.pouring_solution)
-        reorient_object = ObsTerm(func=mdp.reorient_object)
-        object_near_goal_pouring = ObsTerm(func=mdp.object_near_goal, params={"object_cfg": SceneEntityCfg("object1")})
+        # Task 2: Weighing a solution
+        reach_object_task2 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped_task2 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted_task2 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task2 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
+        reach_object2_task2 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object3")})
+        object_stacked_task2 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object3")})
 
     policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)
     subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
@@ -77,11 +75,11 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware
-        self.scene.object1 = glassware.sample_vial  # Main object for weighing and pouring
+        self.scene.object1 = glassware.beaker  # Main object for heating and weighing
 
         # Spawn Lab Equipment
-        self.scene.object2 = glassware.electric_balance  # Used for weighing
-        self.scene.object3 = glassware.beaker  # Used for pouring
+        self.scene.object2 = glassware.hot_plate  # Hot plate for Task 1: Heating a solution
+        self.scene.object3 = glassware.electric_balance  # Electric balance for Task 2: Weighing a solution
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

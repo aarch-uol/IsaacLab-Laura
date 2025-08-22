@@ -61,6 +61,10 @@ parser.add_argument(
     default=False,
     help="Enable Pinocchio.",
 )
+parser.add_argument(
+    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+)
+parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -99,6 +103,11 @@ from isaaclab.managers import DatasetExportMode
 
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
+from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
+# from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
+# from scripts.environments.state_machine.weigh_lab_sm import PickAndLiftSm
+# from scripts.environments.state_machine.pour_lab_sm import PickAndLiftSm
+from scripts.environments.state_machine.stack_weigh_lab_sm import PickAndLiftSm
 
 
 class RateLimiter:
@@ -133,54 +142,8 @@ class RateLimiter:
             while self.last_time < time.time():
                 self.last_time += self.sleep_duration
 
-# def run_state_machine(env, env_cfg):
-#     from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
-#     """Run the state machine to control the robot and record demos."""
-#     # Create action buffer (position + quaternion)
-#     actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
-#     actions[:, 3] = 1.0
-
-#     # Create state machine instance
-#     pick_sm = PickAndLiftSm(
-#         env_cfg.sim.dt * env_cfg.decimation,
-#         env.unwrapped.num_envs,
-#         env.unwrapped.device,
-#         position_threshold=0.01
-#     )
-#     ee_frame_sensor = env.unwrapped.scene["ee_frame"]
-#     tcp_rot = ee_frame_sensor.data.target_quat_w[..., 0, :].clone()
-    
-#     # while simulation_app.is_running():
-#     with torch.inference_mode():
-#         dones = env.step(actions)[-2]
-
-#         # End-effector pose
-#         tcp_pos = ee_frame_sensor.data.target_pos_w[..., 0, :].clone() - env.unwrapped.scene.env_origins
-
-#         # Object positions
-#         obj1_pos = env.unwrapped.scene["object1"].data.root_pos_w - env.unwrapped.scene.env_origins
-#         obj2_pos = env.unwrapped.scene["object2"].data.root_pos_w - env.unwrapped.scene.env_origins
-
-#         # Desired goal position
-#         desired_pos = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
-
-#         # Compute actions from state machine
-#         actions = pick_sm.compute(
-#             torch.cat([tcp_pos, tcp_rot], dim=-1),
-#             torch.cat([obj1_pos, tcp_rot], dim=-1),
-#             torch.cat([desired_pos, tcp_rot], dim=-1),
-#             torch.cat([obj2_pos, tcp_rot], dim=-1),
-#         )
-
-#         # Reset SM for finished envs
-#         if dones.any():
-#             pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
-
-#         return actions
-
 def init_state_machine(env, env_cfg):
     """Create PickAndLiftSm once and capture initial TCP orientation."""
-    from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
 
     pick_sm = PickAndLiftSm(
         env_cfg.sim.dt * env_cfg.decimation,
@@ -191,7 +154,7 @@ def init_state_machine(env, env_cfg):
 
     # Read current ee frame and capture a fixed orientation (per env)
     ee_frame = env.unwrapped.scene["ee_frame"]
-    fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()  # shape (num_envs,4)
+    fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone() 
 
     return pick_sm, fixed_tcp_rot
 
@@ -203,6 +166,7 @@ def state_machine_step(env, pick_sm, fixed_tcp_rot):
 
         obj1_pos = env.unwrapped.scene["object1"].data.root_pos_w - env.unwrapped.scene.env_origins
         obj2_pos = env.unwrapped.scene["object2"].data.root_pos_w - env.unwrapped.scene.env_origins
+        # obj3_pos = env.unwrapped.scene["object3"].data.root_pos_w - env.unwrapped.scene.env_origins
         desired_pos = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
 
         # Use the fixed quaternion for all inputs so orientation is locked.
@@ -211,12 +175,8 @@ def state_machine_step(env, pick_sm, fixed_tcp_rot):
             torch.cat([obj1_pos, fixed_tcp_rot], dim=-1),
             torch.cat([desired_pos, fixed_tcp_rot], dim=-1),
             torch.cat([obj2_pos,  fixed_tcp_rot], dim=-1),
+            # torch.cat([obj3_pos, fixed_tcp_rot], dim=-1),
         )
-
-        # Trim to match env action dim (e.g. 7).  Safer: read action dim at runtime.
-        # action_dim = env.unwrapped.action_space.shape[1]  # e.g. 7
-        # if a.shape[-1] != action_dim:
-        #     a = a[..., :action_dim]
 
     return a
 
@@ -236,12 +196,12 @@ def main():
         os.makedirs(output_dir)
 
     # parse configuration
-    env_cfg = parse_env_cfg(
+    env_cfg: LiftEnvCfg = parse_env_cfg(
         args_cli.task,
         device=args_cli.device,
         num_envs=1,
+        use_fabric=not args_cli.disable_fabric,
     )
-    env_cfg.env_name = args_cli.task
 
     # extract success checking function to invoke in the main loop
     success_term = None
@@ -256,10 +216,6 @@ def main():
 
     # modify configuration such that the environment runs indefinitely until
     # the goal is reached or other termination conditions are met
-    env_cfg.terminations.time_out = None
-
-    env_cfg.observations.policy.concatenate_terms = False
-
     env_cfg.recorders: ActionStateRecorderManagerCfg = ActionStateRecorderManagerCfg()
     env_cfg.recorders.dataset_export_dir_path = output_dir
     env_cfg.recorders.dataset_filename = output_file_name
@@ -331,8 +287,9 @@ def main():
         subtask_label = ui.Label("")
         instruction_display.set_labels(subtask_label, demo_label)
 
-    subtasks = {}
     pick_sm, fixed_tcp_rot = init_state_machine(env, env_cfg)
+    actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
+    actions[:, 3] = 1.0
 
     # with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
     while simulation_app.is_running():
@@ -340,11 +297,11 @@ def main():
         # perform action on environment
         if running_recording_instance:
             # compute actions based on environment
-            # actions = run_state_machine(env, env_cfg)
+            # obv, reward, done, done2, info = env.step(actions)
+            dones = env.step(actions)[-2]
             actions = state_machine_step(env, pick_sm, fixed_tcp_rot)
-            obv, reward, done, done2, info = env.step(actions)
-            if done.any():
-                pick_sm.reset_idx(done.nonzero(as_tuple=False).squeeze(-1))
+            if dones.any():
+                pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
 
             # if the env actually performs a full env.reset() (e.g. after recording or timeouts),
             # you must re-capture the fixed orientation for the restarted episodes:
@@ -357,12 +314,9 @@ def main():
                 fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()
                 pick_sm.reset_idx(torch.arange(env.unwrapped.num_envs, device=env.unwrapped.device))
                 should_reset_recording_instance = False
-        
-        #     if subtasks is not None:
-        #         if subtasks == {}:
-        #             subtasks = obv[0].get("subtask_terms")
-        #         elif subtasks:
-        #             show_subtask_instructions(instruction_display, subtasks, obv, env.cfg)
+                success_step_count = 0
+                instruction_display.show_demo(label_text)
+    
             else:
                 env.sim.render()
 
@@ -384,14 +338,6 @@ def main():
             current_recorded_demo_count = env.recorder_manager.exported_successful_episode_count
             label_text = f"Recorded {current_recorded_demo_count} successful demonstrations."
             print(label_text)
-
-        if should_reset_recording_instance:
-            env.sim.reset()
-            env.recorder_manager.reset()
-            env.reset()
-            should_reset_recording_instance = False
-            success_step_count = 0
-            instruction_display.show_demo(label_text)
 
         if args_cli.num_demos > 0 and env.recorder_manager.exported_successful_episode_count >= args_cli.num_demos:
             print(f"All {args_cli.num_demos} demonstrations recorded. Exiting the app.")

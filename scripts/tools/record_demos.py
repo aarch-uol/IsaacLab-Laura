@@ -208,9 +208,9 @@ def main():
 
     # extract success checking function to invoke in the main loop
     success_term = None
-    if hasattr(env_cfg.terminations, "success"):
-        success_term = env_cfg.terminations.success
-        env_cfg.terminations.success = None
+    if hasattr(env_cfg.terminations, "success_term"):
+        success_term = env_cfg.terminations.success_term
+        env_cfg.terminations.success_term = None
     else:
         omni.log.warn(
             "No success termination term was found in the environment."

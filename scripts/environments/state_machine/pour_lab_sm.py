@@ -80,7 +80,7 @@ class PickSmState:
 class PickSmWaitTime:
     """Additional wait times (in s) for states for before switching."""
 
-    REST = wp.constant(0.2)
+    REST = wp.constant(5)
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
@@ -163,7 +163,7 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(object_pose[tid])
         pose_rot = wp.transform_get_rotation(object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.015, pose_pos.y, pose_pos.z)
+        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(

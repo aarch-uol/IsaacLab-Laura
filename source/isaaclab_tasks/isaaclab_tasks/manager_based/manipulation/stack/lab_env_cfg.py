@@ -78,15 +78,7 @@ class CommandsCfg:
             pos_x=(0.4, 0.4), pos_y=(-0.1, -0.1), pos_z=(0.15, 0.15), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
-    # low_pose = mdp.UniformPoseCommandCfg(
-    #     asset_name="robot",
-    #     body_name=MISSING,  # will be set by agent env cfg
-    #     resampling_time_range=(10.0, 10.0),
-    #     debug_vis=True,
-    #     ranges=mdp.UniformPoseCommandCfg.Ranges(
-    #         pos_x=(0.4,0.4), pos_y=(-0.25, -0.25), pos_z=(0.25, 0.25), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
-    #     ),
-    # )
+
 
 @configclass
 class ActionsCfg:
@@ -359,7 +351,7 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.05, 0.1), "y": (-0.1, -0.05), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.05, 0.0), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object1"), 
         },
@@ -401,7 +393,6 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
 
     # Unused managers
     rewards = None
-    # events = None # Elsewhere
     curriculum = None
     terminations = None # Elsewhere
     observations = None # Elsewhere
@@ -426,43 +417,3 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
         self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
         self.sim.physx.friction_correlation_distance = 0.00625
 
-@configclass
-class PourEnvCfg(ManagerBasedRLEnvCfg):
-    """Configuration for the pouring environment."""
-
-    # Scene settings
-    scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
-    # Basic settings
-    # observations: Observations2Cfg = Observations2Cfg() # Subtasks is a part of this
-    actions: ActionsCfg = ActionsCfg()
-    # MDP settings
-    # terminations2: Terminations2Cfg = Terminations2Cfg()
-    commands: CommandsCfg = CommandsCfg()
-    events: EventCfg = EventCfg()
-
-    # Unused managers
-    rewards = None
-    # events = None # Elsewhere
-    curriculum = None
-    terminations = None # Elsewhere
-    observations = None # Elsewhere
-
-    xr: XrCfg = XrCfg(
-        anchor_pos=(-0.1, -0.5, -1.05),
-        anchor_rot=(0.866, 0, 0, -0.5),
-    )
-
-    def __post_init__(self):
-        """Post initialization."""
-        # general settings
-        self.decimation = 5
-        self.episode_length_s = 80.0 # used to be 30.0
-        # simulation settings
-        self.sim.dt = 0.01  # 100Hz
-        self.sim.render_interval = 2
-
-        self.sim.physx.bounce_threshold_velocity = 0.2
-        self.sim.physx.bounce_threshold_velocity = 0.01
-        self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
-        self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
-        self.sim.physx.friction_correlation_distance = 0.00625

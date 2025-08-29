@@ -94,10 +94,10 @@ def rollout(policy, env, success_term, horizon, device, logging, traj_logging):
 
     safety_logic = SafetyLogic(obs_dict["policy"]["obstacle_pos"], 0.3)
     
-    try:
-        print("obstacle initial state: ", env.cfg.scene.obstacle.init_state)
-    except:
-        print("Env cfg not found ", )
+    # try:
+    #     print("obstacle initial state: ", env.cfg.scene.obstacle.init_state)
+    # except:
+    #     print("Env cfg not found ", )
 
     for i in range(horizon):
         # Prepare observations

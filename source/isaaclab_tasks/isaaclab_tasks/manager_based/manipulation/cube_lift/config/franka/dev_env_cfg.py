@@ -3,37 +3,64 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-from isaaclab.assets import RigidObjectCfg
+from isaaclab.assets import RigidObjectCfg, ArticulationCfg
 from isaaclab.sensors import FrameTransformerCfg
 from isaaclab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
 from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
-
+from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
+from isaaclab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 from isaaclab_tasks.manager_based.manipulation.cube_lift import mdp
 from isaaclab_tasks.manager_based.manipulation.cube_lift.lift_env_cfg import CubeEnvCfg
+#from isaaclab_assets.glassware.glassware_objects import Chem_Assets
 
+
+import math
 ##
 # Pre-defined configs
 ##
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
-
+from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG  # isort: skip
 
 @configclass
 class FrankaDevEnvCfg(CubeEnvCfg):
     def __post_init__(self):
         # post init of parent
+       
+        # post init of parent
         super().__post_init__()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # We switch here to a stiffer PD controller for IK tracking to be better.
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
+            prim_path="{ENV_REGEX_NS}/Robot",
+            init_state=ArticulationCfg.InitialStateCfg(
+                joint_pos={
+                    
+                    "panda_joint1":  0.405,
+                    "panda_joint2": 0.35,   
+                    "panda_joint3":  -0.22,
+                    "panda_joint4": -3.0,  
+                    "panda_joint5":  -2.85,
+                    "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
+                    "panda_joint7":  0.9,
+                    "panda_finger_joint1": 0.04,   # open gripper
+                    "panda_finger_joint2": 0.04,
+                }
+            ),
+        )
 
         # Set actions for the specific robot type (franka)
-        self.actions.arm_action = mdp.JointPositionActionCfg(
-            asset_name="robot", joint_names=["panda_joint.*"], scale=0.5, use_default_offset=True
+        self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
+            asset_name="robot",
+            joint_names=["panda_joint.*"],
+            body_name="panda_hand",
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
+            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )
+
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["panda_finger.*"],
@@ -42,147 +69,28 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         )
         # Set the body name for the end effector
         self.commands.object_pose.body_name = "panda_hand"
+        # self.commands.object_pose.body_name = "panda_hand"
 
-        # Set Cube as object
-
-        cube_properties = RigidBodyPropertiesCfg(
-            solver_position_iteration_count=16,
-            solver_velocity_iteration_count=1,
-            max_angular_velocity=1000.0,
-            max_linear_velocity=1000.0,
-            max_depenetration_velocity=5.0,
-            disable_gravity=False,
-        )
-
+        # glassware = Chem_Assets()
         # Set each stacking cube deterministically
+        # self.scene.object = glassware.beaker(pos=[0.5, 0.0, 0.01],name="Object")
         self.scene.object = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Object",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.4, 0.0, 0.0203], rot=[0, 1, 1, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.60, -0.1, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
-                # usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/vial_rack.usd",
-                # usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
                 scale=(1.0, 1.0, 1.0),
-                rigid_props=cube_properties,
+                rigid_props=RigidBodyPropertiesCfg,
                 semantic_tags=[("class", "object")],
             ),
         )
-
-        # ## Add sample vial
-        # self.scene.samplevial = RigidObjectCfg(
-        #     prim_path="{ENV_REGEX_NS}/Samplevial",
-        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.3, 0.0, 0.055], rot=[0, 1, 1, 0]),
-        #     spawn=UsdFileCfg(
-        #         usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/sample_vial_glass.usd",
-        #         scale=(1, 1, 1),
-        #         rigid_props=RigidBodyPropertiesCfg(),
-        #     ),
-        # )
-
-        # self.scene.object2 = RigidObjectCfg(
-        #     prim_path="{ENV_REGEX_NS}/Object2",
-        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.4, 0.0, 0.0203], rot=[1, 0, 0, 0]),
-        #     spawn=UsdFileCfg(
-        #         # usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/vial_rack.usd",
-        #         usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
-        #         scale=(1.0, 1.0, 1.0),
-        #         rigid_props=cube_properties,
-        #         semantic_tags=[("class", "object2")],
-        #     ),
-        # )
-
-
-        # self.scene.flask = RigidObjectCfg(
-        #     prim_path="{ENV_REGEX_NS}/flask",
-        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.35, 0.05],rot=[1, 0, 0, 0]),
-        #     spawn=UsdFileCfg(
-        #         usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_conical_flask.usd",
-        #         scale=(1, 1, 1),
-        #         rigid_props=cube_properties,
-        #         semantic_tags=[("class", "flask")],
-        #     ),
-        # ) 
-
-        # self.scene.vial = RigidObjectCfg(
-        #     prim_path="{ENV_REGEX_NS}/vial",
-        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.6, 0.3, 0.05],rot=[0, 0, 1, 0]),
-        #     spawn=UsdFileCfg(
-        #         usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_sample_vial.usd",
-        #         scale=(1, 1, 1),
-        #         rigid_props=RigidBodyPropertiesCfg(
-        #             solver_position_iteration_count=16,
-        #             solver_velocity_iteration_count=1,
-        #             max_angular_velocity=1000.0,
-        #             max_linear_velocity=1000.0,
-        #             max_depenetration_velocity=5.0,
-        #             disable_gravity=False,
-        #         ),
-        #         semantic_tags=[("class", "vial")],
-        #     ),
-        # ) 
-        # self.scene.beaker = RigidObjectCfg(
-        #     prim_path="{ENV_REGEX_NS}/beaker",
-        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.55, 0.2, 0.05],rot=[0, 0, 1, 0]),
-        #     spawn=UsdFileCfg(
-        #         usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_500ml.usd",
-        #         scale=(0.8, 0.8, 0.8),
-        #         rigid_props=RigidBodyPropertiesCfg(
-        #             solver_position_iteration_count=16,
-        #             solver_velocity_iteration_count=1,
-        #             max_angular_velocity=1000.0,
-        #             max_linear_velocity=1000.0,
-        #             max_depenetration_velocity=5.0,
-        #             disable_gravity=False,
-        #         ),
-        #         semantic_tags=[("class", "beaker")],
-        #     ),
-        # ) 
-
-        ## Add a beaker
-        self.scene.beaker = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Beaker",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.6, 0, 0.055], rot=[0, 0, 1, 0]),
-            spawn=UsdFileCfg(
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_beaker_upright.usd",
-                scale=(1, 1, 1),
-                rigid_props=RigidBodyPropertiesCfg(),
-            ),
-        )
-
-        ## Add a conical flask
-        self.scene.conicalflask = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Conicalflask",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.3, 0.055], rot=[1, 0, 0, 0]),
-            spawn=UsdFileCfg(
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/conical_flask_100ml_glass_new.usd",
-                scale=(1, 1, 1),
-                rigid_props=RigidBodyPropertiesCfg(),
-            ),
-        )
-
-        ## Add a second conical flask
-        self.scene.secondflask = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Secondflask",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.7, 0.3, 0.055], rot=[1, 0, 0, 0]),
-            spawn=UsdFileCfg(
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/second_conical_flask_100ml_glass_new.usd",
-                scale=(1, 1, 1),
-                rigid_props=RigidBodyPropertiesCfg(),
-            ),
-        )
-
-
-        ## Add second sample vial
-        self.scene.secondvial = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Secondvial",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.3, -0.2, 0.055], rot=[0, 1, 1, 0]),
-            spawn=UsdFileCfg(
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/second_sample_vial_glass.usd",
-                scale=(1, 1, 1),
-                rigid_props=RigidBodyPropertiesCfg(),
-            ),
-        )
-
+        #### everything else leave default
+        # self.scene.flask = glassware.flask()
+        # self.scene.vial = glassware.vial()
+        # self.scene.beaker = glassware.beaker()
+        #self.scene.stirplate = glassware.stirplate()
+        #self.scene.random = glassware.random_object()
+        # self.scene.obstacle = glassware.cube_obs(pos= [0.8, -0.8, 0.0],rot=[0, 0, 1, 0], name="cube_obs")
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()
         marker_cfg.markers["frame"].scale = (0.1, 0.1, 0.1)
@@ -197,6 +105,7 @@ class FrankaDevEnvCfg(CubeEnvCfg):
                     name="end_effector",
                     offset=OffsetCfg(
                         pos=[0.0, 0.0, 0.1034],
+                        
                     ),
                 ),
             ],

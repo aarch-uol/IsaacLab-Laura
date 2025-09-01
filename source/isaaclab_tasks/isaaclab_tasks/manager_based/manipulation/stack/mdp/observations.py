@@ -212,8 +212,8 @@ def reach_object(
     object_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
     # if object_ee_distance.item() < std :
     #     loghelper.logsubtask(LogType.APPR)
-    if object_ee_distance < threshold:
-        print("Obs function: reach_object")
+   # if object_ee_distance < threshold:
+     #   print("SUBTASK 1 : reach_object")
     return object_ee_distance < threshold
 
 
@@ -244,8 +244,8 @@ def object_grasped(
     grasped = torch.logical_and(
         grasped, torch.abs(robot.data.joint_pos[:, -2] - gripper_open_val.to(env.device)) > gripper_threshold
     )
-    if grasped[0]:
-        print("Obs function: object_grasped")
+    #if grasped[0]:
+       # print("SUBTASK : grasped")
     # if grasped[0]:
     #     loghelper.logsubtask(LogType.GRASP)
 
@@ -261,8 +261,8 @@ def is_object_lifted(
     object = env.scene[object_cfg.name]
     # if object.data.root_pos_w[:, 2].item() > threshold : 
     #     loghelper.logsubtask(LogType.LIFT)
-    if object.data.root_pos_w[:, 2] > threshold:
-        print("Obs function: is_object_lifted")
+    #if object.data.root_pos_w[:, 2] > threshold:
+    #    print("SUBTASK : lifted")
     return object.data.root_pos_w[:, 2] > threshold
 
 ### Add a waypoint here
@@ -287,8 +287,8 @@ def reach_object2(
     object2_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
     # if object2_ee_distance.item() < std :
     #     loghelper.logsubtask(LogType.APPR_2)
-    if object2_ee_distance < (threshold + 0.05):
-        print("Obs function: reach_object2")
+    #if object2_ee_distance < (threshold + 0.05):
+    #    print("SUBTASK : reach_object2")
     return object2_ee_distance < (threshold + 0.05)
 
 def pouring_solution(
@@ -313,8 +313,8 @@ def pouring_solution(
     # Optional: convert radians to degrees
     angles_deg = angles_rad * (180.0 / torch.pi)
     angles_deg = 270 - angles_deg
-    if angles_deg < angle:
-        print("Obs function: pour_object")
+    #if angles_deg < angle:
+     #   print("SUBTASK : pour_object")
     return angles_deg < angle
 
 def reorient_object(
@@ -339,8 +339,8 @@ def reorient_object(
     # Optional: convert radians to degrees
     angles_deg = angles_rad * (180.0 / torch.pi)
     angles_deg = 360 - angles_deg
-    if angles_deg > angle:
-        print("Obs func: reorient_object")
+    #if angles_deg > angle:
+    #    print("SUBTASK : reorient_object")
     return angles_deg > angle
 
 def object_stacked(
@@ -401,8 +401,8 @@ def object_stacked(
 
     # Combine [True] for all dimensions
     stacked = torch.logical_and(xy_check, height_check)
-    if stacked == True:
-        print("Obs function: object_stacked")
+    #if stacked == True:
+       # print("SUBTASK : object_stacked")
 
     return stacked
 
@@ -456,8 +456,8 @@ def object_near_goal(
     mask = distance < threshold
     # if torch.any(mask):
     #     loghelper.logsubtask(LogType.FINISH)
-    if distance < threshold:
-        print("Obs func: object_near_goal")
+    #if distance < threshold:
+    #    print("Obs func: object_near_goal")
     return mask 
 
 
@@ -496,6 +496,95 @@ def object_reached_midgoal(
     # if error.item() < threshold:
     #  #   print(f"Observed Object at goal : {object.data.root_pos_w[:, 2].item()}")
     #     loghelper.logsubtask(LogType.MIDGOAL)
-    if error < threshold:
-        print("Obs function: object_reached_midgoal")
+    #if error < threshold:
+     #   print("Obs function: object_reached_midgoal")
     return error < threshold
+
+
+    import omni.log
+# 
+class ObjectsStacked:
+    def __init__(
+        self,
+        lower_object_cfg: SceneEntityCfg,
+        robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
+        command_name: str = "object_pose",
+        xy_threshold: float = 0.1,
+        height_threshold: float = 0.006,
+        height_diff: float = 0.05,
+        gripper_open_val: torch.Tensor = torch.tensor([0.04]),
+        atol: float = 1e-4,
+        rtol: float = 1e-4,
+        success_hold_time: int = 500,
+        success_hold_steps: int = 500, 
+    ):
+        """Termination condition for detecting stacked objects with a hold time."""
+        self.lower_object_cfg = lower_object_cfg
+        self.robot_cfg = robot_cfg
+        self.object_1_cfg = object_1_cfg
+        self.command_name = command_name
+        self.xy_threshold = xy_threshold
+        self.height_threshold = height_threshold
+        self.height_diff = height_diff
+        self.gripper_open_val = gripper_open_val
+        self.atol = atol
+        self.rtol = rtol
+        self.success_hold_steps = success_hold_steps
+
+        # internal state
+        self._consecutive_steps = 0
+
+    def __call__(self, env: ManagerBasedRLEnv):
+        """Check if object_1 is stacked on lower_object for a continuous number of steps."""
+        robot: Articulation = env.scene[self.robot_cfg.name]
+        object_1: RigidObject = env.scene[self.object_1_cfg.name]
+        object_2: RigidObject = env.scene[self.lower_object_cfg.name]
+
+        # position difference between objects
+        pos_diff = object_2.data.root_pos_w - object_1.data.root_pos_w
+        xy_dist = torch.norm(pos_diff[:, :2], dim=1)
+        height_diff_actual = pos_diff[:, 2]
+
+        # spatial checks
+        xy_check = xy_dist < self.xy_threshold
+        overall_height = height_diff_actual + self.height_diff
+        height_check = torch.where(
+            overall_height < 0, overall_height, torch.abs(overall_height)
+        )
+        stacked = torch.logical_and(xy_check, height_check)
+
+        # check gripper is open
+        stacked = torch.logical_and(
+            torch.isclose(
+                robot.data.joint_pos[:, -1],
+                self.gripper_open_val.to(env.device),
+                atol=self.atol,
+                rtol=self.rtol,
+            ),
+            stacked,
+        )
+        stacked = torch.logical_and(
+            torch.isclose(
+                robot.data.joint_pos[:, -2],
+                self.gripper_open_val.to(env.device),
+                atol=self.atol,
+                rtol=self.rtol,
+            ),
+            stacked,
+        )
+        omni.log.info(f"[ObjectsStacked] stacked tensor: {stacked}, consecutive steps: {self._consecutive_steps}")
+        # step-count-based hold logic
+        if stacked.all():
+            print("stacked....")
+            self._consecutive_steps += 1
+            omni.log.info(f"in place for : {self._consecutive_steps}")
+            print(f"in place for : {self._consecutive_steps}")
+            if self._consecutive_steps >= self.success_hold_steps:
+                print(f"✅ Termination: objects_stacked held for {self.success_hold_steps} steps")
+                self._consecutive_steps = 0
+                return torch.tensor([True], device=env.device)
+        else:
+            self._consecutive_steps = 0  # reset if not stacked
+
+        return torch.tensor([False], device=env.device)

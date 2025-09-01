@@ -1,5 +1,5 @@
 from isaaclab.assets import RigidObjectCfg
-from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
+from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg, MassPropertiesCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
@@ -54,7 +54,7 @@ class Glassware:
         # Spawn a beaker - changed from 1,1,1 scale
         self.beaker = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Beaker",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.4, -0.3, 0.0203], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_beaker_upright.usd",
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
@@ -101,11 +101,20 @@ class Glassware:
         # Spawn an electric balance
         self.electric_balance = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Electric_balance",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.2, 0.0], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/scale/balance_electronic.usd",
                 scale=(0.01, 0.01, 0.01),
-                rigid_props=cube_properties,
+                rigid_props=RigidBodyPropertiesCfg(
+                    solver_position_iteration_count=16,
+                    solver_velocity_iteration_count=1,
+                    max_angular_velocity=1000.0,
+                    max_linear_velocity=1000.0,
+                    max_depenetration_velocity=5.0,
+                    disable_gravity=False,
+                    kinematic_enabled=False
+                ),
+                mass_props=MassPropertiesCfg(mass=10.0),
                 semantic_tags=[("class", "electric_balance")],
             ),
         )

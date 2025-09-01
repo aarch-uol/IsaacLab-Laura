@@ -77,14 +77,14 @@ class PickSmState:
 class PickSmWaitTime:
     """Additional wait times (in s) for states for before switching."""
 
-    REST = wp.constant(5)
+    REST = wp.constant(6)
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
     LIFT_OBJECT = wp.constant(0.5)
     APPROACH_ABOVE_OBJECT2 = wp.constant(0.5)
     APPROACH_OBJECT2 = wp.constant(0.6)
-    UNGRASP_OBJECT = wp.constant(5)
+    UNGRASP_OBJECT = wp.constant(1.0)
 
 
 @wp.func
@@ -203,24 +203,30 @@ def infer_state_machine(
                 sm_state[tid] = PickSmState.APPROACH_OBJECT2
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT2:
+        print("[SM_INFO] : in state ungrasp")
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(final_object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.15)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
             wp.transform_get_translation(des_ee_pose[tid]),
-            0.03,
+            0.05,
         ):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
                 # move to next state and reset wait time
                 print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
                 sm_state[tid] = PickSmState.UNGRASP_OBJECT
                 sm_wait_time[tid] = 0.0
+            else:
+                print("waiting timeout")
+        else:
+            print("waiting position")
     elif state == PickSmState.UNGRASP_OBJECT:
+        print("[SM_INFO] : in state ungrasp ")
         des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.OPEN
         # wait for a while
@@ -405,6 +411,7 @@ def main():
            
             # reset state machine
             if dones.any():
+                env.reset()
                 pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
         # Step counter
         n=n+1    

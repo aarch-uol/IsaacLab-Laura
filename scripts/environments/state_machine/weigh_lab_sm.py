@@ -208,7 +208,7 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(final_object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.125)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.15)
 
         # Reconstruct the transform with new position and same rotation
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
@@ -225,6 +225,10 @@ def infer_state_machine(
                 print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
                 sm_state[tid] = PickSmState.UNGRASP_OBJECT
                 sm_wait_time[tid] = 0.0
+            else:
+                print("waiting time")
+        else:
+             print("waiting distance")
     elif state == PickSmState.UNGRASP_OBJECT:
         des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.OPEN
@@ -366,7 +370,7 @@ def main():
     desired_orientation[:, 1] = 1.0 #0?
     # create state machine
     pick_sm = PickAndLiftSm(
-        env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.01
+        env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.02
     )
    # print("debug1 : " , env.unwrapped.action_space.shape)
     n=0

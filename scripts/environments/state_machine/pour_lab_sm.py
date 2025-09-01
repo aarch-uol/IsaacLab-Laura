@@ -22,19 +22,19 @@ import argparse
 from isaaclab.app import AppLauncher
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
-parser.add_argument(
-    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
-)
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-# append AppLauncher cli args
-AppLauncher.add_app_launcher_args(parser)
-# parse the arguments
-args_cli = parser.parse_args()
+# parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
+# parser.add_argument(
+#     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+# )
+# parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+# # append AppLauncher cli args
+# AppLauncher.add_app_launcher_args(parser)
+# # parse the arguments
+# args_cli = parser.parse_args()
 
-# launch omniverse app
-app_launcher = AppLauncher(headless=args_cli.headless)
-simulation_app = app_launcher.app
+# # launch omniverse app
+# app_launcher = AppLauncher(headless=args_cli.headless)
+# simulation_app = app_launcher.app
 
 """Rest everything else."""
 

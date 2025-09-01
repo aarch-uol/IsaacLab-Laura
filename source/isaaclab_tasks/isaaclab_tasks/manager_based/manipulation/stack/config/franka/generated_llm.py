@@ -8,15 +8,23 @@ from isaaclab.utils import configclass
 from isaaclab_tasks.manager_based.manipulation.stack import mdp
 from isaaclab_tasks.manager_based.manipulation.stack.lab_env_cfg import StackEnvCfg
 from isaaclab.markers.config import FRAME_MARKER_CFG
-from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG
+from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG
 from . import glassware_files
+from isaaclab.assets import ArticulationCfg
+import math
+import time
 
 @configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping1 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
     object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-    success_term = DoneTerm(func=mdp.objects_stacked, params={"lower_object_cfg": SceneEntityCfg("object3")})
+    success = DoneTerm(func=mdp.ObjectsStacked(
+        lower_object_cfg=SceneEntityCfg("object2"),
+        object_1_cfg=SceneEntityCfg("object1"),
+        success_hold_steps = 100, 
+    ))
+    #success= DoneTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
@@ -25,32 +33,28 @@ class ObservationsCfg:
         last_action = ObsTerm(func=mdp.last_action)
         joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel_rel = ObsTerm(func=mdp.joint_vel_rel)
-        object_obs2 = ObsTerm(func=mdp.object_obs, params={"object_cfg": SceneEntityCfg("object1")})
-        object_positions_in_world_frame2 = ObsTerm(func=mdp.object_positions_in_world_frame, params={"object_cfg": SceneEntityCfg("object1")})
-        object_orientations_in_world_frame2 = ObsTerm(func=mdp.object_orientations_in_world_frame, params={"object_cfg": SceneEntityCfg("object1")})
-        ee_frame_pos = ObsTerm(func=mdp.ee_frame_pos)
-        ee_frame_quat = ObsTerm(func=mdp.ee_frame_quat)
+        object_obs = ObsTerm(func=mdp.object_obs)
+        object_positions_in_world_frame = ObsTerm(func=mdp.object_positions_in_world_frame)
+        object_orientations_in_world_frame = ObsTerm(func=mdp.object_orientations_in_world_frame)
+        eef_pos = ObsTerm(func=mdp.ee_frame_pos)
+        eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
+        # is_stacked = ObsTerm(func=mdp.ObjectsStacked(
+        #     lower_object_cfg=SceneEntityCfg("object2"),
+        #     object_1_cfg=SceneEntityCfg("object1"),
+        #     success_hold_steps = 200, 
+        # ))
 
-    class SubtasksCfg(ObsGroup):
-        # Task 1: Heating a solution
-        reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
-        object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
-        reach_object2_task1 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
-        object_stacked_task1 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
-
-        # Task 2: Weighing a solution
-        reach_object_task2 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
-        object_grasped_task2 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
-        is_object_lifted_task2 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal_task2 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
-        reach_object2_task2 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object3")})
-        object_stacked_task2 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object3")})
+    class SubtaskCfg(ObsGroup):
+        reach_object1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
+        object_grasped1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
+        is_object_lifted1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
+        reach_object2 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
+        object_stacked = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
+       
 
     policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)
-    subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
+    subtask_terms = SubtaskCfg(enable_corruption=False, concatenate_terms=False)
 
 @configclass
 class FrankaCubeStackEnvCfg(StackEnvCfg):
@@ -62,7 +66,24 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.observations = ObservationsCfg()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+       # self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
+            prim_path="{ENV_REGEX_NS}/Robot",
+            init_state=ArticulationCfg.InitialStateCfg(
+                joint_pos={
+                    
+                    "panda_joint1":  0.405,
+                    "panda_joint2": 0.35,   
+                    "panda_joint3":  -0.22,
+                    "panda_joint4": -3.0,  
+                    "panda_joint5":  -2.85,
+                    "panda_joint6":  math.pi / 2,  #  +90° → keeps hand level
+                    "panda_joint7":  0.9,
+                    "panda_finger_joint1": 0.04,   # open gripper
+                    "panda_finger_joint2": 0.04,
+                }
+            ),
+        )
         self.scene.robot.spawn.semantic_tags = [("class", "robot")]
 
         # Add semantics to table and ground
@@ -75,11 +96,8 @@ class FrankaCubeStackEnvCfg(StackEnvCfg):
         self.commands.object_pose.body_name = "panda_hand"
 
         # Spawn Glassware
-        self.scene.object1 = glassware.beaker  # Main object for heating and weighing
-
-        # Spawn Lab Equipment
-        self.scene.object2 = glassware.hot_plate  # Hot plate for Task 1: Heating a solution
-        self.scene.object3 = glassware.electric_balance  # Electric balance for Task 2: Weighing a solution
+        self.scene.object1 = glassware.beaker  # Main object (glassware)
+        self.scene.object2 = glassware.electric_balance  # Apparatus
 
         # Frame Transformations
         marker_cfg = FRAME_MARKER_CFG.copy()

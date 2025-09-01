@@ -164,7 +164,6 @@ def main():
     # get output directory path and file name (without extension) from cli arguments
     output_dir = os.path.dirname(args_cli.output_file)
     output_file_name = os.path.splitext(os.path.basename(args_cli.output_file))[0]
-    # create output directory if it does not exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -174,10 +173,9 @@ def main():
         raise ValueError("Task/env name was not specified nor found in the dataset.")
 
     env_cfg = parse_env_cfg(env_name, device=args_cli.device, num_envs=1)
-
     env_cfg.env_name = args_cli.task
 
-    # extract success checking function to invoke manually
+    # extract success checking function
     success_term = None
     if hasattr(env_cfg.terminations, "success"):
         success_term = env_cfg.terminations.success
@@ -188,42 +186,37 @@ def main():
     # Disable all termination terms
     env_cfg.terminations = None
 
-    # Set up recorder terms for mimic annotations
+    # Set up recorder terms
     env_cfg.recorders: MimicRecorderManagerCfg = MimicRecorderManagerCfg()
     if not args_cli.auto:
-        # disable subtask term signals recorder term if in manual mode
         env_cfg.recorders.record_pre_step_subtask_term_signals = None
 
     env_cfg.recorders.dataset_export_dir_path = output_dir
     env_cfg.recorders.dataset_filename = output_file_name
 
-    # create environment from loaded config
+    # create environment
     env: ManagerBasedRLMimicEnv = gym.make(args_cli.task, cfg=env_cfg).unwrapped
-
     if not isinstance(env, ManagerBasedRLMimicEnv):
         raise ValueError("The environment should be derived from ManagerBasedRLMimicEnv")
-
-    if args_cli.auto:
-        # check if the mimic API env.get_subtask_term_signals() is implemented
-        if env.get_subtask_term_signals.__func__ is ManagerBasedRLMimicEnv.get_subtask_term_signals:
-            raise NotImplementedError(
-                "The environment does not implement the get_subtask_term_signals method required "
-                "to run automatic annotations."
-            )
-    else:
-        # get subtask termination signal names for each eef from the environment configs
-        subtask_term_signal_names = {}
+    env.reset()
+    # Prepare subtasks
+    subtask_term_signal_names = {}
+    if not args_cli.auto:
         for eef_name, eef_subtask_configs in env.cfg.subtask_configs.items():
             subtask_term_signal_names[eef_name] = [
                 subtask_config.subtask_term_signal for subtask_config in eef_subtask_configs
             ]
-            # no need to annotate the last subtask term signal, so remove it from the list
-            subtask_term_signal_names[eef_name].pop()
+            if subtask_term_signal_names[eef_name]:
+                subtask_term_signal_names[eef_name].pop()
+
+    print("Subtasks to annotate for each EEF:")
+    for eef_name, subtasks in subtask_term_signal_names.items():
+        print(f"  {eef_name}: {subtasks}")
 
     # reset environment
     env.reset()
 
-    # Only enables inputs if this script is NOT headless mode
+    # Only enable keyboard inputs if not headless
     if not args_cli.headless and not os.environ.get("HEADLESS", 0):
         keyboard_interface = Se3Keyboard(pos_sensitivity=0.1, rot_sensitivity=0.1)
         keyboard_interface.add_callback("N", play_cb)
@@ -233,15 +226,18 @@ def main():
             keyboard_interface.add_callback("S", mark_subtask_cb)
         keyboard_interface.reset()
 
-    # simulate environment -- run everything in inference mode
     exported_episode_count = 0
     processed_episode_count = 0
     with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
         while simulation_app.is_running() and not simulation_app.is_exiting():
-            # Iterate over the episodes in the loaded dataset file
             for episode_index, episode_name in enumerate(dataset_file_handler.get_episode_names()):
                 processed_episode_count += 1
                 print(f"\nAnnotating episode #{episode_index} ({episode_name})")
+                if subtask_term_signal_names:
+                    print("Subtasks for this episode:")
+                    for eef_name, subtasks in subtask_term_signal_names.items():
+                        print(f"  {eef_name}: {subtasks}")
+
                 episode = dataset_file_handler.load_episode(episode_name, env.device)
 
                 is_episode_annotated_successfully = False
@@ -253,7 +249,6 @@ def main():
                     )
 
                 if is_episode_annotated_successfully and not skip_episode:
-                    # set success to the recorded episode data and export to file
                     env.recorder_manager.set_success_to_episodes(
                         None, torch.tensor([[True]], dtype=torch.bool, device=env.device)
                     )
@@ -270,7 +265,7 @@ def main():
     )
     print("Exiting the app.")
 
-    # Close environment after annotation is complete
+    # Close environment
     env.close()
 
 

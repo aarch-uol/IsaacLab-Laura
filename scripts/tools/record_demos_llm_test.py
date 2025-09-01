@@ -102,9 +102,9 @@ from isaaclab.managers import DatasetExportMode
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
-# from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
+from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
 # from scripts.environments.state_machine.weigh_lab_sm import PickAndLiftSm
-from scripts.environments.state_machine.pour_lab_sm import PickAndLiftSm
+#from scripts.environments.state_machine.pour_lab_sm import PickAndLiftSm
 # from scripts.environments.state_machine.stack_weigh_lab_sm import PickAndLiftSm
 
 
@@ -291,47 +291,46 @@ def main():
 
     # with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
     while simulation_app.is_running():
-
-        # perform action on environment
         if running_recording_instance:
-            # compute actions based on environment
-            # obv, reward, done, done2, info = env.step(actions)
             dones = env.step(actions)[-2]
             actions = state_machine_step(env, pick_sm, fixed_tcp_rot)
-            if dones.any():
-                pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
 
-            # if the env actually performs a full env.reset() (e.g. after recording or timeouts),
-            # you must re-capture the fixed orientation for the restarted episodes:
-            if should_reset_recording_instance:
-                env.sim.reset()
-                env.recorder_manager.reset()
-                env.reset()
-                # re-capture fixed orientation (after reset)
-                ee_frame = env.unwrapped.scene["ee_frame"]
-                fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()
-                pick_sm.reset_idx(torch.arange(env.unwrapped.num_envs, device=env.unwrapped.device))
-                should_reset_recording_instance = False
-                success_step_count = 0
-                instruction_display.show_demo(label_text)
-    
+            if dones.any():
+                # ✅ check success condition
+                is_success = False
+                if success_term is not None:
+                    is_success = bool(success_term.func(env, **success_term.params)[0])
+
+                if is_success:
+                    success_step_count += 1
+                    if success_step_count >= args_cli.num_success_steps:
+                        env.recorder_manager.record_pre_reset([0], force_export_or_skip=False)
+                        env.recorder_manager.set_success_to_episodes(
+                            [0], torch.tensor([[True]], dtype=torch.bool, device=env.device)
+                        )
+                        env.recorder_manager.export_episodes([0])
+                        print("✅ Successful demo exported")
+
+                        # full reset
+                        env.sim.reset()
+                        env.reset()
+                        pick_sm.reset_idx(torch.arange(env.unwrapped.num_envs, device=env.unwrapped.device))
+                        ee_frame = env.unwrapped.scene["ee_frame"]
+                        fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()
+                        success_step_count = 0
+                else:
+                    # ❌ fail → reset but don’t export
+                    print("⚠️ Failed demo, resetting without export")
+                    env.sim.reset()
+                    env.reset()
+                    pick_sm.reset_idx(torch.arange(env.unwrapped.num_envs, device=env.unwrapped.device))
+                    ee_frame = env.unwrapped.scene["ee_frame"]
+                    fixed_tcp_rot = ee_frame.data.target_quat_w[..., 0, :].clone()
+                    success_step_count = 0
+
             else:
                 env.sim.render()
 
-        if success_term is not None:
-            if bool(success_term.func(env, **success_term.params)[0]):
-                success_step_count += 1
-                if success_step_count >= args_cli.num_success_steps:
-                    env.recorder_manager.record_pre_reset([0], force_export_or_skip=False)
-                    env.recorder_manager.set_success_to_episodes(
-                        [0], torch.tensor([[True]], dtype=torch.bool, device=env.device)
-                    )
-                    env.recorder_manager.export_episodes([0])
-                    should_reset_recording_instance = True
-            else:
-                success_step_count = 0
-
-        # print out the current demo count if it has changed
         if env.recorder_manager.exported_successful_episode_count > current_recorded_demo_count:
             current_recorded_demo_count = env.recorder_manager.exported_successful_episode_count
             label_text = f"Recorded {current_recorded_demo_count} successful demonstrations."
@@ -341,7 +340,6 @@ def main():
             print(f"All {args_cli.num_demos} demonstrations recorded. Exiting the app.")
             break
 
-        # check that simulation is stopped or not
         if env.sim.is_stopped():
             break
 

@@ -124,63 +124,63 @@ class ObservationsCfg:
         #     self.stack.params["loghelper"] = loghelper
             # self.loghelper = loghelper
 
-        appr_obj1 = ObsTerm(
-            func=mdp.reach_object,
-            params={
-                "ee_frame_cfg": SceneEntityCfg("ee_frame"),
-                "object_cfg": SceneEntityCfg("object1"),
-                "threshold" : 0.05
-            }
-        )
-        grasp_obj1 = ObsTerm(
-            func=mdp.object_grasped,
-            params={
-                "robot_cfg": SceneEntityCfg("robot"),
-                "ee_frame_cfg": SceneEntityCfg("ee_frame"),
-                "object_cfg": SceneEntityCfg("object1"),
-            },
-        )
-        lift = ObsTerm(
-            func=mdp.is_object_lifted,
-            params={
-                "object_cfg": SceneEntityCfg("object1"),
-                "threshold" : 0.1
-            }
-        )
-        ### Check
-        appr_midgoal = ObsTerm(
-            func=mdp.object_reached_midgoal,
-            params={ 
-                "threshold": 0.04, 
-                "command_name": "object_pose",
+        # appr_obj1 = ObsTerm(
+        #     func=mdp.reach_object,
+        #     params={
+        #         "ee_frame_cfg": SceneEntityCfg("ee_frame"),
+        #         "object_cfg": SceneEntityCfg("object1"),
+        #         "threshold" : 0.05
+        #     }
+        # )
+        # grasp_obj1 = ObsTerm(
+        #     func=mdp.object_grasped,
+        #     params={
+        #         "robot_cfg": SceneEntityCfg("robot"),
+        #         "ee_frame_cfg": SceneEntityCfg("ee_frame"),
+        #         "object_cfg": SceneEntityCfg("object1"),
+        #     },
+        # )
+        # lift = ObsTerm(
+        #     func=mdp.is_object_lifted,
+        #     params={
+        #         "object_cfg": SceneEntityCfg("object1"),
+        #         "threshold" : 0.1
+        #     }
+        # )
+        # ### Check
+        # appr_midgoal = ObsTerm(
+        #     func=mdp.object_reached_midgoal,
+        #     params={ 
+        #         "threshold": 0.04, 
+        #         "command_name": "object_pose",
                 
-            },
-        )
-        appr_obj2 = ObsTerm(
-            func=mdp.reach_object2,
-            params={
-                "ee_frame_cfg": SceneEntityCfg("ee_frame"),
-                "object2_cfg": SceneEntityCfg("object2"),
-                "threshold" : 0.05
-            }
-        )
-        stack = ObsTerm(
-            func=mdp.object_stacked,
-            params={
-                "robot_cfg": SceneEntityCfg("robot"),
-                "upper_object_cfg": SceneEntityCfg("object1"),
-                "lower_object_cfg": SceneEntityCfg("object2"),
-            },
-        )
+        #     },
+        # )
+        # appr_obj2 = ObsTerm(
+        #     func=mdp.reach_object2,
+        #     params={
+        #         "ee_frame_cfg": SceneEntityCfg("ee_frame"),
+        #         "object2_cfg": SceneEntityCfg("object2"),
+        #         "threshold" : 0.05
+        #     }
+        # )
+        # stack = ObsTerm(
+        #     func=mdp.object_stacked,
+        #     params={
+        #         "robot_cfg": SceneEntityCfg("robot"),
+        #         "upper_object_cfg": SceneEntityCfg("object1"),
+        #         "lower_object_cfg": SceneEntityCfg("object2"),
+        #     },
+        # )
 
 
-        def __post_init__(self):
-            self.enable_corruption = False
-            self.concatenate_terms = False
+        # def __post_init__(self):
+        #     self.enable_corruption = False
+        #     self.concatenate_terms = False
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
-    subtask_terms: SubtaskCfg = SubtaskCfg()
+    #subtask_terms: SubtaskCfg = SubtaskCfg()
 
 @configclass
 class Observations2Cfg:
@@ -310,7 +310,19 @@ class TerminationsCfg:
     robot_drop_object = DoneTerm(
         func=mdp.root_height_below_minimum, params={"minimum_height": 0.005, "asset_cfg": SceneEntityCfg("object1")}
     )
-    success_stack = DoneTerm(func=mdp.objects_stacked)
+    # success_stack = DoneTerm(func=mdp.ObjectsStacked(
+    #     lower_object_cfg=SceneEntityCfg("object2"),
+    #     object_1_cfg=SceneEntityCfg("object1"),
+    #     success_hold_steps = 150, 
+    # ))
+
+    # success = DoneTerm(func=mdp.ObjectsStacked(
+    #     lower_object_cfg=SceneEntityCfg("object2"),
+    #     object_1_cfg=SceneEntityCfg("object1"),
+    #     success_hold_steps = 150, 
+    # )
+
+
 
 @configclass
 class Terminations2Cfg:
@@ -347,33 +359,45 @@ class EventCfg:
             "asset_cfg": SceneEntityCfg("robot"),
         },
     )
-    reset_object1_position = EventTerm(
-        func=mdp.reset_root_state_uniform,
-        mode="reset",
-        params={
-            "pose_range": {"x": (-0.1, 0.1), "y": (-0.05, 0.0), "z": (0.0, 0.0)},
-            "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object1"), 
-        },
-    )
+    # reset_object1_position = EventTerm(
+    #     func=mdp.reset_root_state_uniform,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": (0.4, 0.6), "y": (-0.3, -0.05), "z": (0.0, 0.0)},
+    #         "velocity_range": {},
+    #         "asset_cfg": SceneEntityCfg("object1"), 
+    #     },
+    # )
     reset_object2_position = EventTerm(
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (0.0, 0.1), "y": (0.175, 0.275), "z": (0.0, 0.0)},
+            "pose_range": {"x": (0.4, 0.5), "y": (0.1, 0.225), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object2"),
         },
     )
-    reset_object3_position = EventTerm(
+    reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
+
+    reset_object_position = EventTerm(
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (0.0, 0.1), "y": (-0.25, -0.20), "z": (0.0, 0.0)},
+            "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
             "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object3"),
-        }
+            "asset_cfg": SceneEntityCfg("object1", body_names="Beaker"),
+        },
     )
+
+    # reset_object3_position = EventTerm(
+    #     func=mdp.reset_root_state_uniform,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": (0.0, 0.1), "y": (-0.25, -0.20), "z": (0.0, 0.0)},
+    #         "velocity_range": {},
+    #         "asset_cfg": SceneEntityCfg("object3"),
+    #     }
+    # )
 
 
 @configclass
@@ -406,10 +430,10 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
         """Post initialization."""
         # general settings
         self.decimation = 5
-        self.episode_length_s = 300 #300.0
+        self.episode_length_s = 250 #300.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
-        self.sim.render_interval = 2
+        self.sim.render_interval = 5
 
         self.sim.physx.bounce_threshold_velocity = 0.2
         self.sim.physx.bounce_threshold_velocity = 0.01

@@ -1,0 +1,56 @@
+log_data.append({
+    "obs": current_obs,
+    "action": current_action,
+    "state_machine": sm_state[tid].name,  # or int(sm_state[tid])
+    "gripper": gripper_state[tid].name,
+    "des_ee_pose": des_ee_pose[tid],  # optional, e.g., for analysis/debug
+    "ee_pose": ee_pose[tid],          # optional
+})
+
+
+
+import h5py
+import numpy as np
+
+class HDF5Logger:
+    def __init__(self):
+        self.data = {
+            "observations": [],
+            "actions": [],
+            "state_machine": [],
+            "gripper": [],
+            "des_ee_pose": [],
+        }
+
+    def log(self, obs, action, sm_state, gripper_state, des_ee_pose):
+        self.data["observations"].append(obs)
+        self.data["actions"].append(action)
+        self.data["state_machine"].append(sm_state)
+        self.data["gripper"].append(gripper_state)
+        self.data["des_ee_pose"].append(des_ee_pose)
+
+    def save(self, filename="demo.hdf5", episode_name="episode_0000", metadata={}):
+        with h5py.File(filename, "w") as f:
+            ep_grp = f.create_group(episode_name)
+            for key, value in self.data.items():
+                ep_grp.create_dataset(key, data=np.array(value))
+
+            meta_grp = ep_grp.create_group("metadata")
+            for key, val in metadata.items():
+                meta_grp.attrs[key] = val
+
+
+
+logger = HDF5Logger()
+
+for t in range(max_steps):
+    ...
+    logger.log(
+        obs=current_obs,
+        action=current_action,
+        sm_state=sm_state[tid].name,
+        gripper_state=gripper_state[tid].name,
+        des_ee_pose=des_ee_pose[tid]
+    )
+
+logger.save("pick_demo.hdf5", metadata={"task_name": "pick", "seed": 42})

@@ -14,6 +14,9 @@ from .franka_stack_ik_rel_mimic_env import FrankaCubeStackIKRelMimicEnv
 from .franka_stack_ik_rel_mimic_env_cfg import FrankaCubeStackIKRelMimicEnvCfg
 from .franka_stack_ik_rel_visuomotor_mimic_env_cfg import FrankaCubeStackIKRelVisuomotorMimicEnvCfg
 from .cube_blueprint_mimic_env_cfg import CubeBlueprintMimicEnvCfg
+from .llm_stack_ik_abs_mimic_cfg import LLMIKAbsMimicEnvCfg
+from .llm_stack_ik_abs_mimic import LLMIKAbsMimicEnv
+from .llm_stack_ik_abs_blueprint_mimic_cfg import LlmStackIKRelBlueprintMimicEnvCfg
 from .cube_mimic_env_cfg import CubeMimicEnvCfg
 from .cube_mimic_env import CubeMimicEnv
 ##
@@ -73,6 +76,25 @@ gym.register(
     entry_point="isaaclab_mimic.envs:CubeMimicEnv",
     kwargs={
         "env_cfg_entry_point": cube_blueprint_mimic_env_cfg.CubeBlueprintMimicEnvCfg,
+    },
+    disable_env_checker=True,
+)
+
+##llm scripts
+gym.register(
+    id="LLM-Stack-Cube-Franka-IK-Abs-Mimic-v0",
+    entry_point="isaaclab_mimic.envs:LLMIKAbsMimicEnv",
+    kwargs={
+        "env_cfg_entry_point": llm_stack_ik_abs_mimic_cfg.LLMIKAbsMimicEnvCfg,
+    },
+    disable_env_checker=True,
+)
+
+gym.register(
+    id="LLM-Stack-Cube-Franka-IK-Abs-Mimic-Blueprint-v0",
+    entry_point="isaaclab_mimic.envs:LlmStackIKRelBlueprintMimicEnvCfg",
+    kwargs={
+        "env_cfg_entry_point": llm_stack_ik_abs_blueprint_mimic_cfg.LlmStackIKRelBlueprintMimicEnvCfg,
     },
     disable_env_checker=True,
 )

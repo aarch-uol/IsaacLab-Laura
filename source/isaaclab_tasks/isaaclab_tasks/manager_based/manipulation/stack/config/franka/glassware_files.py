@@ -54,11 +54,11 @@ class Glassware:
         # Spawn a beaker - changed from 1,1,1 scale
         self.beaker = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Beaker",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.4, -0.3, 0.0203], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.1, 0, 0.0203], rot=[0, 0, 1, 0]),
             spawn=UsdFileCfg(
                 # usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/glass_beaker_upright.usd",
-                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_new.usd",
-                scale=(1.0, 1.0, 1.0),
+                usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker_500ml.usd",
+                scale=(0.5, 0.5, 0.5),
                 rigid_props=cube_properties,
                 semantic_tags=[("class", "beaker")],
             ),
@@ -90,7 +90,7 @@ class Glassware:
         # Spawn a hot plate
         self.hot_plate = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Hot_plate",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.0, 0.0203], rot=[0.707, 0.707, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.6, -0.225, 0.0203], rot=[0.707, 0.707, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/hot_plate.usd",
                 scale=(0.03, 0.03, 0.03),
@@ -101,7 +101,7 @@ class Glassware:
         # Spawn an electric balance
         self.electric_balance = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Electric_balance",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0.2, 0.0], rot=[1, 0, 0, 0]),
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.55, 0.275, 0.0], rot=[1, 0, 0, 0]),
             spawn=UsdFileCfg(
                 usd_path=f"/workspace/isaaclab/source/isaaclab_assets/data/Props/scale/balance_electronic.usd",
                 scale=(0.01, 0.01, 0.01),

@@ -43,7 +43,7 @@ import torch
 from collections.abc import Sequence
 
 import warp as wp
-
+import numpy as np
 from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
 
 import isaaclab_tasks  # noqa: F401
@@ -72,19 +72,20 @@ class PickSmState:
     APPROACH_ABOVE_OBJECT2 = wp.constant(5)
     APPROACH_OBJECT2 = wp.constant(6)
     UNGRASP_OBJECT = wp.constant(7)
-    APPROACH_ABOVE_OBJECT_2 = wp.constant(8)
+    REGRASP_OBJECT_2 = wp.constant(8)
     APPROACH_OBJECT_2 = wp.constant(9)
     GRASP_OBJECT_2 = wp.constant(10)
     LIFT_OBJECT_2 = wp.constant(11)
     APPROACH_ABOVE_OBJECT3 = wp.constant(12)
     APPROACH_OBJECT3 = wp.constant(13)
     UNGRASP_OBJECT_2 = wp.constant(14)
+    POST_REST = wp.constant(15)
 
 
 class PickSmWaitTime:
     """Additional wait times (in s) for states for before switching."""
 
-    REST = wp.constant(5)
+    REST = wp.constant(1)
     APPROACH_ABOVE_OBJECT = wp.constant(0.5)
     APPROACH_OBJECT = wp.constant(0.6)
     GRASP_OBJECT = wp.constant(0.3)
@@ -92,13 +93,14 @@ class PickSmWaitTime:
     APPROACH_ABOVE_OBJECT2 = wp.constant(0.5)
     APPROACH_OBJECT2 = wp.constant(0.6)
     UNGRASP_OBJECT = wp.constant(5)
-    APPROACH_ABOVE_OBJECT_2 = wp.constant(0.5)
+    REGRASP_OBJECT_2 = wp.constant(0.5)
     APPROACH_OBJECT_2 = wp.constant(0.6)
     GRASP_OBJECT_2 = wp.constant(0.3)
     LIFT_OBJECT_2 = wp.constant(0.5)
     APPROACH_ABOVE_OBJECT3 = wp.constant(0.5)
     APPROACH_OBJECT3 = wp.constant(0.6)
-    UNGRASP_OBJECT_2 = wp.constant(0.3)
+    UNGRASP_OBJECT_2 = wp.constant(0.5)
+    POST_REST = wp.constant(10)
 
 
 @wp.func
@@ -120,6 +122,8 @@ def infer_state_machine(
     gripper_state: wp.array(dtype=float),
     offset: wp.array(dtype=wp.transform),
     position_threshold: float,
+    debug_des_pose: wp.array(dtype=wp.transform),   # NEW
+    debug_cur_pose: wp.array(dtype=wp.transform),   # NEW
 ):
     # retrieve thread id
     tid = wp.tid()
@@ -127,33 +131,37 @@ def infer_state_machine(
     state = sm_state[tid]
     # decide next state
     if state == PickSmState.REST:
+        #print("[SM_INFO] : REST")
         des_ee_pose[tid] = ee_pose[tid]
         gripper_state[tid] = GripperState.OPEN
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.REST:
-            print("[SM_INFO] : Moving from REST to APPROACH_ABOVE_OBJECT")
+            #print("[SM_INFO] : Moving from REST to APPROACH_ABOVE_OBJECT")
             # move to next state and reset wait time
             sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT
             sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_ABOVE_OBJECT:
+        #print("[SM_INFO] : APPROACH_ABOVE_OBJECT")
         des_ee_pose[tid] = wp.transform_multiply(offset[tid], object_pose[tid])
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
             wp.transform_get_translation(des_ee_pose[tid]),
-            position_threshold,
+            0.02,
         ):
             # wait for a while
-            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT:
+            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT")
+               # print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT")
                 sm_state[tid] = PickSmState.APPROACH_OBJECT
                 sm_wait_time[tid] = 0.0
+        #else: print("[SM_INFO] : not in APPR_ABOVE position ")
     elif state == PickSmState.APPROACH_OBJECT:
+        #print("[SM_INFO] : APPROACH_OBJECT")
         pose_pos = wp.transform_get_translation(object_pose[tid])
         pose_rot = wp.transform_get_rotation(object_pose[tid])
-        # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.02, pose_pos.y, pose_pos.z) #sample vial + 0.04
+        # Apply offset in x-direction (5 cm = 0.05 m) and z direction
+        offset_pos = wp.vec3(pose_pos.x , pose_pos.y, pose_pos.z+0.05)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
         if distance_below_threshold(
@@ -163,37 +171,48 @@ def infer_state_machine(
         ):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from APPR_OBJ to GRASP_OBJECT")
+                #print("[SM_INFO] : Moving from APPR_OBJ to GRASP_OBJECT")
                 sm_state[tid] = PickSmState.GRASP_OBJECT
                 sm_wait_time[tid] = 0.0
+       # else: print("[SM_INFO] : not in grip position yet")
     elif state == PickSmState.GRASP_OBJECT:
-        des_ee_pose[tid] = object_pose[tid]
+        #print("[SM_INFO] : GRASP_OBJECT")
+        pose_pos = wp.transform_get_translation(object_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m) and z direction
+        offset_pos = wp.vec3(pose_pos.x , pose_pos.y, pose_pos.z)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT:
             # move to next state and reset wait time
-            print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
+            #print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
             sm_state[tid] = PickSmState.LIFT_OBJECT
             sm_wait_time[tid] = 0.0
     elif state == PickSmState.LIFT_OBJECT:
-        des_ee_pose[tid] = des_object_pose[tid]
+       # print("[SM_INFO] : LIFT_OBJECT")
+        pose_pos = wp.transform_get_translation(des_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        offset_pos = wp.vec3(pose_pos.x+0.05 , pose_pos.y+0.01, pose_pos.z+0.01)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
             wp.transform_get_translation(des_ee_pose[tid]),
-            0.03,
+            0.05,
         ):
             # wait for a while
             if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
+                #print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
                 sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT2
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_ABOVE_OBJECT2:
+       # print("[SM_INFO] : APPROACH_ABOVE_OBJECT2")
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
-        offset_pos = wp.vec3(offset_pos.x, offset_pos.y, offset_pos.z + 0.15)  # raise 25 cm 
+        offset_pos = wp.vec3(offset_pos.x+0.05, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
         new_offset = wp.transform(offset_pos, offset_rot)
         above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
         # Blend time for smooth approach
@@ -212,65 +231,94 @@ def infer_state_machine(
         des_ee_pose[tid] = wp.transform(pos_interp, rot_interp)
         gripper_state[tid] = GripperState.CLOSE
         # Evaluate readiness to transition
-        if distance_below_threshold(current_pos, target_pos, 0.02):
+        if distance_below_threshold(current_pos, target_pos, 0.05):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT2:
-                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
+                #print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
                 sm_state[tid] = PickSmState.APPROACH_OBJECT2
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT2:
+        #print("[SM_INFO] : APPROACH_OBJECT2")
+        ## Pushes a bit into flask because already on hot plate at this point
+        # Get original transform from final_object_pose[tid]
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(final_object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.1)
+
+        # Reconstruct the transform with new position and same rotation
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+        # des_ee_pose[tid] = final_object_pose[tid]
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
             wp.transform_get_translation(des_ee_pose[tid]),
-            0.03,
+            0.02,
         ):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT2:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
+                #print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
                 sm_state[tid] = PickSmState.UNGRASP_OBJECT
                 sm_wait_time[tid] = 0.0
+            #else:
+             #   print("waiting time")
+        #e#lse:
+             #print("waiting distance")
     elif state == PickSmState.UNGRASP_OBJECT:
-        des_ee_pose[tid] = final_object_pose[tid]
-        gripper_state[tid] = GripperState.OPEN
-        # wait for a while
-        if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT:
-            # move to next state and reset wait time
-            print("[SM_INFO] : Moving from UNGRASP to TASK2")
-            sm_state[tid] = PickSmState.APPROACH_OBJECT_2
-            sm_wait_time[tid] = 0.0
-    elif state == PickSmState.APPROACH_OBJECT_2:
-        pose_pos = wp.transform_get_translation(object_pose[tid])
-        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        #print("[SM_INFO] : UNGRASP_OBJECT")
+        pose_pos = wp.transform_get_translation(final_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(final_object_pose[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+
+        # Reconstruct the transform with new position and same rotation
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
+        # wait for a while - idk stirring or sthn
+        if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT:
+            # move to next state and reset wait time
+            #print("[SM_INFO] : Moving from UNGRASP to TASK2")
+            sm_state[tid] = PickSmState.REGRASP_OBJECT_2
+            sm_wait_time[tid] = 0.0
+    elif state == PickSmState.REGRASP_OBJECT_2:
+        #print("[SM_INFO] : REGRASP_OBJECT")
+        ## Pushes a bit into flask because already on hot plate at this point
+        # Get original transform from final_object_pose[tid]
+        pose_pos = wp.transform_get_translation(final_object_pose[tid])
+        pose_rot = wp.transform_get_rotation(final_object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m)
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.05)
+
+        # Reconstruct the transform with new position and same rotation
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
+        # des_ee_pose[tid] = final_object_pose[tid]
+        gripper_state[tid] = GripperState.OPEN
+        # wait for a while
         if distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
             wp.transform_get_translation(des_ee_pose[tid]),
             position_threshold,
         ):
-            if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT_2:
+            if sm_wait_time[tid] >= PickSmWaitTime.REGRASP_OBJECT_2:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from APPR_OBJ to GRASP_OBJECT")
+                #print("[SM_INFO] : Moving from APPR_OBJ to GRASP_OBJECT")
                 sm_state[tid] = PickSmState.GRASP_OBJECT_2
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.GRASP_OBJECT_2:
-        des_ee_pose[tid] = object_pose[tid]
+        #print("[SM_INFO] : GRASP_OBJECT")
+        pose_pos = wp.transform_get_translation(object_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_pose[tid])
+        # Apply offset in x-direction (5 cm = 0.05 m) and z direction
+        offset_pos = wp.vec3(pose_pos.x + 0.02, pose_pos.y, pose_pos.z+0.05)
+        des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
-        # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.GRASP_OBJECT_2:
             # move to next state and reset wait time
-            print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
+            #print("[SM_INFO] : Moving from GRSP to LIFT_OBJECT")
             sm_state[tid] = PickSmState.LIFT_OBJECT_2
             sm_wait_time[tid] = 0.0
     elif state == PickSmState.LIFT_OBJECT_2:
+        #print("[SM_INFO] : LIFT_OBJECT2")
         des_ee_pose[tid] = des_object_pose[tid]
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
@@ -282,10 +330,11 @@ def infer_state_machine(
             # wait for a while
             if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT_2:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
+               # print("[SM_INFO] : Moving from LIFT to APPROACH_ABOVE_OBJECT2")
                 sm_state[tid] = PickSmState.APPROACH_ABOVE_OBJECT3
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_ABOVE_OBJECT3:
+        #print("[SM_INFO] : APPROACH_ABOVE_OBJECT3")
         offset_pos = wp.transform_get_translation(offset[tid])
         offset_rot = wp.transform_get_rotation(offset[tid])
         offset_pos = wp.vec3(offset_pos.x + 0.05, offset_pos.y, offset_pos.z + 0.25)  # raise 25 cm 
@@ -309,10 +358,11 @@ def infer_state_machine(
         # Evaluate readiness to transition
         if distance_below_threshold(current_pos, target_pos, 0.02):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_ABOVE_OBJECT3:
-                print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
+                #print("[SM_INFO] : Moving from APPR_ABOVE to APPROACH_OBJECT2")
                 sm_state[tid] = PickSmState.APPROACH_OBJECT3
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.APPROACH_OBJECT3:
+       # print("[SM_INFO] : APPROACH_OBJECT3")
         ## Pushes a bit into flask because already on hot plate at this point
         # Get original transform from final_object_pose[tid]
         pose_pos = wp.transform_get_translation(object_task2_pose[tid])
@@ -331,20 +381,36 @@ def infer_state_machine(
         ):
             if sm_wait_time[tid] >= PickSmWaitTime.APPROACH_OBJECT3:
                 # move to next state and reset wait time
-                print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
+               # print("[SM_INFO] : Moving from APPROACH_OBJ2 to UNGRASP")
                 sm_state[tid] = PickSmState.UNGRASP_OBJECT_2
                 sm_wait_time[tid] = 0.0
     elif state == PickSmState.UNGRASP_OBJECT_2:
+       # print("[SM_INFO] : UNGRASP_OBJECT2")
+        pose_pos = wp.transform_get_translation(object_task2_pose[tid])
+        pose_rot = wp.transform_get_rotation(object_task2_pose[tid])
+        offset_pos = wp.vec3(pose_pos.x + 0.05, pose_pos.y, pose_pos.z + 0.15)
         des_ee_pose[tid] = object_task2_pose[tid]
         gripper_state[tid] = GripperState.OPEN
         # wait for a while
         if sm_wait_time[tid] >= PickSmWaitTime.UNGRASP_OBJECT_2:
             # move to next state and reset wait time
-            print("[SM_INFO] : Moving from UNGRASP to REST")
+            
+            sm_state[tid] = PickSmState.POST_REST
+            sm_wait_time[tid] = 0.0
+    elif state == PickSmState.POST_REST:
+        des_ee_pose[tid] = ee_pose[tid]
+        gripper_state[tid] = GripperState.OPEN
+        # wait for a while
+        if sm_wait_time[tid] >= PickSmWaitTime.POST_REST:
+            #print("[SM_INFO] : Moving from REST to APPROACH_ABOVE_OBJECT")
+            # move to next state and reset wait time
+            #print("[SM_INFO] : DONE SM")
             sm_state[tid] = PickSmState.REST
             sm_wait_time[tid] = 0.0
     # increment wait time
     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
+    debug_des_pose[tid] = des_ee_pose[tid]
+    debug_cur_pose[tid] = ee_pose[tid]
 
 
 class PickAndLiftSm:
@@ -392,7 +458,7 @@ class PickAndLiftSm:
 
         # approach above object offset
         self.offset = torch.zeros((self.num_envs, 7), device=self.device)
-        self.offset[:, 2] = 0.1
+        self.offset[:, 2] = 0.15
         self.offset[:, -1] = 1.0  # warp expects quaternion as (x, y, z, w)
 
         # convert to warp
@@ -404,6 +470,12 @@ class PickAndLiftSm:
         # self.final_object_pose_wp = wp.from_torch(self.final_object_pose, wp.transform)
         # self.object_task2_pose_wp = wp.from_torch(self.object_task_pose, wp.transform)
         self.offset_wp = wp.from_torch(self.offset, wp.transform)
+        ## For Debug 
+        self.debug_des_pose = torch.zeros((self.num_envs, 7), device=self.device)
+        self.debug_cur_pose = torch.zeros((self.num_envs, 7), device=self.device)
+
+        self.debug_des_pose_wp = wp.from_torch(self.debug_des_pose, wp.transform)
+        self.debug_cur_pose_wp = wp.from_torch(self.debug_cur_pose, wp.transform)
 
     def reset_idx(self, env_ids: Sequence[int] = None):
         """Reset the state machine."""
@@ -427,7 +499,7 @@ class PickAndLiftSm:
         des_object_pose_wp = wp.from_torch(des_object_pose.contiguous(), wp.transform)
         final_object_pose_wp = wp.from_torch(final_object_pose.contiguous(), wp.transform)
         object_task2_pose_wp = wp.from_torch(object_task2_pose.contiguous(), wp.transform)
-
+        #print(f"Final object pose : {final_object_pose_wp}")
         # run state machine
         wp.launch(
             kernel=infer_state_machine,
@@ -445,11 +517,23 @@ class PickAndLiftSm:
                 self.des_gripper_state_wp,
                 self.offset_wp,
                 self.position_threshold,
+                self.debug_des_pose_wp,
+                self.debug_cur_pose_wp,
             ],
             device=self.device,
         )
-
-        # convert transformations back to (w, x, y, z)
+        des_debug = self.debug_des_pose.detach().cpu().numpy()
+        cur_debug = self.debug_cur_pose.detach().cpu().numpy()
+        
+        # for i in range(self.num_envs):
+        #     des_pos, des_quat = des_debug[i][:3], des_debug[i][3:]
+        #     cur_pos, cur_quat = cur_debug[i][:3], cur_debug[i][3:]
+        #     # compute Euclidean distance with numpy
+        #     dist = np.linalg.norm(cur_pos - des_pos)
+        #     print(f"[Env {i}]")
+        #     print(f"   Current -> pos: {cur_pos}, quat: {cur_quat}")
+        #     print(f"   Desired -> pos: {des_pos}, quat: {des_quat}")
+        #     print(f"   Euclidean distance: {dist:.4f}")
         des_ee_pose = self.des_ee_pose[:, [0, 1, 2, 6, 3, 4, 5]]
         # convert to torch
         return torch.cat([des_ee_pose, self.des_gripper_state.unsqueeze(-1)], dim=-1)
@@ -480,7 +564,7 @@ def main():
     desired_orientation[:, 1] = 1.0 #0?
     # create state machine
     pick_sm = PickAndLiftSm(
-        env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.01
+        env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device, position_threshold=0.05
     )
    # print("debug1 : " , env.unwrapped.action_space.shape)
     n=0

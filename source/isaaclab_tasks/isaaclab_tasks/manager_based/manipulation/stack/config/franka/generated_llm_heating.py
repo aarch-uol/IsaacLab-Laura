@@ -16,7 +16,12 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
     object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-    success_term = DoneTerm(func=mdp.objects_stacked)
+    #success_term= DoneTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
+    success_term = DoneTerm(func=mdp.ObjectsStacked(
+        lower_object_cfg=SceneEntityCfg("object2"),
+        object_1_cfg=SceneEntityCfg("object1"),
+        success_hold_steps = 100, 
+    ))
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
@@ -40,8 +45,8 @@ class ObservationsCfg:
         reach_object2 = ObsTerm(func=mdp.reach_object2, params={"ee_frame_cfg": SceneEntityCfg("ee_frame"), "object_cfg": SceneEntityCfg("object2"), "threshold": 0.05})
         object_stacked = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2"), "robot_cfg": SceneEntityCfg("robot")})
 
-    policy_obs = PolicyCfg(enable_corruption=False, concatenate_terms=False)
-    subtasks_obs = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
+    policy = PolicyCfg(enable_corruption=False, concatenate_terms=False)
+    subtasks = SubtasksCfg(enable_corruption=False, concatenate_terms=False)
 
 @configclass
 class FrankaCubeStackEnvCfg(StackEnvCfg):

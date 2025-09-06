@@ -1,24 +1,26 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc",
+        "name": "bc_rnn_202507211230",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
-            "log_tb": true
+            "log_tb": true,
+            "log_wandb": true,
+            "wandb_proj_name": "pick-place-tabletop"
         },
         "save": {
             "enabled": true,
             "every_n_seconds": null,
             "every_n_epochs": 100,
             "epochs": [],
-            "on_best_validation": false,
-            "on_best_rollout_return": false,
+            "on_best_validation": true,
+            "on_best_rollout_return": true,
             "on_best_rollout_success_rate": true
         },
         "epoch_every_n_steps": 100,
         "validation_epoch_every_n_steps": 10,
-        "env": null,
+        "env": "Dev-IK-Rel-v0",
         "additional_envs": null,
         "render": false,
         "render_video": true,
@@ -34,7 +36,7 @@
     },
     "train": {
         "data": null,
-        "output_dir": "../lift_vial_4000",
+        "output_dir": "/training_runs/bc_rnn",
         "num_data_workers": 1,
         "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
@@ -51,7 +53,7 @@
         "goal_mode": null,
         "cuda": true,
         "batch_size": 100,
-        "num_epochs": 8000,
+        "num_epochs": 3000,
         "seed": 101
     },
     "algo": {
@@ -60,7 +62,7 @@
                 "optimizer_type": "adam",
                 "learning_rate": {
                     "initial": 0.0001,
-                    "decay_factor": 0.1,
+                    "decay_factor": 0.01,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"
                 },
@@ -82,6 +84,9 @@
             "std_activation": "softplus",
             "low_noise_eval": true
         },
+         "vae": {
+            "enabled": false
+        },
         "rnn": {
             "enabled": true,
             "horizon": 10,
@@ -92,6 +97,20 @@
             "kwargs": {
                 "bidirectional": false
             }
+        },
+        "transformer": {
+            "enabled": false,
+            "context_length": 10,
+            "embed_dim": 512,
+            "num_layers": 6,
+            "num_heads": 8,
+            "emb_dropout": 0.1,
+            "attn_dropout": 0.1,
+            "block_output_dropout": 0.1,
+            "sinusoidal_embedding": false,
+            "activation": "gelu",
+            "supervise_all_steps": false,
+            "nn_parameter_for_timesteps": true
         }
     },
     "observation": {
@@ -101,16 +120,13 @@
                     "eef_pos",
                     "eef_quat",
                     "gripper_pos",
-                    "object_position",
+                    "object_positions_in_world_frame",
+                    "object_obs",
                     "target_object_position",
-                    "object_to_target",
-                    "joint_pos",
-                    "joint_vel",
-                    "actions",
-                    "appr",
-                    "grasp",
-                    "lift",
-                    "appr_goal"
+                    "object_orientations_in_world_frame",
+                    "joint_pos_rel",
+                    "joint_vel_rel",
+                    "last_action"
                 ],
                 "rgb": [],
                 "depth": [],

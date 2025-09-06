@@ -30,21 +30,18 @@ class ObjectsStacked:
         lower_object_cfg: SceneEntityCfg,
         robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
         object_1_cfg: SceneEntityCfg = SceneEntityCfg("object1"),
-        command_name: str = "object_pose",
         xy_threshold: float = 0.1,
-        height_threshold: float = 0.006,
+        height_threshold: float = 0.05,
         height_diff: float = 0.05,
         gripper_open_val: torch.Tensor = torch.tensor([0.04]),
         atol: float = 1e-4,
         rtol: float = 1e-4,
-        success_hold_time: int = 500,
-        success_hold_steps: int = 500, 
+        success_hold_steps: int = 500,
     ):
-        """Termination condition for detecting stacked objects with a hold time."""
+        """Termination condition for detecting stacked objects with per-env hold steps."""
         self.lower_object_cfg = lower_object_cfg
         self.robot_cfg = robot_cfg
         self.object_1_cfg = object_1_cfg
-        self.command_name = command_name
         self.xy_threshold = xy_threshold
         self.height_threshold = height_threshold
         self.height_diff = height_diff
@@ -53,62 +50,71 @@ class ObjectsStacked:
         self.rtol = rtol
         self.success_hold_steps = success_hold_steps
 
-        # internal state
-        self._consecutive_steps = 0
+        # Will be allocated after we know num_envs
+        self._consecutive_steps = None
 
-    def __call__(self, env: ManagerBasedRLEnv):
-        """Check if object_1 is stacked on lower_object for a continuous number of steps."""
+    def __call__(self, env: ManagerBasedRLEnv) -> torch.Tensor:
+        """Return per-env success mask: True if stacked for required hold steps."""
         robot: Articulation = env.scene[self.robot_cfg.name]
         object_1: RigidObject = env.scene[self.object_1_cfg.name]
         object_2: RigidObject = env.scene[self.lower_object_cfg.name]
 
+        num_envs = env.unwrapped.num_envs
+        if self._consecutive_steps is None or self._consecutive_steps.shape[0] != num_envs:
+            self._consecutive_steps = torch.zeros(num_envs, dtype=torch.long, device=env.device)
+
         # position difference between objects
         pos_diff = object_2.data.root_pos_w - object_1.data.root_pos_w
         xy_dist = torch.norm(pos_diff[:, :2], dim=1)
+       # print("xy dist error : ", xy_dist)
         height_diff_actual = pos_diff[:, 2]
 
         # spatial checks
         xy_check = xy_dist < self.xy_threshold
+       # print("xy error check : ", xy_check)
         overall_height = height_diff_actual + self.height_diff
-        height_check = torch.where(
-            overall_height < 0, overall_height, torch.abs(overall_height)
-        )
+        height_check = torch.abs(overall_height) < self.height_threshold
+        #print("height diff : ", height_check)
         stacked = torch.logical_and(xy_check, height_check)
-
-        # check gripper is open
-        stacked = torch.logical_and(
+        #print("Stacked ? : ", stacked)
+        # gripper open check
+        open_check = torch.logical_and(
             torch.isclose(
                 robot.data.joint_pos[:, -1],
                 self.gripper_open_val.to(env.device),
                 atol=self.atol,
                 rtol=self.rtol,
             ),
-            stacked,
-        )
-        stacked = torch.logical_and(
             torch.isclose(
                 robot.data.joint_pos[:, -2],
                 self.gripper_open_val.to(env.device),
                 atol=self.atol,
                 rtol=self.rtol,
             ),
-            stacked,
         )
-        omni.log.info(f"[ObjectsStacked] stacked tensor: {stacked}, consecutive steps: {self._consecutive_steps}")
-        # step-count-based hold logic
-        if stacked.all():
-            print("stacked....")
-            self._consecutive_steps += 1
-            omni.log.info(f"in place for : {self._consecutive_steps}")
-            print(f"in place for : {self._consecutive_steps}")
-            if self._consecutive_steps >= self.success_hold_steps:
-                print(f"✅ Termination: objects_stacked held for {self.success_hold_steps} steps")
-                self._consecutive_steps = 0
-                return torch.tensor([True], device=env.device)
-        else:
-            self._consecutive_steps = 0  # reset if not stacked
 
-        return torch.tensor([False], device=env.device)
+        stacked = torch.logical_and(stacked, open_check)
+        #print("Stacked ? : ", stacked)
+        # update per-env counters
+        self._consecutive_steps = torch.where(
+            stacked,
+            self._consecutive_steps + 1,
+            torch.zeros_like(self._consecutive_steps),
+        )
+
+        # mark success if hold threshold reached
+        success = self._consecutive_steps >= self.success_hold_steps
+
+        # reset those envs that just succeeded (prevents sticky True)
+        self._consecutive_steps = torch.where(
+            success,
+            torch.zeros_like(self._consecutive_steps),
+            self._consecutive_steps,
+        )
+        #print("Success terms : ", success)
+        return success
+
+
 
 def object_reached_goal(
     env: ManagerBasedRLEnv,

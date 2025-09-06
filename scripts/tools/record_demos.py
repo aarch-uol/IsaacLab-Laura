@@ -209,6 +209,7 @@ def main():
     # extract success checking function to invoke in the main loop
     success_term = None
     if hasattr(env_cfg.terminations, "success_term"):
+        print("[debug] Found success term! ")
         success_term = env_cfg.terminations.success_term
         env_cfg.terminations.success_term = None
     else:
@@ -387,7 +388,7 @@ def main():
                         show_subtask_instructions(instruction_display, subtasks, obv, env.cfg)
             else:
                 env.sim.render()
-
+            #print("[DEBUG] Success state : ", success)
             if success_term is not None:
                 if bool(success_term.func(env, **success_term.params)[0]):
                     success_step_count += 1
@@ -397,6 +398,7 @@ def main():
                             [0], torch.tensor([[True]], dtype=torch.bool, device=env.device)
                         )
                         env.recorder_manager.export_episodes([0])
+                      #  print("[DEBUG] This should reset now....")
                         should_reset_recording_instance = True
                 else:
                     success_step_count = 0

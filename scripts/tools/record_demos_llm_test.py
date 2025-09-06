@@ -102,10 +102,10 @@ from isaaclab.managers import DatasetExportMode
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
-from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
+#from scripts.environments.state_machine.stack_lab_sm import PickAndLiftSm
 # from scripts.environments.state_machine.weigh_lab_sm import PickAndLiftSm
 #from scripts.environments.state_machine.pour_lab_sm import PickAndLiftSm
-# from scripts.environments.state_machine.stack_weigh_lab_sm import PickAndLiftSm
+from scripts.environments.state_machine.stack_weigh_lab_sm import PickAndLiftSm
 
 
 class RateLimiter:
@@ -161,7 +161,7 @@ def state_machine_step(env, pick_sm, fixed_tcp_rot):
     with torch.inference_mode():
         ee_frame = env.unwrapped.scene["ee_frame"]
         tcp_pos = ee_frame.data.target_pos_w[..., 0, :].clone() - env.unwrapped.scene.env_origins
-
+        print(f"state machine rot  : {ee_frame.data.target_pos_w[..., 0, :].clone()}")
         obj1_pos = env.unwrapped.scene["object1"].data.root_pos_w - env.unwrapped.scene.env_origins
         obj2_pos = env.unwrapped.scene["object2"].data.root_pos_w - env.unwrapped.scene.env_origins
         # obj3_pos = env.unwrapped.scene["object3"].data.root_pos_w - env.unwrapped.scene.env_origins
@@ -292,9 +292,10 @@ def main():
     # with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
     while simulation_app.is_running():
         if running_recording_instance:
+            print(f"[RECORDED] action stepped into env: {actions}")
             dones = env.step(actions)[-2]
             actions = state_machine_step(env, pick_sm, fixed_tcp_rot)
-
+            print(f"[DEBUG] state machine actions : {actions}")
             if dones.any():
                 # ✅ check success condition
                 is_success = False

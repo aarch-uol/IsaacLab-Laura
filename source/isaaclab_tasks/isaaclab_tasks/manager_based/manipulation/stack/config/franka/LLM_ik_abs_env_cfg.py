@@ -16,7 +16,7 @@ import math
 
 import isaaclab_tasks.manager_based.manipulation.cube_lift.mdp as mdp
 
-from . import generated_llm
+from . import generated_llm as generated_llm
 
 ##
 # Pre-defined configs
@@ -60,6 +60,6 @@ class FrankaCubeStackEnvCfg(generated_llm.FrankaCubeStackEnvCfg):
             asset_name="robot",
             joint_names=["panda_joint.*"],
             body_name="panda_hand",
-            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"), 
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="pinv"), 
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.107]),
         )

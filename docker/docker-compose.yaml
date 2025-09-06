@@ -104,7 +104,7 @@ services:
     tty: true
     devices:
       - /dev/hidraw3:/dev/hidraw3
-      # - /dev/hidraw4:/dev/hidraw4
+      - /dev/hidraw4:/dev/hidraw4
       #- /dev/hidraw5:/dev/hidraw5
 
   # This service adds a ROS2 Humble
@@ -133,7 +133,7 @@ services:
     stdin_open: true
     tty: true
     devices:
-      #- /dev/hidraw4:/dev/hidraw4
+      - /dev/hidraw4:/dev/hidraw4
       - /dev/hidraw3:/dev/hidraw3
      # - /dev/hidraw4:/dev/hidraw4
       #- /dev/hidraw5:/dev/hidraw5

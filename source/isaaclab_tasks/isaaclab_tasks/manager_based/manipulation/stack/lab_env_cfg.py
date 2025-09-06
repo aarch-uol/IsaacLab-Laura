@@ -12,6 +12,7 @@ from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab_tasks.manager_based.manipulation.stack.mdp import franka_stack_events
 import math
 from isaaclab.managers import SceneEntityCfg
@@ -315,12 +316,18 @@ class TerminationsCfg:
     #     object_1_cfg=SceneEntityCfg("object1"),
     #     success_hold_steps = 150, 
     # ))
-
-    # success = DoneTerm(func=mdp.ObjectsStacked(
-    #     lower_object_cfg=SceneEntityCfg("object2"),
-    #     object_1_cfg=SceneEntityCfg("object1"),
-    #     success_hold_steps = 150, 
-    # )
+    # change these for the task 
+    success = DoneTerm(func=mdp.ObjectsStacked(
+        lower_object_cfg=SceneEntityCfg("object3"),
+        object_1_cfg=SceneEntityCfg("object1"),
+        success_hold_steps = 100, 
+        )
+    )
+    success_term = DoneTerm(func=mdp.ObjectsStacked(
+        lower_object_cfg=SceneEntityCfg("object3"),
+        object_1_cfg=SceneEntityCfg("object1"),
+        success_hold_steps = 100, 
+    ))
 
 
 
@@ -338,6 +345,11 @@ class Terminations2Cfg:
     )
     ### OBJECT1 DROPPED - CONICAL
     success_goal = DoneTerm(func=mdp.object_reached_goal)
+    success_term = DoneTerm(func=mdp.ObjectsStacked(
+        lower_object_cfg=SceneEntityCfg("object3"),
+        object_1_cfg=SceneEntityCfg("object1"),
+        success_hold_steps = 100, 
+    ))
 
 @configclass
 class EventCfg:
@@ -368,26 +380,40 @@ class EventCfg:
     #         "asset_cfg": SceneEntityCfg("object1"), 
     #     },
     # )
-    reset_object2_position = EventTerm(
-        func=mdp.reset_root_state_uniform,
-        mode="reset",
-        params={
-            "pose_range": {"x": (0.4, 0.5), "y": (0.1, 0.225), "z": (0.0, 0.0)},
-            "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object2"),
-        },
-    )
+    # reset_object2_position = EventTerm(
+    #     func=mdp.reset_root_state_uniform,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": (0.4, 0.5), "y": (0.1, 0.225), "z": (0.0, 0.0)},
+    #         "velocity_range": {},
+    #         "asset_cfg": SceneEntityCfg("object2"),
+    #     },
+    # )
     reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
 
     reset_object_position = EventTerm(
+        # for weigh + stir use "pose_range": {"x": (0, 0.2), "y": (0.1, 0.25), "z": (0.0, 0.05)},
+        #  for others use "pose_range": {"x": (0, 0.4), "y": (0.0, 0.25), "z": (0.0, 0.05)},
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (0, 0.2), "y": (0, 0.25), "z": (0.0, 0.0)},
+            "pose_range": {"x": (0.3, 0.4), "y": (-0.05, 0.05), "z": (0.0, 0.05)},
             "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object1", body_names="Beaker"),
+            "asset_cfg": SceneEntityCfg("object1", body_names="beaker_500ml"),
         },
     )
+
+    # reset_many_object_position = EventTerm(
+    #     func=mdp.reset_root_state_uniform_many,
+    #     mode="reset",
+    #     params={
+    #         "pose_range": {"x": (-0.1, 0.1), "y": (0, 0.25), "z": (0.0, 0.0)},
+    #         "velocity_range": {},
+    #         "asset1_cfg": SceneEntityCfg("object1"),
+    #         "asset2_cfg": SceneEntityCfg("object2"),
+    #         "asset3_cfg": SceneEntityCfg("object3"),
+    #     },
+    # )
 
     # reset_object3_position = EventTerm(
     #     func=mdp.reset_root_state_uniform,
@@ -398,8 +424,58 @@ class EventCfg:
     #         "asset_cfg": SceneEntityCfg("object3"),
     #     }
     # )
+@configclass
+class RewardsCfg:
+    """Reward terms for the MDP."""
 
+    reach_object1 = RewTerm(func=mdp.reach_object, 
+        params={"object_cfg": SceneEntityCfg("object1")},
+        weight=1)
+    object_grasped1 = RewTerm(func=mdp.object_grasped, 
+        params={"object_cfg": SceneEntityCfg("object1")},
+        weight=1)
+    is_object_lifted1 = RewTerm(func=mdp.is_object_lifted, 
+        params={"object_cfg": SceneEntityCfg("object1")},
+        weight=1)
+    reach_object2 = RewTerm(func=mdp.reach_object2, 
+        params={"object_cfg": SceneEntityCfg("object2")},
+        weight=1)
+    object_stacked = RewTerm(func=mdp.object_stacked, 
+        params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")},
+        weight=1)
+#reaching_target = RewTerm(func=mdp.object_goal_norm_error, weight = 20.0)
 
+    object_goal_tracking = RewTerm(
+        func=mdp.object_goal_distance,
+        params={"std": 0.3, "minimal_height": 0.04, "command_name": "object_pose"},
+        weight=16.0,
+    )
+
+    object_goal_tracking_fine_grained = RewTerm(
+        func=mdp.object_goal_distance,
+        params={"std": 0.05, "minimal_height": 0.04, "command_name": "object_pose"},
+        weight=5.0,
+    )
+
+    # action penalty
+    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
+
+    joint_vel = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=-1e-4,
+        params={"asset_cfg": SceneEntityCfg("robot")},
+    )
+    #drop penalty
+    object_1_dropping = RewTerm(
+        func=mdp.root_height_below_minimum, 
+        params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")},
+        weight=-1
+    )
+    object_2_dropping = RewTerm(
+        func=mdp.root_height_below_minimum, 
+        params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")},
+        weight=-1
+    )
 @configclass
 class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get the LLM to choose from it
     """Configuration for the stacking environment."""
@@ -416,7 +492,7 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
     # loghelper = LoggingHelper()
 
     # Unused managers
-    rewards = None
+    rewards : RewardsCfg = RewardsCfg()
     curriculum = None
     terminations = None # Elsewhere
     observations = None # Elsewhere
@@ -430,14 +506,14 @@ class StackEnvCfg(ManagerBasedRLEnvCfg): # Could make multiple of these and get 
         """Post initialization."""
         # general settings
         self.decimation = 5
-        self.episode_length_s = 250 #300.0
+        self.episode_length_s = 300 #300.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = 5
 
         self.sim.physx.bounce_threshold_velocity = 0.2
         self.sim.physx.bounce_threshold_velocity = 0.01
-        self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
-        self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
+        #self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
+        #self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
         self.sim.physx.friction_correlation_distance = 0.00625
 

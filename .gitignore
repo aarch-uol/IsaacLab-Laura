@@ -14,6 +14,9 @@
 **/*.usdc
 **/*.usdz
 
+**/*.txt
+**/*.pth
+
 # Python
 .DS_Store
 **/*.egg-info/
@@ -69,3 +72,4 @@ docs/training_runs
 
 # Tests
 tests/
+docs/training_data/pick_place/uncertainty_rollout_pick_place/ensemble/run_no_recovery_video/actionsno_recovery_video.txt

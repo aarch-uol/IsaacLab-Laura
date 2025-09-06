@@ -117,9 +117,10 @@ def rollout(policy, env, success_term, horizon, device):
 
         traj["obs"].append(obs)
         traj["sub_obs"].append(sub_obs)
-
+        #print("[POLICY] Obs : ", obs_dict['policy']['joint_pos_rel'])
         # Compute actions
         actions = policy(obs)
+        #print(f"[POLICY] Actions : {actions}")
 
         # Unnormalize actions
         if args_cli.norm_factor_min is not None and args_cli.norm_factor_max is not None:
@@ -128,12 +129,16 @@ def rollout(policy, env, success_term, horizon, device):
             ) / 2 + args_cli.norm_factor_min
 
         actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
-
+        print(f"[POLICY] Actions : {actions}")
         # Apply actions
+        
         obs_dict, _, terminated, truncated, _ = env.step(actions)
         obs = obs_dict["policy"]
         sub_obs = obs_dict["subtask_terms"]
-
+        robot = env.unwrapped.scene["robot"]
+        # robot.set_joint_position_target(actions)
+        # env.scene.write_data_to_sim()
+        # env.sim.step()
         # Record trajectory
         traj["actions"].append(actions.tolist())
         traj["next_obs"].append(obs)

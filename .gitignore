@@ -65,8 +65,8 @@ _build
 datasets
 
 # path 
-docs/training_runs
-
+**/docs/training_runs/*
+**/source/isaaclab_assets/*
 # Tests
 tests/
 
@@ -75,3 +75,4 @@ tests/
 
 **/*.txt
 **/*.png
+**/*.json

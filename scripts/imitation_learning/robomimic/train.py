@@ -373,7 +373,7 @@ def normalize_hdf5_actions(config: Config, log_dir: str) -> str:
 
 
 
-def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str], video_dirs: list[str], use_config_seed: bool = True, ensemble_size: int = 1):
+def train(config: Config, device: str, log_dirs: list[str], ckpt_dirs: list[str], video_dirs: list[str], use_config_seed: bool = True, ensemble_size: int = 15):
     """Train an ensemble of models using the algorithm specified in config. If ensemble_size is not specified, a single model will be trained.
 
     Args:

@@ -50,7 +50,7 @@ class Chem_Assets:
                 prim_path="{ENV_REGEX_NS}/" + name,
                 init_state=RigidObjectCfg.InitialStateCfg(pos = pos,rot=rot ),
                 spawn=UsdFileCfg(
-                    usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker.usd",
+                    usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/beaker3.usd",
                     scale=(0.5, 0.5, 0.5),
                     rigid_props=self.cube_properties,
                     semantic_tags=[("class", name)],
@@ -62,8 +62,8 @@ class Chem_Assets:
                 prim_path="{ENV_REGEX_NS}/" + name ,
                 init_state=RigidObjectCfg.InitialStateCfg(pos=pos,rot=rot),
                 spawn=UsdFileCfg(
-                    usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/lab_equipment/mag_hotplate.usd",
-                    scale=(0.8, 0.8, 0.8),
+                    usd_path="/workspace/isaaclab/source/isaaclab_assets/data/Props/glassware/hotplate_2.usd",
+                    scale=(0.8, 0.8, 0.5),
                     rigid_props=self.cube_properties,
                     semantic_tags=[("class", name)],
                 ),

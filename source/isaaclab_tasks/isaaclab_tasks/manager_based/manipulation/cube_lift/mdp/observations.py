@@ -134,9 +134,9 @@ def reach_object(
 
 def object_grasped(
     env: ManagerBasedRLEnv,
-    robot_cfg: SceneEntityCfg,
-    ee_frame_cfg: SceneEntityCfg,
-    object_cfg: SceneEntityCfg,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     diff_threshold: float = 0.06,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     gripper_threshold: float = 0.005,

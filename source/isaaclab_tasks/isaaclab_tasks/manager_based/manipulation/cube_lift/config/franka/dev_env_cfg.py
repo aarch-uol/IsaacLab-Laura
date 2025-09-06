@@ -79,9 +79,9 @@ class FrankaDevEnvCfg(CubeEnvCfg):
         # self.scene.flask = glassware.flask()
         # self.scene.vial = glassware.vial()
         # self.scene.beaker = glassware.beaker()
-        #self.scene.stirplate = glassware.stirplate()
+        # self.scene.stirplate = glassware.stirplate()
         #self.scene.random = glassware.random_object()
-
+        # self.scene.obstacle = glassware.stirplate(pos= [0.5, -0.32, 0.0],rot=[0.707, 0, 0, -0.707], name="cube_obs")
         # Listens to the required transforms
         marker_cfg = FRAME_MARKER_CFG.copy()
         marker_cfg.markers["frame"].scale = (0.1, 0.1, 0.1)

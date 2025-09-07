@@ -198,7 +198,7 @@ def reach_object(
     env: ManagerBasedRLEnv,
     object_cfg: SceneEntityCfg,
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
-    threshold: float = 0.05,
+    threshold: float = 0.1,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
@@ -213,7 +213,7 @@ def reach_object(
     object_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
     # if object_ee_distance.item() < std :
     #     loghelper.logsubtask(LogType.APPR)
-   # if object_ee_distance < threshold:
+    #if object_ee_distance < threshold:
      #   print("SUBTASK 1 : reach_object")
     return object_ee_distance < threshold
 
@@ -255,7 +255,7 @@ def object_grasped(
 def is_object_lifted(
     env: ManagerBasedRLEnv,
     object_cfg: SceneEntityCfg,
-    threshold : float = 0.05,
+    threshold : float = 0.1,
     # loghelper : LoggingHelper = LoggingHelper()
 ) -> torch.Tensor:
     #return true when object z coord above a threshold value 

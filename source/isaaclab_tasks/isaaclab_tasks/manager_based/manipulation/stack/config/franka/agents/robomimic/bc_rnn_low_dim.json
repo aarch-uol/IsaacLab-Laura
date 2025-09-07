@@ -117,15 +117,17 @@
         "modalities": {
             "obs": {
                 "low_dim": [
-                    "eef_pos",
-                    "eef_quat",
+                    "ee_pos",
+                    "ee_quat",
                     "gripper_pos",
-                    "object_positions_in_world_frame",
                     "object_obs",
                     "object_orientations_in_world_frame",
-                    "joint_pos_rel",
-                    "joint_vel_rel",
-                    "last_action"
+                    "joint_pos",
+                    "joint_vel",
+                    "actions",
+                    "object1_position",
+                    "object2_position",
+                    "object3_position"
                 ],
                 "rgb": [],
                 "depth": [],

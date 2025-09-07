@@ -753,7 +753,7 @@ if __name__ == "__main__":
     parser.add_argument("--normalize_training_actions", action="store_true", default=False, help="Normalize actions")
     
     parser.add_argument("--dataset_percentage", type=float, default=1.0, help="Percentage of samples from the dataset to use")
-    parser.add_argument("--ensemble_size", type=int, default=15, help="Defines the number of networks in the ensemble.")
+    parser.add_argument("--ensemble_size", type=int, default=20, help="Defines the number of networks in the ensemble.")
     
     args = parser.parse_args()
 

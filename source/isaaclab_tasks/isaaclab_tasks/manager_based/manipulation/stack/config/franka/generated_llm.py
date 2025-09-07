@@ -16,17 +16,18 @@ class TerminationsCfg:
     """Termination terms for the MDP."""
     object_dropping1 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object1")})
     object_dropping2 = DoneTerm(func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object2")})
-   # success_term = DoneTerm(func=mdp.objects_stacked, params={"lower_object_cfg": SceneEntityCfg("object3")})
-    success_term = DoneTerm(func=mdp.ObjectsStacked(
-        lower_object_cfg=SceneEntityCfg("object3"),
-        object_1_cfg=SceneEntityCfg("object1"),
-        success_hold_steps = 100, 
-    ))
-    success= DoneTerm(func=mdp.ObjectsStacked(
-        lower_object_cfg=SceneEntityCfg("object3"),
-        object_1_cfg=SceneEntityCfg("object1"),
-        success_hold_steps = 100, 
-    ))
+    success_term = DoneTerm(func=mdp.objects_stacked, params={"lower_object_cfg": SceneEntityCfg("object3"), "upper_object_cfg": SceneEntityCfg("object1")})
+    success = DoneTerm(func=mdp.objects_stacked, params={"lower_object_cfg": SceneEntityCfg("object3"), "upper_object_cfg": SceneEntityCfg("object1")})
+    # success_term = DoneTerm(func=mdp.ObjectsStacked(
+    #     lower_object_cfg=SceneEntityCfg("object3"),
+    #     object_1_cfg=SceneEntityCfg("object1"),
+    #     success_hold_steps = 100, 
+    # ))
+    # success= DoneTerm(func=mdp.ObjectsStacked(
+    #     lower_object_cfg=SceneEntityCfg("object3"),
+    #     object_1_cfg=SceneEntityCfg("object1"),
+    #     success_hold_steps = 100, 
+    # ))
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
 @configclass
@@ -56,7 +57,7 @@ class ObservationsCfg:
         reach_object_task1 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
         object_grasped_task1 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
         is_object_lifted_task1 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task1 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1"), "threshold": 0.1})
         reach_object2_task1 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object2")})
         object_stacked_task1 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object2")})
 
@@ -64,7 +65,7 @@ class ObservationsCfg:
         reach_object_task2 = ObsTerm(func=mdp.reach_object, params={"object_cfg": SceneEntityCfg("object1")})
         object_grasped_task2 = ObsTerm(func=mdp.object_grasped, params={"object_cfg": SceneEntityCfg("object1")})
         is_object_lifted_task2 = ObsTerm(func=mdp.is_object_lifted, params={"object_cfg": SceneEntityCfg("object1")})
-        object_reached_midgoal_task2 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1")})
+        object_reached_midgoal_task2 = ObsTerm(func=mdp.object_reached_midgoal, params={"object_cfg": SceneEntityCfg("object1"), "threshold": 0.1})
         reach_object2_task2 = ObsTerm(func=mdp.reach_object2, params={"object_cfg": SceneEntityCfg("object3")})
         object_stacked_task2 = ObsTerm(func=mdp.object_stacked, params={"upper_object_cfg": SceneEntityCfg("object1"), "lower_object_cfg": SceneEntityCfg("object3")})
 

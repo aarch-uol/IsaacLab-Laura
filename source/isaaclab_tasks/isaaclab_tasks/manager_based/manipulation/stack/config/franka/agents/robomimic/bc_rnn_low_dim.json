@@ -1,13 +1,13 @@
 {
     "algo_name": "bc",
     "experiment": {
-        "name": "bc_rnn_202507211230",
+        "name": "weigh_stir_10k_bc",
         "validate": true,
         "logging": {
             "terminal_output_to_txt": true,
             "log_tb": true,
             "log_wandb": true,
-            "wandb_proj_name": "llm_generated_weighing"
+            "wandb_proj_name": "llm_generated_weighing_stirring"
         },
         "save": {
             "enabled": true,

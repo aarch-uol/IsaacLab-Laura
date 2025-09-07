@@ -363,8 +363,8 @@ def object_position_in_robot_root_frame(
 def object_stacked(
     env: ManagerBasedRLEnv,
     # Upper and lower object cfg defined in stack_env_cfg when stacked in subtask
-    upper_object_cfg: SceneEntityCfg,
-    lower_object_cfg: SceneEntityCfg,
+    upper_object_cfg: SceneEntityCfg ,#= SceneEntityCfg("object1"),
+    lower_object_cfg: SceneEntityCfg ,#=SceneEntityCfg("object3"),
     command_name: str = "object_pose",
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     xy_threshold: float = 0.1,

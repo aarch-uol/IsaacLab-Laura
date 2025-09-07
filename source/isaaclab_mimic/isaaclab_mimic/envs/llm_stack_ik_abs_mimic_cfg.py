@@ -6,7 +6,7 @@
 from isaaclab.envs.mimic_env_cfg import MimicEnvCfg, SubTaskConfig
 from isaaclab.utils import configclass
 
-from isaaclab_tasks.manager_based.manipulation.stack.config.franka.LLM_ik_rel_env_cfg import FrankaCubeStackEnvCfg as generated_llm
+from isaaclab_tasks.manager_based.manipulation.stack.config.franka.LLM_ik_abs_env_cfg import FrankaCubeStackEnvCfg as generated_llm
 
 
 @configclass
@@ -31,11 +31,13 @@ class LLMIKAbsMimicEnvCfg(generated_llm, MimicEnvCfg):
         self.datagen_config.seed = 1
 
         # The following are the subtask configurations for the stack task.
+
+        # remove these as needed
         subtask_configs = []
         subtask_configs.append(
             SubTaskConfig(
                 object_ref="object_1",
-                subtask_term_signal="reach_object1",
+                subtask_term_signal="reach_object_task1",
                 subtask_term_offset_range=(10, 20),
                 selection_strategy="nearest_neighbor_object",
                 selection_strategy_kwargs={"nn_k": 3},
@@ -48,7 +50,7 @@ class LLMIKAbsMimicEnvCfg(generated_llm, MimicEnvCfg):
         subtask_configs.append(
             SubTaskConfig(
                 object_ref="object_1",
-                subtask_term_signal="object_grasped1",
+                subtask_term_signal="object_grasped_task1",
                 subtask_term_offset_range=(10, 20),
                 selection_strategy="nearest_neighbor_object",
                 selection_strategy_kwargs={"nn_k": 3},
@@ -61,7 +63,7 @@ class LLMIKAbsMimicEnvCfg(generated_llm, MimicEnvCfg):
         subtask_configs.append(
             SubTaskConfig(
                 object_ref="object_1",
-                subtask_term_signal="is_object_lifted1",
+                subtask_term_signal="is_object_lifted_task1",
                 subtask_term_offset_range=(10, 20),
                 selection_strategy="nearest_neighbor_object",
                 selection_strategy_kwargs={"nn_k": 3},
@@ -74,7 +76,7 @@ class LLMIKAbsMimicEnvCfg(generated_llm, MimicEnvCfg):
         subtask_configs.append(
             SubTaskConfig(
                 object_ref="object_2",
-                subtask_term_signal="reach_object2",
+                subtask_term_signal="object_reached_midgoal_task1",
                 subtask_term_offset_range=(10, 20),
                 selection_strategy="nearest_neighbor_object",
                 selection_strategy_kwargs={"nn_k": 3},
@@ -87,7 +89,98 @@ class LLMIKAbsMimicEnvCfg(generated_llm, MimicEnvCfg):
         subtask_configs.append(
             SubTaskConfig(
                 object_ref="object_1",
-                subtask_term_signal="object_stacked",
+                subtask_term_signal="reach_object2_task1",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="object_stacked_task1",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="reach_object_task2",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="object_grasped_task2",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="is_object_lifted_task2",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="object_reached_midgoal_task2",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="reach_object2_task2",
+                subtask_term_offset_range=(10, 20),
+                selection_strategy="nearest_neighbor_object",
+                selection_strategy_kwargs={"nn_k": 3},
+                action_noise=0.01,
+                num_interpolation_steps=5,
+                num_fixed_steps=0,
+                apply_noise_during_interpolation=False,
+            )
+        )
+        subtask_configs.append(
+            SubTaskConfig(
+                object_ref="object_1",
+                subtask_term_signal="object_stacked_task2",
                 subtask_term_offset_range=(10, 20),
                 selection_strategy="nearest_neighbor_object",
                 selection_strategy_kwargs={"nn_k": 3},

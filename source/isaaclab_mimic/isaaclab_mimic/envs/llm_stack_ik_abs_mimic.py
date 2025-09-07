@@ -21,8 +21,11 @@ class LLMIKAbsMimicEnv(ManagerBasedRLMimicEnv):
             env_ids = slice(None)
 
         # Retrieve end effector pose from the observation buffer
-        eef_pos = self.obs_buf["policy"]["eef_pos"][env_ids]
-        eef_quat = self.obs_buf["policy"]["eef_quat"][env_ids]
+        #eef_pos = self.obs_buf["policy"]["eef_pos"][env_ids]
+        #eef_quat = self.obs_buf["policy"]["eef_quat"][env_ids]
+
+        eef_pos = self.obs_buf["policy"]["ee_pos"][env_ids]
+        eef_quat = self.obs_buf["policy"]["ee_quat"][env_ids]
         # Quaternion format is w,x,y,z
         return PoseUtils.make_pose(eef_pos, PoseUtils.matrix_from_quat(eef_quat))
 
@@ -91,10 +94,28 @@ class LLMIKAbsMimicEnv(ManagerBasedRLMimicEnv):
             env_ids = slice(None)
 
         signals = dict()
-        subtask_terms = self.obs_buf["subtask_terms"]
-        signals["reach_object1"] = subtask_terms["reach_object1"][env_ids]
-        signals["object_grasped1"] = subtask_terms["object_grasped1"][env_ids]
-        signals["is_object_lifted1"] = subtask_terms["is_object_lifted1"][env_ids]
-        signals["reach_object2"] = subtask_terms["reach_object2"][env_ids]
-        signals["object_stacked"] = subtask_terms["object_stacked"][env_ids]
+      #  subtask_terms = self.obs_buf["subtask_terms"]
+        
+        # signals["reach_object1"] = subtask_terms["reach_object1"][env_ids]
+        # signals["object_grasped1"] = subtask_terms["object_grasped1"][env_ids]
+        # signals["is_object_lifted1"] = subtask_terms["is_object_lifted1"][env_ids]
+        # signals["reach_object2"] = subtask_terms["reach_object2"][env_ids]
+        # signals["object_stacked"] = subtask_terms["object_stacked"][env_ids]
+        
+        #multistep
+        subtask_terms = self.obs_buf["subtasks"]
+        signals["reach_object_task1"] = subtask_terms["reach_object_task1"][env_ids]
+        signals["object_grasped_task1"] = subtask_terms["object_grasped_task1"][env_ids]
+        signals["is_object_lifted_task1"]  = subtask_terms["is_object_lifted_task1"][env_ids]
+        signals["object_reached_midgoal_task1"]  = subtask_terms["object_reached_midgoal_task1"][env_ids]
+        signals["reach_object2_task1"]  = subtask_terms["reach_object2_task1"][env_ids]
+        signals["object_stacked_task1"]  = subtask_terms["object_stacked_task1"][env_ids]
+
+        #task part 2
+        signals["reach_object_task2"] = subtask_terms["reach_object_task2"][env_ids]
+        signals["object_grasped_task2"] = subtask_terms["object_grasped_task2"][env_ids]
+        signals["is_object_lifted_task2"] = subtask_terms["is_object_lifted_task2"][env_ids]
+        signals["object_reached_midgoal_task2"] = subtask_terms["object_reached_midgoal_task2"][env_ids]
+        signals["reach_object2_task2"] = subtask_terms["reach_object2_task2"][env_ids]
+        signals["object_stacked_task2"] =subtask_terms["object_stacked_task2"][env_ids]
         return signals

@@ -108,7 +108,7 @@ services:
     devices:
     - /dev/hidraw0:/dev/hidraw0
     - /dev/hidraw1:/dev/hidraw1
-    #- /dev/hidraw2:/dev/hidraw2
+    - /dev/hidraw2:/dev/hidraw2
 
   # This service adds a ROS2 Humble
   # installation on top of the base image
@@ -138,7 +138,7 @@ services:
     devices:
     - /dev/hidraw0:/dev/hidraw0
     - /dev/hidraw1:/dev/hidraw1
-    #- /dev/hidraw2:/dev/hidraw2
+    - /dev/hidraw2:/dev/hidraw2
     
 
 

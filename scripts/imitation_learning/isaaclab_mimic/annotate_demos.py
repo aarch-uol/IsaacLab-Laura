@@ -155,6 +155,7 @@ def main():
     dataset_file_handler = HDF5DatasetFileHandler()
     dataset_file_handler.open(args_cli.input_file)
     env_name = dataset_file_handler.get_env_name()
+    #env_name = ""
     episode_count = dataset_file_handler.get_num_episodes()
 
     if episode_count == 0:

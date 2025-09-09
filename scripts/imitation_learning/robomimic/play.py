@@ -72,6 +72,11 @@ if args_cli.enable_pinocchio:
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab.utils.logging_helper import LoggingHelper, ErrorType, LogType
 
+class RobotStateMessage:
+    joint_pos : list[float]
+    gripper_pos : list[float]
+    sm_state : int
+    time : float
 
 def rollout(policy, env, success_term, horizon, device):
     """Perform a single rollout of the policy in the environment, supporting sequence-based models."""
@@ -162,9 +167,16 @@ def rollout(policy, env, success_term, horizon, device):
         obs_dict, _, terminated, truncated, _ = env.step(actions_tensor)
         # Record trajectory - traj["next_obs"] should append the raw observation dictionary from env.step().
         traj["actions"].append(actions.tolist())
+        #print("Actions : " ,actions.tolist())
         traj["next_obs"].append(obs_dict["policy"])
        # print(f"Action Obs Pair Action : {actions} : next obs" , obs_dict["policy"])
+        robotStateMessage = RobotStateMessage()
+        robotStateMessage.joint_pos = actions[0].tolist()
+        robotStateMessage.gripper_pos = obs_dict["policy"]["gripper_pos"]
+        robotStateMessage.sm_state = 0
+        robotStateMessage.time = i
 
+        print("state message : ", robotStateMessage)
 
         # Check if rollout was successful
         if bool(success_term.func(env, **success_term.params)[0]):

@@ -109,6 +109,13 @@ class PolicyNode(Node):
             f"Real position received: positions={self.latest_real_position['positions']}"
         )
 
+class RobotStateMessage:
+    joint_pos : list[float]
+    gripper_pos : list[float]
+    sm_state : int
+    time : int
+
+
 def rollout(policy, env, success_term, horizon, device, logging, traj_logging, node):
     """Perform a single rollout of the policy in the environment.
 
@@ -195,8 +202,9 @@ def rollout(policy, env, success_term, horizon, device, logging, traj_logging, n
 
         # publish the action to ros2 topic
         # --- Publish to ROS2 ---
-        action_msg = Float32MultiArray()
-        action_msg.data = actions[0].tolist()
+
+        robot_state_message  = RobotStateMessage()
+        robot_state_message.joint_pos = actions[0].tolist()
         node.action_publisher.publish(action_msg)
         node.get_logger().info(f"Published actions: {action_msg.data}")
        # print("ROS2 spin complete")

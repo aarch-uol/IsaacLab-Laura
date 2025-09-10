@@ -80,9 +80,9 @@ def reach_object(
 
 def object_grasped(
     env: ManagerBasedRLEnv,
-    robot_cfg: SceneEntityCfg,
-    ee_frame_cfg: SceneEntityCfg,
-    object_cfg: SceneEntityCfg,
+    robot_cfg: SceneEntityCfg= SceneEntityCfg("robot"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    object_cfg: SceneEntityCfg= SceneEntityCfg("object"),
     diff_threshold: float = 0.06,
     gripper_open_val: torch.tensor = torch.tensor([0.04]),
     gripper_threshold: float = 0.005,
@@ -270,6 +270,16 @@ def position_command_error(
     error = torch.sub(des_pos_b, object_pos_b)
     #print("position error : ", error)
     return error
+
+def get_joint_pos(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """The joint positions of the asset.
+
+    Note: Only the joints configured in :attr:`asset_cfg.joint_ids` will have their positions returned.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+    print(asset.data.joint_pos[:, asset_cfg.joint_ids])
+    return asset.data.joint_pos[:, asset_cfg.joint_ids]
 
 def logstep(
         env: ManagerBasedRLEnv,

@@ -22,19 +22,19 @@ import argparse
 from isaaclab.app import AppLauncher
 
 # add argparse arguments
-# parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
-# parser.add_argument(
-#     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
-# )
-# parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-# # append AppLauncher cli args
-# AppLauncher.add_app_launcher_args(parser)
-# # parse the arguments
-# args_cli = parser.parse_args()
+parser = argparse.ArgumentParser(description="Pick and lift state machine for lift environments.")
+parser.add_argument(
+    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+)
+parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+# append AppLauncher cli args
+AppLauncher.add_app_launcher_args(parser)
+# parse the arguments
+args_cli = parser.parse_args()
 
-# launch omniverse app
-#app_launcher = AppLauncher(headless=args_cli.headless)
-#simulation_app = app_launcher.app
+#launch omniverse app
+app_launcher = AppLauncher(headless=args_cli.headless)
+simulation_app = app_launcher.app
 
 """Rest everything else."""
 
@@ -51,6 +51,43 @@ from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvC
 from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
 
 from isaaclab.controllers import OperationalSpaceController, OperationalSpaceControllerCfg
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float32MultiArray
+from sensor_msgs.msg import JointState
+from robot_state_message.msg import RobotState
+
+class PubMessage:
+    joint_pos : Float32MultiArray
+    gripper_pos : Float32MultiArray
+    sm_state : int=0
+    time : int = 0
+
+class RobotStateMessage:
+    def __init__(self, joint_pos: list[float], gripper_pos : list[float], sm_state :int = 0 , time : int =0):
+        self.joint_pos = joint_pos
+        self.gripper_pos = gripper_pos
+        self.sm_state = sm_state
+        self.time = time
+        self.pubmessage : PubMessage = self._makeMessage()
+    
+    def _makeMessage(self):
+        #move this somewhere else - this wil convert message types
+        pubmessage = RobotState()
+        pubmessage.joint_pos = self.joint_pos
+        pubmessage.gripper_pos = self.gripper_pos
+        pubmessage.sm_state = self.sm_state
+        pubmessage.time = self.time
+        return pubmessage
+    
+
+class PolicyNode(Node):
+    def __init__(self):
+        super().__init__('robot_states')
+        self.action_publisher = self.create_publisher(RobotState, '/robot_states', 10)
+
+
 
 # initialize warp
 wp.init()
@@ -317,7 +354,11 @@ def main():
                 torch.cat([object_position, desired_orientation], dim=-1),
                 torch.cat([desired_position, desired_orientation], dim=-1),
             )
-         
+            robot_pos = env.unwrapped.scene["robot"]
+            joint_pos = robot_pos.data.joint_pos[:, :]
+            print(joint_pos)
+
+            print("Joint obs : ", env.unwrapped.observations['policy']['joint_state'])
             
            # print(f"End of loop : {actions.shape}")
             #print("Action space shape:", env.unwrapped.action_space.shape)

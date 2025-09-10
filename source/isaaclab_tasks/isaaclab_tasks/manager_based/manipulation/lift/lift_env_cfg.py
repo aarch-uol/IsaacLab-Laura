@@ -97,6 +97,7 @@ class CommandsCfg:
                 yaw=(0.0, 0.0),
             ),
             make_quat_unique=False,
+    )
 
 
 @configclass

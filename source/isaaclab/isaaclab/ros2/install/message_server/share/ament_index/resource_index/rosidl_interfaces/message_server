@@ -1,0 +1,4 @@
+srv/GetLatestMessage.idl
+srv/GetLatestMessage.srv
+srv/GetLatestMessage_Request.msg
+srv/GetLatestMessage_Response.msg

@@ -1,0 +1,8 @@
+msg/RobotState.idl
+msg/RobotState.msg
+msg/RobotStateMessage.idl
+msg/RobotStateMessage.msg
+srv/ReturnRobotState.idl
+srv/ReturnRobotState.srv
+srv/ReturnRobotState_Request.msg
+srv/ReturnRobotState_Response.msg

@@ -1,0 +1,27 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from robot_state_message/srv/ReturnRobotState.srv
+// generated code does not contain a copyright notice
+
+
+module robot_state_message {
+  module srv {
+    struct ReturnRobotState_Request {
+      sequence<float> joint_pos;
+
+      sequence<float> gripper_pos;
+
+      int32 sm_state;
+
+      int32 time;
+    };
+    struct ReturnRobotState_Response {
+      sequence<float> joint_pos;
+
+      sequence<float> gripper_pos;
+
+      int32 sm_state;
+
+      int32 time;
+    };
+  };
+};

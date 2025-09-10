@@ -1,0 +1,18 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from robot_state_message/msg/RobotState.msg
+// generated code does not contain a copyright notice
+
+
+module robot_state_message {
+  module msg {
+    struct RobotState {
+      sequence<float> joint_pos;
+
+      sequence<float> gripper_pos;
+
+      int32 sm_state;
+
+      int32 time;
+    };
+  };
+};

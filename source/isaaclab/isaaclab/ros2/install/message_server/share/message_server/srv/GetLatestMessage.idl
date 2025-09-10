@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from message_server/srv/GetLatestMessage.srv
+// generated code does not contain a copyright notice
+
+
+module message_server {
+  module srv {
+    struct GetLatestMessage_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct GetLatestMessage_Response {
+      string latest_message;
+    };
+  };
+};

@@ -119,6 +119,7 @@ class DataGenInfoPool:
             prev_subtask_term_ind = 0
             eef_subtask_boundaries = []
             for subtask_term_signal_name in self.subtask_term_signal_names[eef_name]:
+                print(f"assessing {subtask_term_signal_name}")
                 if subtask_term_signal_name is None:
                     # None refers to the final subtask, so finishes at end of demo
                     subtask_term_ind = ep_grp["actions"].shape[0]
@@ -181,6 +182,7 @@ class DataGenInfoPool:
             return
 
         for episode_name in episode_names:
+            print(f"Loading Episode {episode_name}")
             if select_demo_keys is not None and episode_name not in select_demo_keys:
                 continue
             episode = dataset_file_handler.load_episode(episode_name, self.device)

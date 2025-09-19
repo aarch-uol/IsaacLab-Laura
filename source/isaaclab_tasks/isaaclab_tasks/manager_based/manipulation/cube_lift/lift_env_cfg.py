@@ -139,7 +139,7 @@ class ObservationsCfg():
         eef_pos = ObsTerm(func=mdp.ee_frame_pos)
         eef_quat = ObsTerm(func=mdp.ee_frame_quat)
         gripper_pos = ObsTerm(func=mdp.gripper_pos)
-        obstacle_pos = ObsTerm(func=mdp.obstacle_position_in_robot_root_frame)
+        #obstacle_pos = ObsTerm(func=mdp.obstacle_position_in_robot_root_frame)
         #robot_pose=ObsTerm(func=mdp.robot_pose)
         #object_to_target = ObsTerm(func=mdp.position_command_error)
         #norm_error = ObsTerm(func=mdp.object_goal_norm_error)

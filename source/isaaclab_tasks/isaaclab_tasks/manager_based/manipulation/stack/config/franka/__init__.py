@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -7,10 +7,13 @@ import os
 
 from . import (
     agents,
+    bin_stack_ik_rel_env_cfg,
     stack_ik_abs_env_cfg,
     stack_ik_rel_blueprint_env_cfg,
     stack_ik_rel_env_cfg,
+    stack_ik_rel_env_cfg_skillgen,
     stack_ik_rel_instance_randomize_env_cfg,
+    #stack_ik_rel_visuomotor_cosmos_env_cfg,
     stack_ik_rel_visuomotor_env_cfg,
     stack_joint_pos_env_cfg,
     stack_joint_pos_instance_randomize_env_cfg,
@@ -52,9 +55,9 @@ gym.register(
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={
         "env_cfg_entry_point": stack_ik_rel_env_cfg.FrankaCubeStackEnvCfg,
-        "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_transformer.json"),
+        "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_low_dim.json"),
     },
-    disable_env_checker=False,
+    disable_env_checker=True,
 )
 
 gym.register(
@@ -66,6 +69,16 @@ gym.register(
     },
     disable_env_checker=True,
 )
+
+# gym.register(
+#     id="Isaac-Stack-Cube-Franka-IK-Rel-Visuomotor-Cosmos-v0",
+#     entry_point="isaaclab.envs:ManagerBasedRLEnv",
+#     kwargs={
+#         "env_cfg_entry_point": stack_ik_rel_visuomotor_cosmos_env_cfg.FrankaCubeStackVisuomotorCosmosEnvCfg,
+#         "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_image_cosmos.json"),
+#     },
+#     disable_env_checker=True,
+# )
 
 gym.register(
     id="Isaac-Stack-Cube-Franka-IK-Abs-v0",
@@ -94,17 +107,23 @@ gym.register(
     },
     disable_env_checker=True,
 )
-# from .franka_stack_ik_abs_mimic_env import FrankaCubeStackIKAbsMimicEnv
-# from .franka_stack_ik_abs_mimic_env_cfg import FrankaCubeStackIKAbsMimicEnvCfg
-# from .franka_stack_ik_rel_blueprint_mimic_env_cfg import FrankaCubeStackIKRelBlueprintMimicEnvCfg
-# from .franka_stack_ik_rel_mimic_env import FrankaCubeStackIKRelMimicEnv
-# from .franka_stack_ik_rel_mimic_env_cfg import FrankaCubeStackIKRelMimicEnvCfg
-# from .franka_stack_ik_rel_visuomotor_mimic_env_cfg import FrankaCubeStackIKRelVisuomotorMimicEnvCfg
-# gym.register(
-#     id="Isaac-Stack-Cube-Franka-IK-Rel-Mimic",
-#     entry_point="isaaclab_mimic.envs:FrankaCubeStackIKRelMimicEnv",
-#     kwargs={
-#         "env_cfg_entry_point": franka_stack_ik_rel_mimic_env_cfg.FrankaCubeStackIKRelMimicEnvCfg,
-#     },
-#     disable_env_checker=True,
-# )
+
+gym.register(
+    id="Isaac-Stack-Cube-Franka-IK-Rel-Skillgen-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    kwargs={
+        "env_cfg_entry_point": stack_ik_rel_env_cfg_skillgen.FrankaCubeStackSkillgenEnvCfg,
+        "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_low_dim.json"),
+    },
+    disable_env_checker=True,
+)
+
+gym.register(
+    id="Isaac-Stack-Cube-Bin-Franka-IK-Rel-Mimic-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    kwargs={
+        "env_cfg_entry_point": bin_stack_ik_rel_env_cfg.FrankaBinStackEnvCfg,
+        "robomimic_bc_cfg_entry_point": os.path.join(agents.__path__[0], "robomimic/bc_rnn_low_dim.json"),
+    },
+    disable_env_checker=True,
+)

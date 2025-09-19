@@ -74,7 +74,7 @@ from isaaclab_mimic.datagen.generation import env_loop, setup_async_generation, 
 from isaaclab_mimic.datagen.utils import get_env_name_from_dataset, setup_output_paths
 
 import isaaclab_tasks  # noqa: F401
-
+import chills.tasks
 
 def main():
     num_envs = args_cli.num_envs
@@ -82,7 +82,7 @@ def main():
     # Setup output paths and get env name
     output_dir, output_file_name = setup_output_paths(args_cli.output_file)
     env_name = args_cli.task or get_env_name_from_dataset(args_cli.input_file)
-
+    print("setup Env complete")
     # Configure environment
     env_cfg, success_term = setup_env_config(
         env_name=env_name,

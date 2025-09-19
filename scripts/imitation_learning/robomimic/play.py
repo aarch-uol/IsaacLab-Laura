@@ -229,7 +229,7 @@ def main():
     print("-----------Starting -------")
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
-        loghelper.startEpoch(trial)
+       # loghelper.startEpoch(trial)
         terminated, traj = rollout(policy, env, success_term, args_cli.horizon, device)
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")

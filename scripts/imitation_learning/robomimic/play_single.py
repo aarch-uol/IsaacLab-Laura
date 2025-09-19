@@ -92,7 +92,7 @@ def rollout(policy, env, success_term, horizon, device, logging, traj_logging):
     obs_dict, _ = env.reset()
     traj = dict(actions=[], obs=[], next_obs=[], sub_obs=[], uncertainties=[], obstacles =[])
 
-    safety_logic = SafetyLogic(obs_dict["policy"]["obstacle_pos"], 0.3)
+    #safety_logic = SafetyLogic(obs_dict["policy"]["obstacle_pos"], 0.3)
     
     # try:
     #     print("obstacle initial state: ", env.cfg.scene.obstacle.init_state)
@@ -132,8 +132,8 @@ def rollout(policy, env, success_term, horizon, device, logging, traj_logging):
                 (actions + 1) * (args_cli.norm_factor_max - args_cli.norm_factor_min)
             ) / 2 + args_cli.norm_factor_min
 
-        uncertainty_dict = safety_logic._MC_dropout_uncertainty(policy, obs)
-        traj['uncertainties'].append(uncertainty_dict['variance'])
+        #uncertainty_dict = safety_logic._MC_dropout_uncertainty(policy, obs)
+        #traj['uncertainties'].append(uncertainty_dict['variance'])
 
         actions = torch.from_numpy(actions).to(device=device).view(1, env.action_space.shape[1])
 
@@ -147,10 +147,10 @@ def rollout(policy, env, success_term, horizon, device, logging, traj_logging):
 
         ######## EVAL #######
         
-        collision_exp, dist = safety_logic.exp_static_coll(obs["eef_pos"])
+        #collision_exp, dist = safety_logic.exp_static_coll(obs["eef_pos"])
       
       #  print_table(["Step", "Variance", "Collision dist", "Safety violation"], [i, uncertainty_dict['variance'].data[-1], dist, collision_exp])
-        logging.write_to_log([i, obs["joint_pos"][-1][-2].item() ,uncertainty_dict['variance'].data[-1], dist, collision_exp])
+        #logging.write_to_log([i, obs["joint_pos"][-1][-2].item() ,uncertainty_dict['variance'].data[-1], dist, collision_exp])
       
         traj_logging.add_data(i, obs["eef_pos"][0], obs["joint_vel"][0][-1])
         # Check if rollout was successful

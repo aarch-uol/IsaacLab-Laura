@@ -105,10 +105,10 @@ services:
     entrypoint: bash
     stdin_open: true
     tty: true
-    devices:
-    - /dev/hidraw0:/dev/hidraw0
-    - /dev/hidraw1:/dev/hidraw1
-    - /dev/hidraw2:/dev/hidraw2
+    # devices:
+    # - /dev/hidraw0:/dev/hidraw0
+    # - /dev/hidraw1:/dev/hidraw1
+    # - /dev/hidraw2:/dev/hidraw2
 
   # This service adds a ROS2 Humble
   # installation on top of the base image
@@ -135,12 +135,38 @@ services:
     entrypoint: bash
     stdin_open: true
     tty: true
-    devices:
-    - /dev/hidraw0:/dev/hidraw0
-    - /dev/hidraw1:/dev/hidraw1
-    - /dev/hidraw2:/dev/hidraw2
+    # devices:
+    # - /dev/hidraw0:/dev/hidraw0
+    # - /dev/hidraw1:/dev/hidraw1
+    # - /dev/hidraw2:/dev/hidraw2
     
-
+  isaac-lab-curobo:
+    profiles: [ "curobo" ]
+    env_file:
+      - .env.base
+      - .env.curobo
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.curobo
+      args:
+        # ROS2_APT_PACKAGE will default to NONE. This is to
+        # avoid a warning message when building only the base profile
+        # with the .env.base file
+        - ROS2_APT_PACKAGE=${ROS2_APT_PACKAGE:-NONE}
+    image: isaac-lab-curobo
+    container_name: isaac-lab-curobo
+    environment: *default-isaac-lab-environment
+    volumes: *default-isaac-lab-volumes
+    network_mode: host
+    deploy: *default-isaac-lab-deploy
+    # This is the entrypoint for the container
+    entrypoint: bash
+    stdin_open: true
+    tty: true
+    # devices:
+    # - /dev/hidraw0:/dev/hidraw0
+    # - /dev/hidraw1:/dev/hidraw1
+    # - /dev/hidraw2:/dev/hidraw2
 
  
 

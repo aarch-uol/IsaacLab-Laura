@@ -358,7 +358,7 @@ def main():
             joint_pos = robot_pos.data.joint_pos[:, :]
             print(joint_pos)
 
-            print("Joint obs : ", env.unwrapped.observations['policy']['joint_state'])
+            #print("Joint obs : ", env.unwrapped.observations['policy']['joint_state'])
             
            # print(f"End of loop : {actions.shape}")
             #print("Action space shape:", env.unwrapped.action_space.shape)

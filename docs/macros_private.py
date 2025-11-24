@@ -13,7 +13,7 @@ WANDB_ENTITY = "aarch-uol"
 
 # wandb api key (obtain from https://wandb.ai/authorize)
 # alternatively, set up wandb from terminal with `wandb login`
-WANDB_API_KEY = "f1bb6b7a94c7431472882c94835036d0156eb7b6"
+WANDB_API_KEY = "77c7513d6623f823531c87f1e2b4feb0ee0ba039"
 
 try:
     from robomimic.macros_private import *

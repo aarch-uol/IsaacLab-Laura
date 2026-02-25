@@ -331,7 +331,7 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters,  
     certain_joint_positions = []
 
     ###### SET UP RECOVERY   ####
-    use_recovery=False
+    use_recovery=False 
     recovery_activated_during_rollout = 0
     print("rollout recovery enabled ? : ", use_recovery)
     
@@ -344,7 +344,7 @@ def rollout_ensemble(ensemble, env, success_term, horizon, device, parameters,  
     max_recovery_steps = 500  # Safety limit for recovery mode
 
     ##### CONFIG RECOVERY CONTROLLER ####
-    backup_controller  = BackupController(env, device, tasktype="lift")
+    backup_controller  = BackupController(env, device, tasktype="insert")
     state_guess = 0
     last_state = 0
     recovery_mode = False
@@ -597,7 +597,7 @@ def main():
     # pick_place_ensemble_30 = load_ensemble(device, ensemble_path='scripts/imitation_learning/robomimic/pick_place_ensemble_30_paths.txt')
    # pick_place_ensemble = load_ensemble(device, ensemble_path='docs/lift/Dev-IK-Rel-v1/best_models/best_model_paths.txt')
     
-    pick_place_ensemble = load_ensemble(device, ensemble_path='scripts/imitation_learning/robomimic/insert_paths.txt')
+    pick_place_ensemble = load_ensemble(device, ensemble_path='scripts/imitation_learning/robomimic/low_insert_paths.txt')
     
     # Lets set these to the 0.99 confidence
     parameters = {
@@ -639,6 +639,45 @@ def main():
             },
 
         },
+        'vial_insert': {
+            0 : {
+                "confidence_level": 5.3916760000000016e-05,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+            1 : {
+                "confidence_level": 5.681572000000001e-05,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+            2 : {
+                "confidence_level": 5.7037600000000004e-05,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+            3 : {
+                "confidence_level": 0.00012664534000000001,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+            4 : {
+                "confidence_level": 5.852008e-05,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+            5 : {
+                "confidence_level": 8.595834000000004e-05,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+            6 : {
+                "confidence_level": 1.57e-08,
+                "window_size": 10,
+                "max_peaks": 8
+            },
+
+
+        }
     }
     
 
@@ -684,7 +723,7 @@ def main():
     for trial in range(args_cli.num_rollouts):
         print(f"[INFO] Starting trial {trial}")
 
-        terminated, traj, recovery_activated_during_rollout, failure = rollout_ensemble(pick_place_ensemble[:args_cli.ensemble_size], env, success_term, args_cli.horizon, device, parameters['beaker_lift'], use_recovery=args_cli.use_recovery, rollout_num=trial)
+        terminated, traj, recovery_activated_during_rollout, failure = rollout_ensemble(pick_place_ensemble[:args_cli.ensemble_size], env, success_term, args_cli.horizon, device, parameters['vial_insert'], use_recovery=args_cli.use_recovery, rollout_num=trial)
         # save the uncertainties
         print("Finished rollout, recovery needed : ", recovery_activated_during_rollout)
         #print("actions shape : ", traj['actions'])

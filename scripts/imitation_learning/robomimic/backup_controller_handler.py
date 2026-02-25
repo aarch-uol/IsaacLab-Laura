@@ -41,7 +41,7 @@ class BackupController:
                 print(f"[DEBUG] Using Place Backup Controller")
                 return BackupControllerPlaceSM(dt=0.01*2, num_envs=self.num_envs, position_threshold=0.02, device='cuda', offset = torch.tensor([[-0.1, 0, 0.1]], device='cuda:0'), goal_quat = self.object_goal_rot, goal_pos= self.object_goal_pos)
             case "insert":
-                return BackupControllerInsertSM(0.01*2, self.num_envs,'cuda' , 0.02)
+                return BackupControllerInsertSM(dt=0.01*2, num_envs=self.num_envs, position_threshold=0.02, device='cuda', offset = torch.tensor([[-0.1, 0, 0.1]], device='cuda:0'), goal_quat = self.object_goal_rot, goal_pos= self.object_goal_pos)
             case _:
                 raise ValueError(f"Unknown task type {self.tasktype} for backup controller")
 
@@ -71,7 +71,8 @@ class BackupController:
                 return self.env.unwrapped.command_manager.get_command("object_pose")
 
             case "insert":
-                return self.env.unwrapped.scene["vialrack"].data.root_pose_w
+                goal_rot = self.env.unwrapped.command_manager.get_command("object_pose")
+                return self.env.unwrapped.command_manager.get_command("object_pose")
 
     def reset(self):
         self.backup_controller.reset_idx()

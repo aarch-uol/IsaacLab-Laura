@@ -105,7 +105,7 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=[0.0, 0.0, 0.0]),
         )
 
-        self.terminations.success= DoneTerm(func=mdp.object_inserted_upright, params={"lower_object_cfg": SceneEntityCfg("vialrack")})
+        self.terminations.success= DoneTerm(func=mdp.object_inserted_upright, params={"lower_object_cfg": SceneEntityCfg("vialrack"), "upright_good_deg": 22.5})
 
         #self.terminations.success=DoneTerm(func=mdp.object_stacked_upright, params={"lower_object_cfg": SceneEntityCfg("scale")})
 

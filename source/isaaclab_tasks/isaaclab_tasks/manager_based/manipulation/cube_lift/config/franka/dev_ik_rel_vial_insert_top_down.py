@@ -76,25 +76,25 @@ class FrankaDevEnvCfg(dev_env_cfg.FrankaDevEnvCfg):
                 "asset3_cfg" : SceneEntityCfg("vialrack")
             },
         )
-
+        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         #self.scene.robot = UR10e_ROBOTIQ_GRIPPER_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-        self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
-            prim_path="{ENV_REGEX_NS}/Robot",
-            init_state=ArticulationCfg.InitialStateCfg(
-                joint_pos={
+        # self.scene.robot = FRANKA_PANDA_HIGH_PD_CFG.replace(
+        #     prim_path="{ENV_REGEX_NS}/Robot",
+        #     init_state=ArticulationCfg.InitialStateCfg(
+        #         joint_pos={
                     
-                    "panda_joint1":  0.3281,
-                    "panda_joint2": -0.3684,   
-                    "panda_joint3":  -0.2787,
-                    "panda_joint4": -2.6138,  
-                    "panda_joint5":  -2.7527,
-                    "panda_joint6":  2.4991,  #  +90° → keeps hand level
-                    "panda_joint7":  0.3331,
-                    "panda_finger_joint1": 0.04,   # open gripper
-                    "panda_finger_joint2": 0.04,
-                }
-            ),
-        )
+        #             "panda_joint1":  0.3281,
+        #             "panda_joint2": -0.3684,   
+        #             "panda_joint3":  -0.2787,
+        #             "panda_joint4": -2.6138,  
+        #             "panda_joint5":  -2.7527,
+        #             "panda_joint6":  2.4991,  #  +90° → keeps hand level
+        #             "panda_joint7":  0.3331,
+        #             "panda_finger_joint1": 0.04,   # open gripper
+        #             "panda_finger_joint2": 0.04,
+        #         }
+        #     ),
+        # )
         # replace with relative position controller 
         self.actions.arm_action = DifferentialInverseKinematicsActionCfg(
             asset_name="robot",

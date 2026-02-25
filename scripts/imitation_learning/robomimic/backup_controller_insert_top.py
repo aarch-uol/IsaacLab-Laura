@@ -124,7 +124,8 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(current_object_pose[tid])
         pose_rot = wp.transform_get_rotation(goal_quat[tid])
         # Go to a safe height ABOVE the object (z + 0.15m) with x offset
-        safe_above_pos = wp.vec3(pose_pos.x, pose_pos.y+0.1, pose_pos.z + 0.20)
+        # left this in, but no offset due to new orientation
+        safe_above_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z+0.15)
         des_ee_pose[tid] = wp.transform(safe_above_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN  # Open gripper in preparation
         if distance_below_threshold(
@@ -144,20 +145,16 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(current_object_pose[tid])
         pose_rot = wp.transform_get_rotation(goal_quat[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x, pose_pos.y+0.1, pose_pos.z) #sample vial + 0.04
+        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z) #sample vial + 0.04
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
         pos_ok = distance_below_threshold(
             wp.transform_get_translation(ee_pose[tid]),
             wp.transform_get_translation(des_ee_pose[tid]),
-            0.02,
+            0.01,
         )
-        rot_ok = rotation_within_threshold(
-            wp.transform_get_rotation(ee_pose[tid]),
-            wp.transform_get_rotation(goal_quat[tid]),
-            float(0.05),  # ~8.6 degrees tolerance
-        )
-        if pos_ok and rot_ok:
+        
+        if pos_ok:
             if sm_wait_time[tid] >= BackupSMWaitTime.APPROACH_OBJECT:
                 # move to next state and reset wait time
                 print("[SM_INFO] : Moving from APPR_OBJ to GRASP_OBJECT")
@@ -168,7 +165,7 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(current_object_pose[tid])
         pose_rot = wp.transform_get_rotation(goal_quat[tid])
         # Stay at the approach position while closing gripper
-        offset_pos = wp.vec3(pose_pos.x, pose_pos.y+0.1, pose_pos.z)
+        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
@@ -184,7 +181,7 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(current_object_pose[tid])
         pose_rot = wp.transform_get_rotation(goal_quat[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x, pose_pos.y+0.1, 0.25) #sample vial + 0.04
+        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, 0.25) #sample vial + 0.04
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
@@ -223,7 +220,7 @@ def infer_state_machine(
         #print("[SM] Approach above goal")
         offset_pos = wp.transform_get_translation(final_object_pose[tid])
         offset_rot = wp.transform_get_rotation(goal_quat[tid])
-        safe_above_pos = wp.vec3(offset_pos.x, offset_pos.y + 0.1, offset_pos.z + 0.25)
+        safe_above_pos = wp.vec3(offset_pos.x, offset_pos.y, offset_pos.z+0.15)
         #offset_pos = wp.vec3(offset_pos.x, offset_pos.y, offset_pos.z)  # raise 25 cm 
         above_target_pose = wp.transform(safe_above_pos, offset_rot)
         #above_target_pose = wp.transform_multiply(new_offset, final_object_pose[tid])
@@ -259,7 +256,8 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(goal_quat[tid])
         # Apply offset in x-direction (5 cm = 0.05 m)
-        offset_pos = wp.vec3(pose_pos.x, pose_pos.y+0.1, pose_pos.z+0.07)
+        # tune the z offset here ?
+        offset_pos = wp.vec3(pose_pos.x, pose_pos.y, pose_pos.z+0.02)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.CLOSE
         # wait for a while
@@ -278,7 +276,7 @@ def infer_state_machine(
         pose_pos = wp.transform_get_translation(final_object_pose[tid])
         pose_rot = wp.transform_get_rotation(goal_quat[tid])
         # Stay at the approach position while closing gripper
-        offset_pos = wp.vec3(pose_pos.x , pose_pos.y + 0.1, pose_pos.z+0.01)
+        offset_pos = wp.vec3(pose_pos.x , pose_pos.y, pose_pos.z+0.02)
         des_ee_pose[tid] = wp.transform(offset_pos, pose_rot)
         gripper_state[tid] = GripperState.OPEN
         # wait for a while

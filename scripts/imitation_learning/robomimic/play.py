@@ -89,6 +89,8 @@ def rollout(policy, env, success_term, horizon, device):
     """
     policy.start_episode()
     obs_dict, _ = env.reset()
+    print("[INFO] Policy expected obs keys:", policy)
+    
     traj = dict(actions=[], obs=[], next_obs=[])
 
     for i in range(horizon):
@@ -178,6 +180,8 @@ def main():
         results.append(terminated)
         print(f"[INFO] Trial {trial}: {terminated}\n")
 
+    print(f"\n Environment summary : {env}")
+    # Print results
     print(f"\nSuccessful trials: {results.count(True)}, out of {len(results)} trials")
     print(f"Success rate: {results.count(True) / len(results)}")
     print(f"Trial Results: {results}\n")

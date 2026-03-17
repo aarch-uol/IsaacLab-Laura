@@ -25,7 +25,7 @@ from isaaclab.app import AppLauncher
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Tutorial on using the differential IK controller.")
 parser.add_argument("--robot", type=str, default="franka_panda", help="Name of the robot.")
-parser.add_argument("--num_envs", type=int, default=128, help="Number of environments to spawn.")
+parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to spawn.")
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -49,6 +49,7 @@ from isaaclab.scene import InteractiveScene, InteractiveSceneCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 from isaaclab.utils.math import subtract_frame_transforms
+from isaaclab.assets import RigidObjectCfg, ArticulationCfg
 
 ##
 # Pre-defined configs
@@ -82,7 +83,21 @@ class TableTopSceneCfg(InteractiveSceneCfg):
 
     # articulation
     if args_cli.robot == "franka_panda":
-        robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        robot = FRANKA_PANDA_HIGH_PD_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot", init_state=ArticulationCfg.InitialStateCfg(
+                joint_pos={
+                    
+                    "panda_joint1":  0.3281,
+                    "panda_joint2": -0.3684,   
+                    "panda_joint3":  -0.2787,
+                    "panda_joint4": -2.6138,  
+                    "panda_joint5":  -2.7527,
+                    "panda_joint6":  2.4991,  #  +90° → keeps hand level
+                    "panda_joint7":  0.3331,
+                    "panda_finger_joint1": 0.04,   # open gripper
+                    "panda_finger_joint2": 0.04,
+                }
+            ),
+        )
     elif args_cli.robot == "ur10":
         robot = UR10_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
     else:
@@ -108,7 +123,7 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     # Define goals for the arm
     ee_goals = [
         [0.5, 0.5, 0.7, 0.707, 0, 0.707, 0],
-        [0.5, -0.4, 0.6, 0.707, 0.707, 0.0, 0.0],
+        [0.5206, 0.0096, 0.3751, 0.6664,  0.0360,  0.7414, -0.0705],
         [0.5, 0, 0.5, 0.0, 1.0, 0.0, 0.0],
     ]
     ee_goals = torch.tensor(ee_goals, device=sim.device)
@@ -141,7 +156,7 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     # Simulation loop
     while simulation_app.is_running():
         # reset
-        if count % 150 == 0:
+        if count % 300 == 0:
             # reset time
             count = 0
             # reset joint state

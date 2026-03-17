@@ -133,7 +133,7 @@ def randomize_rigid_body_scale(
 
             # set the new scale
             scale_spec.default = Gf.Vec3f(*rand_samples[i])
-
+            print(f"Set object scale : {rand_samples[i]}")
             # ensure the operation is done in the right ordering if we created the scale attribute.
             # otherwise, we assume the scale attribute is already in the right order.
             # note: by default isaac sim follows this ordering for the transform stack so any asset
@@ -1093,6 +1093,135 @@ def reset_root_state_uniform(
     asset.write_root_pose_to_sim(torch.cat([positions, orientations], dim=-1), env_ids=env_ids)
     asset.write_root_velocity_to_sim(velocities, env_ids=env_ids)
 
+def reset_multiple_root_state_uniform(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor,
+    pose_range: dict[str, tuple[float, float]],
+    velocity_range: dict[str, tuple[float, float]],
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    asset2_cfg: SceneEntityCfg=SceneEntityCfg("stirplate"),
+   # asset3_cfg: SceneEntityCfg=SceneEntityCfg("scale")
+):
+    """Reset the asset root state to a random position and velocity uniformly within the given ranges.
+
+    This function randomizes the root position and velocity of the asset.
+
+    * It samples the root position from the given ranges and adds them to the default root position, before setting
+      them into the physics simulation.
+    * It samples the root orientation from the given ranges and sets them into the physics simulation.
+    * It samples the root velocity from the given ranges and sets them into the physics simulation.
+
+    The function takes a dictionary of pose and velocity ranges for each axis and rotation. The keys of the
+    dictionary are ``x``, ``y``, ``z``, ``roll``, ``pitch``, and ``yaw``. The values are tuples of the form
+    ``(min, max)``. If the dictionary does not contain a key, the position or velocity is set to zero for that axis.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: RigidObject | Articulation = env.scene[asset_cfg.name]
+    asset2: RigidObject | Articulation = env.scene[asset2_cfg.name]
+   # asset3: RigidObject | Articulation = env.scene[asset3_cfg.name]
+    
+    # get default root state
+    root_states = asset.data.default_root_state[env_ids].clone()
+    root_states2 = asset2.data.default_root_state[env_ids].clone()
+    #root_states3 = asset3.data.default_root_state[env_ids].clone()
+    # poses
+    range_list = [pose_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
+    ranges = torch.tensor(range_list, device=asset.device)
+    #print(f"ranges : {ranges}")
+    rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device)
+
+    positions = root_states[:, 0:3] + env.scene.env_origins[env_ids] + rand_samples[:, 0:3]
+    #print(f"positions : ", positions)
+   # goal_pose = root_states3[:, 0:3] + env.scene.env_origins[env_ids] + rand_samples[:, 0:3]
+
+    orientations_delta = math_utils.quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
+    orientations = math_utils.quat_mul(root_states[:, 3:7], orientations_delta)
+    orientations2_delta = math_utils.quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
+    orientations2 = math_utils.quat_mul(root_states2[:, 3:7], orientations_delta)
+   # orientations3_delta = math_utils.quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
+    #orientations3 = math_utils.quat_mul(root_states3[:, 3:7], orientations_delta)
+    # velocities
+    range_list = [velocity_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
+    ranges = torch.tensor(range_list, device=asset.device)
+    rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device)
+
+    velocities = root_states[:, 7:13] + rand_samples
+    positions[:,2] += 0.06
+    # set into the physics simulation
+    asset.write_root_pose_to_sim(torch.cat([positions, orientations], dim=-1), env_ids=env_ids)
+    asset.write_root_velocity_to_sim(velocities, env_ids=env_ids)
+        # remote iks plate offset
+    positions[:,0] += 0.04
+    positions[:,2] -= 0.06
+    asset2.write_root_pose_to_sim(torch.cat([positions, orientations2], dim=-1), env_ids=env_ids)
+    asset2.write_root_velocity_to_sim(velocities, env_ids=env_ids)
+   # asset3.write_root_pose_to_sim(torch.cat([goal_pose, orientations3], dim=-1), env_ids=env_ids)
+
+def reset_place_root_state_uniform(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor,
+    pose_range: dict[str, tuple[float, float]],
+    velocity_range: dict[str, tuple[float, float]],
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    asset2_cfg: SceneEntityCfg=SceneEntityCfg("stirplate"),
+    asset3_cfg: SceneEntityCfg=SceneEntityCfg("scale")
+):
+    """Reset the asset root state to a random position and velocity uniformly within the given ranges.
+
+    This function randomizes the root position and velocity of the asset.
+
+    * It samples the root position from the given ranges and adds them to the default root position, before setting
+      them into the physics simulation.
+    * It samples the root orientation from the given ranges and sets them into the physics simulation.
+    * It samples the root velocity from the given ranges and sets them into the physics simulation.
+
+    The function takes a dictionary of pose and velocity ranges for each axis and rotation. The keys of the
+    dictionary are ``x``, ``y``, ``z``, ``roll``, ``pitch``, and ``yaw``. The values are tuples of the form
+    ``(min, max)``. If the dictionary does not contain a key, the position or velocity is set to zero for that axis.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: RigidObject | Articulation = env.scene[asset_cfg.name]
+    asset2: RigidObject | Articulation = env.scene[asset2_cfg.name]
+    asset3: RigidObject | Articulation = env.scene[asset3_cfg.name]
+    
+    # get default root state
+    root_states = asset.data.default_root_state[env_ids].clone()
+    root_states2 = asset2.data.default_root_state[env_ids].clone()
+    root_states3 = asset3.data.default_root_state[env_ids].clone()
+    # poses
+    range_list = [pose_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
+    ranges = torch.tensor(range_list, device=asset.device)
+    #print(f"ranges : {ranges}")
+    rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device)
+
+    positions = root_states[:, 0:3] + env.scene.env_origins[env_ids] + rand_samples[:, 0:3]
+    #print(f"positions : ", positions)
+    goal_pose = root_states3[:, 0:3] + env.scene.env_origins[env_ids] + rand_samples[:, 0:3]
+
+    orientations_delta = math_utils.quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
+    orientations = math_utils.quat_mul(root_states[:, 3:7], orientations_delta)
+    orientations2_delta = math_utils.quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
+    orientations2 = math_utils.quat_mul(root_states2[:, 3:7], orientations_delta)
+    orientations3_delta = math_utils.quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
+    orientations3 = math_utils.quat_mul(root_states3[:, 3:7], orientations_delta)
+    # velocities
+    range_list = [velocity_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
+    ranges = torch.tensor(range_list, device=asset.device)
+    rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device)
+
+    velocities = root_states[:, 7:13] + rand_samples
+    positions[:,2] += 0.06
+    # set into the physics simulation
+    asset.write_root_pose_to_sim(torch.cat([positions, orientations], dim=-1), env_ids=env_ids)
+    asset.write_root_velocity_to_sim(velocities, env_ids=env_ids)
+        # remote iks plate offset
+    positions[:,0] += 0.04
+    positions[:,2] -= 0.06
+    goal_pose[:,2]=0.0
+    asset2.write_root_pose_to_sim(torch.cat([positions, orientations2], dim=-1), env_ids=env_ids)
+    asset2.write_root_velocity_to_sim(velocities, env_ids=env_ids)
+    asset3.write_root_pose_to_sim(torch.cat([goal_pose, orientations3], dim=-1), env_ids=env_ids)
+
 
 def reset_root_state_with_random_orientation(
     env: ManagerBasedEnv,
@@ -1348,6 +1477,7 @@ def reset_scene_to_default(env: ManagerBasedEnv, env_ids: torch.Tensor, reset_jo
         # obtain default and deal with the offset for env origins
         default_root_state = rigid_object.data.default_root_state[env_ids].clone()
         default_root_state[:, 0:3] += env.scene.env_origins[env_ids]
+        #print(f"[RESET] Scene RESET, obj {rigid_object} orientation {default_root_state}")
         # set into the physics simulation
         rigid_object.write_root_pose_to_sim(default_root_state[:, :7], env_ids=env_ids)
         rigid_object.write_root_velocity_to_sim(default_root_state[:, 7:], env_ids=env_ids)
@@ -1566,12 +1696,7 @@ class randomize_visual_color(ManagerTermBase):
     """
 
     def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
-        """Initialize the randomization term.
-
-        Args:
-            cfg: The configuration of the event term.
-            env: The environment instance.
-        """
+        """Initialize the randomization term."""
         super().__init__(cfg, env)
 
         # enable replicator extension if not already enabled
@@ -1581,6 +1706,8 @@ class randomize_visual_color(ManagerTermBase):
 
         # read parameters from the configuration
         asset_cfg: SceneEntityCfg = cfg.params.get("asset_cfg")
+        colors = cfg.params.get("colors")
+        event_name = cfg.params.get("event_name")
         mesh_name: str = cfg.params.get("mesh_name", "")  # type: ignore
 
         # check to make sure replicate_physics is set to False, else raise error
@@ -1602,51 +1729,27 @@ class randomize_visual_color(ManagerTermBase):
         mesh_prim_path = f"{asset.cfg.prim_path}{mesh_name}"
         # TODO: Need to make it work for multiple meshes.
 
-        # extract the replicator version
-        version = re.match(r"^(\d+\.\d+\.\d+)", rep.__file__.split("/")[-5][21:]).group(1)
-
-        # use different path for different version of replicator
-        if compare_versions(version, "1.12.4") < 0:
-            colors = cfg.params.get("colors")
-            event_name = cfg.params.get("event_name")
-
-            # parse the colors into replicator format
-            if isinstance(colors, dict):
-                # (r, g, b) - low, high --> (low_r, low_g, low_b) and (high_r, high_g, high_b)
-                color_low = [colors[key][0] for key in ["r", "g", "b"]]
-                color_high = [colors[key][1] for key in ["r", "g", "b"]]
-                colors = rep.distribution.uniform(color_low, color_high)
-            else:
-                colors = list(colors)
-
-            # Create the omni-graph node for the randomization term
-            def rep_color_randomization():
-                prims_group = rep.get.prims(path_pattern=mesh_prim_path)
-                with prims_group:
-                    rep.randomizer.color(colors=colors)
-
-                return prims_group.node
-
-            # Register the event to the replicator
-            with rep.trigger.on_custom_event(event_name=event_name):
-                rep_color_randomization()
+        # parse the colors into replicator format
+        if isinstance(colors, dict):
+            # (r, g, b) - low, high --> (low_r, low_g, low_b) and (high_r, high_g, high_b)
+            color_low = [colors[key][0] for key in ["r", "g", "b"]]
+            color_high = [colors[key][1] for key in ["r", "g", "b"]]
+            colors = rep.distribution.uniform(color_low, color_high)
         else:
-            stage = get_current_stage()
-            prims_group = rep.functional.get.prims(path_pattern=mesh_prim_path, stage=stage)
+            colors = list(colors)
 
-            num_prims = len(prims_group)
-            self.color_rng = rep.rng.ReplicatorRNG()
+        # Create the omni-graph node for the randomization term
+        def rep_texture_randomization():
+            prims_group = rep.get.prims(path_pattern=mesh_prim_path)
 
-            # Create the material first and bind it to the prims
-            for i, prim in enumerate(prims_group):
-                # Disable instancble
-                if prim.IsInstanceable():
-                    prim.SetInstanceable(False)
+            with prims_group:
+                rep.randomizer.color(colors=colors)
 
-            # TODO: Should we specify the value when creating the material?
-            self.material_prims = rep.functional.create_batch.material(
-                mdl="OmniPBR.mdl", bind_prims=prims_group, count=num_prims, project_uvw=True
-            )
+            return prims_group.node
+
+        # Register the event to the replicator
+        with rep.trigger.on_custom_event(event_name=event_name):
+            rep_texture_randomization()
 
     def __call__(
         self,
@@ -1657,34 +1760,11 @@ class randomize_visual_color(ManagerTermBase):
         colors: list[tuple[float, float, float]] | dict[str, tuple[float, float]],
         mesh_name: str = "",
     ):
-        # note: This triggers the nodes for all the environments.
-        #   We need to investigate how to make it happen only for a subset based on env_ids.
-
-        # we import the module here since we may not always need the replicator
+        # import replicator
         import omni.replicator.core as rep
 
-        version = re.match(r"^(\d+\.\d+\.\d+)", rep.__file__.split("/")[-5][21:]).group(1)
-
-        # use different path for different version of replicator
-        if compare_versions(version, "1.12.4") < 0:
-            rep.utils.send_og_event(event_name)
-        else:
-            colors = colors if colors else self._cfg.params.get("colors")
-
-            # parse the colors into replicator format
-            if isinstance(colors, dict):
-                # (r, g, b) - low, high --> (low_r, low_g, low_b) and (high_r, high_g, high_b)
-                color_low = [colors[key][0] for key in ["r", "g", "b"]]
-                color_high = [colors[key][1] for key in ["r", "g", "b"]]
-                colors = [color_low, color_high]
-            else:
-                colors = list(colors)
-
-            num_prims = len(self.material_prims)
-            random_colors = self.color_rng.generator.uniform(colors[0], colors[1], size=(num_prims, 3))
-
-            rep.functional.modify.attribute(self.material_prims, "diffuse_color_constant", random_colors)
-
+        # only send the event to the replicator
+        rep.utils.send_og_event(event_name)
 
 """
 Internal helper functions.
